@@ -34,7 +34,6 @@ export const isValidPort = (port: number, existingPorts: number[]): string | nul
   return null;
 };
 
-
 export const validateFirewallRule = (rule: FirewallRule): string[] => {
   const errors: string[] = [];
 

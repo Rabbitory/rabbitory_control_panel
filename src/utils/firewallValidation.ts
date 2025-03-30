@@ -1,5 +1,3 @@
-import { FirewallRule } from "@/types/firewall";
-
 const COMMON_RABBITMQ_PORTS = [
   { name: "AMQP", port: 5672, desc: "Used for messaging between applications." },
   { name: "AMQPS", port: 5671, desc: "Secure version of AMQP." },
@@ -12,42 +10,51 @@ const COMMON_RABBITMQ_PORTS = [
   { name: "STREAM_SSL", port: 5551, desc: "SSL-secured streaming." },
 ];
 
-export const isValidIp = (ip: string): string | null => {
-  const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return ipRegex.test(ip) ? null : "Invalid IP address format.";
+export const isValidDescription = (description: string): boolean => {
+  if (!description) return true;
+
+  const validCharsRegex = /^[a-zA-Z0-9 ._\-:/()#,@\[\]+=;{}!$*]+$/;
+  if (description.length > 255 || !validCharsRegex.test(description)) {
+    return false;
+  }
+
+  return true;
 };
 
-export const isValidPort = (port: number, existingPorts: number[]): string | null => {
-  if (isNaN(port) || port < 1 || port > 65535) {
-    return "Port number must be between 1 and 65535.";
+export const isValidSourceIp = (ip: string): boolean => {
+  const cidrRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(3[0-2]|[12]?[0-9])$/;
+  return cidrRegex.test(ip);
+};
+
+export const formatCustomPorts = (portsInput: string): number[] => {
+  return portsInput
+    .split(",")
+    .map((port) => parseInt(port.trim(), 10))
+    .filter((port) => !isNaN(port));
+}
+
+export const isInRangeCustomPort = (portsInput: string): boolean => {
+  if (!portsInput.trim()) return true;
+  const portsArray = formatCustomPorts(portsInput);
+
+  for (let i = 0; i < portsArray.length; i += 1) {
+    const port = portsArray[i];
+    if (isNaN(port) || port < 1 || port > 65535) return false;
   }
 
-  const isCommonPort = COMMON_RABBITMQ_PORTS.some((commonPort) => commonPort.port === port);
-  if (isCommonPort) {
-    return `Port ${port} is already listed as a common port.`;
-  }
+  return true;
+};
 
-  if (existingPorts.includes(port)) {
-    return `Port ${port} is already added.`;
+export const isInCommonPortsCustomPort = (portsInput: string): number | null => {
+  if (!portsInput.trim()) return null;
+  const portsArray = formatCustomPorts(portsInput);
+
+  for (let i = 0; i < portsArray.length; i += 1) {
+    const port = portsArray[i];
+    if (COMMON_RABBITMQ_PORTS.some((commonPort) => commonPort.port === port)) {
+      return port;
+    } 
   }
 
   return null;
-};
-
-export const validateFirewallRule = (rule: FirewallRule): string[] => {
-  const errors: string[] = [];
-
-  if (!rule.description.trim()) {
-    errors.push("Description is required.");
-  }
-
-  const ipError = isValidIp(rule.sourceIp);
-  if (ipError) errors.push(ipError);
-
-  rule.otherPorts.forEach((port) => {
-    const portError = isValidPort(port, rule.otherPorts);
-    if (portError) errors.push(portError);
-  });
-
-  return errors;
 };

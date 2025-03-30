@@ -5,12 +5,17 @@ import axios from "axios";
 import React from "react";
 import { FirewallRule } from "@/types/firewall";
 import { Info } from "lucide-react";
-import { isValidIp, isValidPort, validateFirewallRule } from "@/utils/firewallValidation";
-
+import { 
+  isValidDescription, 
+  isValidSourceIp, 
+  isInRangeCustomPort,
+  formatCustomPorts
+} from "@/utils/firewallValidation";
 
 interface Params {
   name: string;
 }
+
 interface FirewallPageProps {
   params: Promise<Params>;
 }
@@ -30,6 +35,7 @@ const COMMON_PORTS = [
 export default function FirewallPage({ params }: FirewallPageProps) {
   const { name } = React.use(params);
   const [rules, setRules] = useState<FirewallRule[]>([]);
+  const [customPortValue, setCustomPortValue] = useState<string>("");
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -46,57 +52,96 @@ export default function FirewallPage({ params }: FirewallPageProps) {
         setIsFetching(false);
       }
     }
+
     fetchRules();
   }, [name]);
 
-  const handleInputChange = <K extends keyof FirewallRule>(
-    index: number,
-    field: K,
-    value: FirewallRule[K]
-  ) => {
+  const resetError = (errorMessage: string) => {
+    setErrors((prevErrors) => prevErrors.filter((error) => error !== errorMessage));
+  };
+  
+  const addError = (errorMessage: string) => {
+    setErrors((prevErrors) => {
+      if (!prevErrors.includes(errorMessage)) {
+        return [...prevErrors, errorMessage];
+      }
+      return prevErrors;
+    });
+  };
+
+  const handleDescriptionChange = (index: number, value: string) => {
     setRules((prevRules) => {
       const updatedRules = [...prevRules];
-      updatedRules[index] = { ...updatedRules[index], [field]: value };
+      updatedRules[index] = { ...updatedRules[index], description: value };
+  
+      const inputError = `Description must be 255 characters or fewer, and cannot contain the following characters: ^, ", ', %, &, <, >, |, \``
+      resetError(inputError);
+  
+      if (!isValidDescription(value)) {
+        addError(inputError);
+      }
+  
       return updatedRules;
     });
   };
-  
 
+  const handleSourceIpChange = (index: number, value: string) => {
+    setRules((prevRules) => {
+      const updatedRules = [...prevRules];
+      updatedRules[index] = { ...updatedRules[index], sourceIp: value };
+  
+      const inputError = "Invalid CIDR block format.";
+      resetError(inputError);
+  
+      if (!isValidSourceIp(value)) {
+        addError(inputError);
+      }
+  
+      return updatedRules;
+    });
+  };
+
+  const handleCustomPortsChange = (index: number, value: string) => {
+    setCustomPortValue(value);
+
+    const parsedPorts = formatCustomPorts(value);
+  
+    setRules((prevRules) => {
+      const updatedRules = [...prevRules];
+      updatedRules[index] = { ...updatedRules[index], otherPorts: parsedPorts };
+      return updatedRules;
+    });
+  
+    const portRangeError = "Ports must be between 1 and 65535.";
+    const portRepeatedError = "Port is already listed as a common port.";
+  
+    resetError(portRangeError);
+    resetError(portRepeatedError);
+  
+    if (!isInRangeCustomPort(value)) {
+      addError(portRangeError);
+    }
+  };
+  
   const handlePortToggle = (index: number, port: string) => {
     setRules((prevRules) => {
       return prevRules.map((rule, i) => {
         if (i !== index) {
           return rule;
         }
-  
+
         const isPortIncluded = rule.commonPorts.includes(port);
         let updatedPorts: string[];
-  
+
         if (isPortIncluded) {
           updatedPorts = rule.commonPorts.filter((p) => p !== port);
         } else {
           updatedPorts = [...rule.commonPorts, port];
         }
-  
+
         return { ...rule, commonPorts: updatedPorts };
       });
     });
-  };
-  
-  
-
-  const handleOtherPortsChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedRules = [...rules];
-    const parsePorts = (portsString: string) => {
-      return portsString
-        .split(",")
-        .map((port) => parseInt(port.trim(), 10))
-        .filter((port) => !isNaN(port));
-    };
-    const value = event.target.value;
-    const parsedPorts = value ? parsePorts(value) : [];
-    updatedRules[index].otherPorts = parsedPorts;
-    setRules(updatedRules);
   };
 
   const addRule = () => {
@@ -113,7 +158,8 @@ export default function FirewallPage({ params }: FirewallPageProps) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await axios.post(`/api/instances/${name}/firewall`, { rules });
+      // await axios.post(`/api/instances/${name}/firewall`, { rules });
+      console.log(rules);
       alert("Firewall rules updated successfully!");
     } catch (error) {
       console.error("Error saving rules:", error);
@@ -152,7 +198,7 @@ export default function FirewallPage({ params }: FirewallPageProps) {
                   <input
                     type="text"
                     value={rule.description}
-                    onChange={(e) => handleInputChange(index, "description", e.target.value)}
+                    onChange={(e) => handleDescriptionChange(index, e.target.value)}
                     className="w-full h-9 text-sm p-2 border rounded"
                   />
                 </div>
@@ -163,7 +209,7 @@ export default function FirewallPage({ params }: FirewallPageProps) {
                   <input
                     type="text"
                     value={rule.sourceIp}
-                    onChange={(e) => handleInputChange(index, "sourceIp", e.target.value)}
+                    onChange={(e) => handleSourceIpChange(index, e.target.value)}
                     className="w-full h-9 text-sm p-2 border rounded"
                   />
                 </div>
@@ -196,15 +242,15 @@ export default function FirewallPage({ params }: FirewallPageProps) {
                   </div>
                 </div>
   
-                {/* Other Ports */}
+                {/* Custom Ports */}
                 <div className="col-span-3">
-                  <label className="block text-xs text-gray-600 mb-1">Other Ports</label>
+                  <label className="block text-xs text-gray-600 mb-1">Custom Ports</label>
                   <div className="flex items-center space-x-2">
                     <input
                       type="text"
-                      placeholder="5671, 5672"
-                      value={rule.otherPorts.join(", ")}
-                      onChange={(e) => handleOtherPortsChange(index, e)}
+                      placeholder="5671, 8080"
+                      value={customPortValue}
+                      onChange={(e) => handleCustomPortsChange(index, e.target.value)}
                       className="w-full h-9 text-sm p-2 border rounded"
                     />
   
@@ -232,11 +278,22 @@ export default function FirewallPage({ params }: FirewallPageProps) {
           </button>
   
           {/* Save Button */}
-          <button onClick={handleSave} className="bg-green-500 text-white px-4 py-2 rounded hover:opacity-80 cursor-pointer">
-            Save
+          <button
+            onClick={handleSave}
+            disabled={errors.length > 0 || isSaving}  // Disable if there are errors or isSaving is true
+            className="bg-green-500 text-white px-4 py-2 rounded hover:opacity-80 cursor-pointer"
+          >
+            {isSaving ? (
+              <span className="flex items-center justify-center">
+                <div className="animate-spin border-2 border-t-2 border-white w-4 h-4 rounded-full mr-2"></div>
+                Saving...
+              </span>
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
       </form>
     </div>
-  );  
+  );
 }

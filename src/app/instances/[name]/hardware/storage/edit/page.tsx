@@ -5,9 +5,10 @@ import { useInstanceContext } from "../../../InstanceContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-export default function HardwarePage() {
-  const [currentVolumeSize, setCurrentVolumeSize] = useState<number>(0);
-  const [newVolumeSize, setNewVolumeSize] = useState<number>(0);
+export default function StorageEditPage() {
+  const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
+  const [newVolumeSize, setNewVolumeSize] = useState(0);
+  const [saving, setSaving] = useState(false);
   const { instance } = useInstanceContext();
   const router = useRouter();
 
@@ -42,6 +43,8 @@ export default function HardwarePage() {
       return;
     }
 
+    setSaving(true);
+
     try {
       await axios.put(`/api/instances/${instance?.name}/hardware/storage`, {
         instanceId: instance?.id,
@@ -49,9 +52,12 @@ export default function HardwarePage() {
         region: instance?.region,
         size: newVolumeSize,
       });
+      return true;
     } catch (error) {
+      setSaving(false);
       console.error(error);
       alert("Failed to update storage size");
+      return false;
     }
   };
 
@@ -62,31 +68,36 @@ export default function HardwarePage() {
       <div>
         <h1>Hardware</h1>
         <p>Current instance storage size:{` ${currentVolumeSize} GB`}</p>
-        <div className="flex items-center gap-4">
-          <label htmlFor="storageSize" className="text-xl text-gray-700 w-1/4">
-            Storage Size (GB):
-          </label>
-          <input
-            id="storageSize"
-            name="storageSize"
-            type="number"
-            value={newVolumeSize}
-            onChange={(e) => setNewVolumeSize(Number(e.target.value))}
-            className="w-3/4 p-2 border rounded-md text-xl"
-          />
-        </div>
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              updateStorageSize();
-              router.push(`/instances/${instance?.name}`);
-            }}
-            className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
-          >
-            Submit
-          </button>
-        </div>
+        <fieldset disabled={saving} className="space-y-4">
+          <div className="flex items-center gap-4">
+            <label
+              htmlFor="storageSize"
+              className="text-xl text-gray-700 w-1/4"
+            >
+              Storage Size (GB):
+            </label>
+            <input
+              id="storageSize"
+              name="storageSize"
+              type="number"
+              value={newVolumeSize}
+              onChange={(e) => setNewVolumeSize(Number(e.target.value))}
+              className="w-3/4 p-2 border rounded-md text-xl"
+            />
+          </div>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={async (e) => {
+                e.preventDefault();
+                const success = await updateStorageSize();
+                if (success) router.push(`/instances/${instance?.name}`);
+              }}
+              className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
+            >
+              {saving ? "Saving..." : "Submit"}
+            </button>
+          </div>
+        </fieldset>
       </div>
     </>
   );

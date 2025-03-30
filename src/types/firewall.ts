@@ -2,7 +2,7 @@ export interface FirewallRule {
   description: string;
   sourceIp: string;
   commonPorts: string[];
-  otherPorts: number[];
+  customPorts: string;  // Changed from number[] to string
 }
 
 export interface SecurityGroupRule {

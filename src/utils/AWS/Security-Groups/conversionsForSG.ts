@@ -59,13 +59,18 @@ export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): Secu
   const securityGroupRules: SecurityGroupRule[] = [];
 
   for (const rule of firewallRules) {
-    const { sourceIp, description, commonPorts, otherPorts } = rule;
+    const { sourceIp, description, commonPorts, customPorts } = rule;
+    const customPortArray = customPorts
+        .split(",")
+        .map((port) => port.trim())
+        .filter((port) => !isNaN(Number(port)));
+
     const allPorts = [
       ...commonPorts.map((service) =>
         Object.keys(PORT_SERVICE_MAP).find((port) => PORT_SERVICE_MAP[Number(port)] === service)
       ).map(Number), // Convert service names back to port numbers
-      ...otherPorts,
-    ].filter((port) => !isNaN(port)); // Remove any undefined values
+      ...customPortArray.map(Number), // Convert custom ports to numbers
+    ].filter((port) => !isNaN(port)); // Remove any undefined or invalid ports
 
     for (const port of allPorts) {
       securityGroupRules.push({
@@ -80,11 +85,43 @@ export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): Secu
   return securityGroupRules;
 }
 
+// export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]): FirewallRule[] {
+//   const firewallMap: Record<
+//     string,
+//     { description: string; commonPorts: string[]; customPorts: number[] }
+//   > = {};
+
+//   for (const rule of securityGroupRules) {
+//     const sourceIp = rule.IpRanges[0].CidrIp;
+//     const description = rule.IpRanges[0].Description || "";
+//     const port = rule.FromPort;
+
+//     if (!firewallMap[sourceIp]) {
+//       firewallMap[sourceIp] = { description, commonPorts: [], customPorts: [] };
+//     }
+
+//     if (PORT_SERVICE_MAP[port]) {
+//       firewallMap[sourceIp].commonPorts.push(PORT_SERVICE_MAP[port]);
+//     } else {
+//       firewallMap[sourceIp].customPorts.push(port);
+//     }
+//   }
+
+//   return Object.entries(firewallMap).map(([sourceIp, { description, commonPorts, customPorts }]) => ({
+//     sourceIp,
+//     description,
+//     commonPorts,
+//     customPorts: customPorts.join(", "),
+//   }));
+// }
+
 export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]): FirewallRule[] {
   const firewallMap: Record<
     string,
-    { description: string; commonPorts: string[]; otherPorts: number[] }
+    { description: string; commonPorts: string[]; customPorts: string[] }
   > = {};
+
+  const hiddenPorts = [80, 22, 15672]; // Ports to hide
 
   for (const rule of securityGroupRules) {
     const sourceIp = rule.IpRanges[0].CidrIp;
@@ -92,44 +129,24 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
     const port = rule.FromPort;
 
     if (!firewallMap[sourceIp]) {
-      firewallMap[sourceIp] = { description, commonPorts: [], otherPorts: [] };
+      firewallMap[sourceIp] = { description, commonPorts: [], customPorts: [] };
     }
 
     if (PORT_SERVICE_MAP[port]) {
       firewallMap[sourceIp].commonPorts.push(PORT_SERVICE_MAP[port]);
     } else {
-      firewallMap[sourceIp].otherPorts.push(port);
+      if (!hiddenPorts.includes(port)) {
+        firewallMap[sourceIp].customPorts.push(port.toString());
+      }
     }
   }
 
-  return Object.entries(firewallMap).map(([sourceIp, { description, commonPorts, otherPorts }]) => ({
+
+  return Object.entries(firewallMap).map(([sourceIp, { description, commonPorts, customPorts }]) => ({
     sourceIp,
     description,
     commonPorts,
-    otherPorts,
+    customPorts: customPorts.join(", "), 
   }));
 }
 
-// for my testing
-const uiFirewallRules: FirewallRule[] = [
-  {
-    sourceIp: "0.0.0.0/0",
-    description: "Public access",
-    commonPorts: ["AMQP", "MQTT", "HTTPS"], // Auto-mapped
-    otherPorts: [9001],
-  },
-  {
-    sourceIp: "10.1.0.0/16",
-    description: "Internal network",
-    commonPorts: ["AMQP"], // Auto-mapped
-    otherPorts: [8080, 9000],
-  },
-];
-
-// Convert UI → AWS
-const awsSecurityGroupRules = convertToSecurityGroupRules(uiFirewallRules);
-console.log("AWS Security Group Rules:", JSON.stringify(awsSecurityGroupRules, null, 2));
-
-// Convert AWS → UI
-const reconstructedUIRules = convertToUIFirewallRules(awsSecurityGroupRules);
-console.log("Reconstructed UI Firewall Rules:", JSON.stringify(reconstructedUIRules, null, 2));

@@ -1,17 +1,8 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextResponse } from "next/server";
-<<<<<<< HEAD
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-import {
-  SSMClient,
-  SendCommandCommand,
-  GetCommandInvocationCommand,
-} from "@aws-sdk/client-ssm";
-=======
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import { validateConfiguration } from "@/utils/validateConfig";
->>>>>>> main
 import parseConfig from "@/utils/parseConfig";
 
 const ec2Client = new EC2Client({ region: process.env.REGION });

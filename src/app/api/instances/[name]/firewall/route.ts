@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getInstanceSGRules } from "@/utils/AWS/Security-Groups/getInstanceSGRules";
 import { getInstanceAvailabilityZone } from "@/utils/AWS/EC2/getInstanceAvailabilityZone";
 import { 
-  convertToSecurityGroupRules, 
+  // convertToSecurityGroupRules, 
   convertToUIFirewallRules,
   convertIpPermissionsToSecurityGroupRules
 } from "@/utils/AWS/Security-Groups/conversionsForSG";

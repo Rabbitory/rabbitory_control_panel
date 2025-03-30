@@ -1,13 +1,10 @@
-import React from 'react';
-import NavLayout from "@/app/components/NavLayout";
-
-interface Params {
-  name: string;
-}
+import { ReactNode } from "react";
+import { InstanceProvider } from "./InstanceContext";
+import { InstanceContent } from "@/app/components/InstanceContent";
 
 interface InstanceLayoutProps {
-  children: React.ReactNode;
-  params: Promise<Params>;
+  children: ReactNode;
+  params: Promise<{ name: string }>;
 }
 
 export default async function InstanceLayout({
@@ -18,13 +15,9 @@ export default async function InstanceLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar (NavLayout) */}
-      <NavLayout name={name} />
-
-      {/* Main content section */}
-      <section className="flex-1 max-w-7xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
-        {children}
-      </section>
+      <InstanceProvider>
+        <InstanceContent name={name}>{children}</InstanceContent>
+      </InstanceProvider>
     </div>
   );
 }

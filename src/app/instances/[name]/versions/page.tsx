@@ -3,28 +3,24 @@ import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import styles from "./VersionsPage.module.css";
-
-interface Params {
-  name: string;
-}
-interface VersionsPageProps {
-  params: Promise<Params>;
-}
+import { useInstanceContext } from "../InstanceContext";
 
 interface Version {
   rabbitmq: string;
   erlang: string;
 }
 
-export default function VersionsPage({ params }: VersionsPageProps) {
-  const { name } = React.use(params);
+export default function VersionsPage() {
+  const { instance } = useInstanceContext();
   const [versions, setVersions] = useState<Version | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {
     const fetchVersions = async () => {
       setIsFetching(true);
       try {
-        const response = await axios.get(`/api/instances/${name}/versions`);
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/versions`,
+        );
         console.log(response.data);
         setVersions({
           rabbitmq: response.data.rabbitmq_version,
@@ -38,7 +34,7 @@ export default function VersionsPage({ params }: VersionsPageProps) {
     };
 
     fetchVersions();
-  }, [name]);
+  }, [instance?.name]);
   return (
     <>
       {isFetching ? (

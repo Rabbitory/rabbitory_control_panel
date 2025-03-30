@@ -13,18 +13,35 @@ export default function NavLayout({ name }: NavLayoutProps) {
       </h1>
       <ul>
         <li className="mb-4">
-          <Link href={`/instances/${name}/plugins`} className="text-gray-700 text-xl hover:text-black">
+          <Link
+            href={`/instances/${name}/plugins`}
+            className="text-gray-700 text-xl hover:text-black"
+          >
             Plugins
           </Link>
         </li>
         <li className="mb-4">
-          <Link href={`/instances/${name}/versions`} className="text-gray-700 text-xl hover:text-black">
+          <Link
+            href={`/instances/${name}/versions`}
+            className="text-gray-700 text-xl hover:text-black"
+          >
             Versions
           </Link>
         </li>
         <li className="mb-4">
-          <Link href={`/instances/${name}/configuration`} className="text-gray-700 text-xl hover:text-black">
+          <Link
+            href={`/instances/${name}/configuration`}
+            className="text-gray-700 text-xl hover:text-black"
+          >
             Configuration
+          </Link>
+        </li>
+        <li className="mb-4">
+          <Link
+            href={`/instances/${name}/hardware`}
+            className="text-gray-700 text-xl hover:text-black"
+          >
+            Hardware
           </Link>
         </li>
         <li className="mb-4">

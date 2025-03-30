@@ -17,7 +17,9 @@ export default function NewFormPage() {
   const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
   const [instantiating, setInstantiating] = useState(false);
   const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
-  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
+  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
+    [],
+  );
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -51,7 +53,9 @@ export default function NewFormPage() {
 
   const handleSubmit = async (formData: FormData) => {
     if (!isValidName(instanceName)) {
-      alert("Instance name must be 3-64 characters long with valid characters.");
+      alert(
+        "Instance name must be 3-64 characters long with valid characters.",
+      );
       setInstantiating(false);
       return;
     }
@@ -78,17 +82,19 @@ export default function NewFormPage() {
     }
   };
 
-  const handleGenerate = (e: { preventDefault: () => void; }) => {
+  const handleGenerate = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setInstanceName(generateName());
   };
 
   const isValidName = (name: string) => /^[a-z0-9-_]{3,64}$/i.test(name);
-  const isValidStorageSize = (size: number) => size >= 1 && size <= 10000;
+  const isValidStorageSize = (size: number) => size >= 1 && size <= 16000;
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">Create Instance</h1>
+      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">
+        Create Instance
+      </h1>
       {loading ? (
         <p className="text-gray-600">Loading...</p>
       ) : (
@@ -101,7 +107,10 @@ export default function NewFormPage() {
         >
           <fieldset disabled={instantiating} className="space-y-4">
             <div className="flex items-center gap-4">
-              <label htmlFor="instanceName" className="text-xl text-gray-700 w-1/4">
+              <label
+                htmlFor="instanceName"
+                className="text-xl text-gray-700 w-1/4"
+              >
                 Instance Name:
               </label>
               <div className="flex gap-2 w-3/4">
@@ -111,7 +120,7 @@ export default function NewFormPage() {
                   type="text"
                   value={instanceName}
                   onChange={(e) => setInstanceName(e.target.value)}
-                  className={`w-9/16 p-2 border rounded-md text-xl ${!isValidName(instanceName) ? 'border-red-500 text-red-500' : 'border-gray-300'}`}
+                  className={`w-9/16 p-2 border rounded-md text-xl ${!isValidName(instanceName) ? "border-red-500 text-red-500" : "border-gray-300"}`}
                 />
                 <button
                   type="button"
@@ -122,7 +131,7 @@ export default function NewFormPage() {
                 </button>
               </div>
             </div>
-  
+
             <div className="flex items-center gap-4">
               <label htmlFor="region" className="text-xl text-gray-700 w-1/4">
                 Region:
@@ -140,9 +149,12 @@ export default function NewFormPage() {
                 ))}
               </select>
             </div>
-  
+
             <div className="flex items-center gap-4">
-              <label htmlFor="instanceType" className="text-xl text-gray-700 w-1/4">
+              <label
+                htmlFor="instanceType"
+                className="text-xl text-gray-700 w-1/4"
+              >
                 Instance Type:
               </label>
               <select
@@ -160,9 +172,12 @@ export default function NewFormPage() {
                 ))}
               </select>
             </div>
-  
+
             <div className="flex items-center gap-4">
-              <label htmlFor="instanceSize" className="text-xl text-gray-700 w-1/4">
+              <label
+                htmlFor="instanceSize"
+                className="text-xl text-gray-700 w-1/4"
+              >
                 Instance Size:
               </label>
               <select
@@ -179,9 +194,12 @@ export default function NewFormPage() {
                 ))}
               </select>
             </div>
-  
+
             <div className="flex items-center gap-4">
-              <label htmlFor="storageSize" className="text-xl text-gray-700 w-1/4">
+              <label
+                htmlFor="storageSize"
+                className="text-xl text-gray-700 w-1/4"
+              >
                 Storage Size (GB):
               </label>
               <input
@@ -192,7 +210,7 @@ export default function NewFormPage() {
                 className="w-3/4 p-2 border rounded-md text-xl"
               />
             </div>
-  
+
             <div className="flex items-center gap-4">
               <label htmlFor="username" className="text-xl text-gray-700 w-1/4">
                 Username:
@@ -204,7 +222,7 @@ export default function NewFormPage() {
                 className="w-3/4 p-2 border rounded-md text-xl"
               />
             </div>
-  
+
             <div className="flex items-center gap-4">
               <label htmlFor="password" className="text-xl text-gray-700 w-1/4">
                 Password:
@@ -216,10 +234,10 @@ export default function NewFormPage() {
                 className="w-3/4 p-2 border rounded-md mb-6 text-xl"
               />
             </div>
-  
+
             {/* Dividing Line */}
             <div className="border-t border-gray-300 my-6"></div>
-  
+
             {/* Button Container */}
             <div className="flex justify-end gap-4">
               <Link
@@ -238,12 +256,9 @@ export default function NewFormPage() {
           </fieldset>
         </Form>
       )}
-      {instantiating && <p className="text-green-500 mt-4">Creating instance...</p>}
+      {instantiating && (
+        <p className="text-green-500 mt-4">Creating instance...</p>
+      )}
     </div>
   );
-  
-  
-  
-  
-  
 }

@@ -1,4 +1,3 @@
-// types.ts
 export interface Plugin {
   name: string;
   description: string;

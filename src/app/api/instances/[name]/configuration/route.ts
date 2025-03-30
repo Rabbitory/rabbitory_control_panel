@@ -8,7 +8,7 @@ import parseConfig from "@/utils/parseConfig";
 const ec2Client = new EC2Client({ region: process.env.REGION });
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ name: string }> }
 ) {
   const { name: instanceName } = await params;

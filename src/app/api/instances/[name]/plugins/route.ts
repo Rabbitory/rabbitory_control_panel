@@ -1,11 +1,8 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextResponse } from "next/server";
-<<<<<<< HEAD
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-=======
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
->>>>>>> main
+
 import axios from "axios";
 
 const ec2Client = new EC2Client({ region: process.env.REGION });

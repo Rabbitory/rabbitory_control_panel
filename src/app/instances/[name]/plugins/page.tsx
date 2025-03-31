@@ -34,7 +34,7 @@ export default function PluginsPage() {
     };
 
     fetchPlugins();
-  }, [instance?.name]);
+  }, [instance?.name, instance?.user, instance?.password]);
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,

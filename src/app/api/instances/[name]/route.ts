@@ -1,7 +1,7 @@
-import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
+import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextResponse } from "next/server";
 import { fetchFromDynamoDB } from "@/utils/dynamoDBUtils";
-import { encrypt, decrypt } from "@/utils/encrypt";
+import { decrypt } from "@/utils/encrypt";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 
 const ec2Client = new EC2Client({ region: process.env.REGION });

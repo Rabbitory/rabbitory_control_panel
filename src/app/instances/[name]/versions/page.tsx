@@ -40,7 +40,7 @@ export default function VersionsPage() {
     };
 
     fetchVersions();
-  }, [instance?.name]);
+  }, [instance?.name, instance?.user, instance?.password]);
   return (
     <>
       {isFetching ? (

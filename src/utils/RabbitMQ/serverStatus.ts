@@ -5,7 +5,7 @@ import {
   EC2Client,
   DescribeInstancesCommand,
 } from "@aws-sdk/client-ec2";
-import { encrypt, decrypt } from "../encrypt";
+import { encrypt } from "../encrypt";
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,

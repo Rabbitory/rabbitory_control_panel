@@ -48,7 +48,7 @@ export const fetchFromDynamoDB = async (
     console.log("Item fetched successfully!");
     return response;
   } catch (err) {
-    console.error("Error fetching item, item not found");
+    console.error("Error fetching item, item not found", err);
     throw new Error("Failed to fetch data from DynamoDB");
   }
 };

@@ -36,9 +36,12 @@ it("returns enabled plugins when instance is found and axios call succeeds", asy
     url: "/api/instances/test-instance/plugins",
   });
 
-  (req as any).headers = new Headers({
-    "x-rabbitmq-username": "testuser",
-    "x-rabbitmq-password": "testpassword",
+  Object.defineProperty(req, "headers", {
+    value: new Headers({
+      "x-rabbitmq-username": "testuser",
+      "x-rabbitmq-password": "testpassword",
+    }),
+    configurable: true,
   });
   const params = Promise.resolve({ name: "test-instance" });
 

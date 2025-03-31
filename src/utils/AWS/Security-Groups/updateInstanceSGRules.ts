@@ -10,68 +10,54 @@ import { fetchInstance } from "../EC2/fetchInstance";
 // Define AWS region
 const ec2Client = new EC2Client({ region: "us-east-1" }); // Change to your region
 
-// Function to update security group rules
-// export async function updateInstanceSGRules(instanceId: string, newRules: SecurityGroupRule[]) {
-//   const securityGroupId = await getSecurityGroupId(instanceId);
-//   if (!securityGroupId) {
-//     console.error("No security group found for instance:", instanceId);
-//     return;
-//   }
+const getSecurityGroupId = async (instanceName: string): Promise<string> => {
+  try {
+    const instance = await fetchInstance(instanceName, ec2Client);
 
-//   try {
-//     // Step 1: Add the new rules first
-//     await ec2Client.send(new AuthorizeSecurityGroupIngressCommand({
-//       GroupId: securityGroupId,
-//       IpPermissions: newRules,
-//     }));
+    if (!instance) {
+      throw new Error(`No instance found with the name: ${instanceName}`);
+    }
 
-//     console.log("New security group rules added successfully.");
+    const securityGroupId = instance.SecurityGroups?.[0]?.GroupId;
 
-//     // Step 2: Revoke old rules only after adding new ones
-//     await ec2Client.send(new RevokeSecurityGroupIngressCommand({
-//       GroupId: securityGroupId,
-//       IpPermissions: [], // Empty array revokes all rules
-//     }));
+    if (!securityGroupId) {
+      throw new Error(`No security group found for instance: ${instanceName}`);
+    }
 
-//     console.log("All old security group rules revoked.");
-//   } catch (error) {
-//     console.error("Error updating security group rules:", error);
-//   }
-// }
-
-
-export async function updateInstanceSGRules(instanceName: string, newRules: SecurityGroupRule[]) {
-  const instance = await fetchInstance(instanceName, ec2Client);
-
-  if (!instance) {
-    console.error(`No instance found with the name: ${instanceName}`);
-    return;
+    return securityGroupId;
+  } catch (error) {
+    throw error;
   }
+}
 
-  // Retrieve the security group ID from the first security group in the instance
-  const securityGroupId = instance.SecurityGroups?.[0]?.GroupId;
-
-  if (!securityGroupId) {
-    console.error(`No security group found for instance: ${instanceName}`);
-    return;
-  }
+export const updateInstanceSGRules = async (
+  instanceName: string,
+  rulesToAdd: SecurityGroupRule[],
+  rulesToRemove: SecurityGroupRule[]
+) => {
 
   try {
-    // Step 1: Add the new rules first
-    await ec2Client.send(new AuthorizeSecurityGroupIngressCommand({
-      GroupId: securityGroupId,
-      IpPermissions: newRules,
-    }));
+    const securityGroupId = await getSecurityGroupId(instanceName);
 
-    console.log("New security group rules added successfully.");
+    // Step 1: Remove the dropped rules
+    if (rulesToRemove.length > 0) {
+      await ec2Client.send(new RevokeSecurityGroupIngressCommand({
+        GroupId: securityGroupId,
+        IpPermissions: rulesToRemove,
+      }));
 
-    // Step 2: Revoke old rules only after adding new ones
-    await ec2Client.send(new RevokeSecurityGroupIngressCommand({
-      GroupId: securityGroupId,
-      IpPermissions: [], // Empty array revokes all rules
-    }));
+      console.log("Old security group rules removed successfully.");
+    }
 
-    console.log("All old security group rules revoked.");
+    // Step 2: Add the new rules
+    if (rulesToAdd.length > 0) {
+      await ec2Client.send(new AuthorizeSecurityGroupIngressCommand({
+        GroupId: securityGroupId,
+        IpPermissions: rulesToAdd,
+      }));
+
+      console.log("New security group rules added successfully.");
+    }
   } catch (error) {
     console.error("Error updating security group rules:", error);
   }

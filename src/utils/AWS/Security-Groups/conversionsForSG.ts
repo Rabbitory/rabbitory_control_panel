@@ -132,3 +132,46 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
     customPorts: customPorts.join(", "), 
   }));
 }
+
+// export function parseRules(oldRules: SecurityGroupRule[], newRules: SecurityGroupRule[]) {
+
+
+//   return {
+//     rulesToAdd: {},
+//     rulesToRemove: {}
+//   }
+// }
+
+export function compareAndFilterRules(
+  oldRules: SecurityGroupRule[], 
+  newRules: SecurityGroupRule[]
+) {
+
+  const ruleEquals = (rule1: SecurityGroupRule, rule2: SecurityGroupRule) => {
+    // Compare the protocol, port ranges, and IP ranges
+    return (
+      rule1.IpProtocol === rule2.IpProtocol &&
+      rule1.FromPort === rule2.FromPort &&
+      rule1.ToPort === rule2.ToPort &&
+      rule1.IpRanges.length === rule2.IpRanges.length &&
+      rule1.IpRanges.every((range, index) => 
+        range.CidrIp === rule2.IpRanges[index].CidrIp &&
+        range.Description === rule2.IpRanges[index].Description
+      )
+    );
+  };
+
+  // Determine which rules are new and which are removed
+  const rulesToAdd = newRules.filter(newRule => 
+    !oldRules.some(oldRule => ruleEquals(newRule, oldRule))
+  );
+
+  const rulesToRemove = oldRules.filter(oldRule => 
+    !newRules.some(newRule => ruleEquals(oldRule, newRule))
+  );
+
+  return {
+    rulesToAdd,
+    rulesToRemove
+  };
+}

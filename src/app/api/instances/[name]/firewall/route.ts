@@ -6,7 +6,9 @@ import {
   convertToUIFirewallRules,
   convertIpPermissionsToSecurityGroupRules
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
-import { IpPermission } from "@aws-sdk/client-ec2";
+import { IpPermission, SecurityGroupRule } from "@aws-sdk/client-ec2";
+
+let currentSGRules: SecurityGroupRule[] = [];
 
 export async function GET( _request: Request, { params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
@@ -20,7 +22,10 @@ export async function GET( _request: Request, { params }: { params: Promise<{ na
     }
 
     const ipPermissions: IpPermission[] = instanceSGRules.IpPermissions
-    const sgRules = convertIpPermissionsToSecurityGroupRules(ipPermissions);    
+    const sgRules = convertIpPermissionsToSecurityGroupRules(ipPermissions);
+    
+    currentSGRules = sgRules;
+
     const uiFirewallRules = convertToUIFirewallRules(sgRules);
     return NextResponse.json(uiFirewallRules);
   } catch (error) {
@@ -37,13 +42,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ name
   console.log("Instance name:", name);
   console.log("Firewall Rules:", rules)
 
-  const sgRules = convertToSecurityGroupRules(rules);
-  console.log("Security Group Rule Format:", sgRules);
-  sgRules.forEach(rule => {
-    console.log("cidr blocks");
-    const cidr = rule.IpRanges[0];
-    console.log(cidr);
-  })
+  const newSGRules = convertToSecurityGroupRules(rules);
+
+  
+
 
   return NextResponse.json({ message: "Sent a rules response"});
 }

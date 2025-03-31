@@ -52,12 +52,9 @@ export default function ConfigurationPage() {
     setIsSaving(true);
     try {
       const response = await axios.post(
-        `/api/instances/${instance?.name}/configuration`,
+        `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
         {
-          configuration: {
-            ...configuration,
-            region: instance?.region,
-          },
+          configuration,
         },
       );
       //console.log(response.data);

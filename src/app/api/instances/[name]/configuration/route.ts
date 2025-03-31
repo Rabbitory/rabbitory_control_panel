@@ -56,18 +56,22 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ name: string }> },
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
   const { name: instanceName } = await params;
+
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 },
+    );
+  }
+
+  const ec2Client = new EC2Client({ region });
 
   const { configuration: newConfig } = (await request.json()) as {
     configuration: Record<string, string>;
   };
-
-  if (newConfig.region === null) {
-    NextResponse.json(
-      { message: "Invalid configuration, needs region" },
-      { status: 400 },
-    );
-  }
 
   const { valid, errors } = validateConfiguration(newConfig);
   if (!valid) {
@@ -77,9 +81,6 @@ export async function POST(
       { status: 400 },
     );
   }
-
-  const region = newConfig.region;
-  const ec2Client = new EC2Client({ region });
 
   const commands: string[] = [];
   for (const [key, value] of Object.entries(newConfig)) {

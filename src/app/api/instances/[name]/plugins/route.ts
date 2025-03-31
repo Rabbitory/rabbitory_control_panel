@@ -99,7 +99,7 @@ export async function POST(
   commands.push("systemctl restart rabbitmq-server");
 
   try {
-    await runSSMCommands(instanceId!, commands, process.env.REGION!);
+    await runSSMCommands(instanceId!, commands, region!);
     return NextResponse.json({
       message: "Plugin update successful",
     });

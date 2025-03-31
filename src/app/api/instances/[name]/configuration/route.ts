@@ -36,7 +36,7 @@ export async function GET(
     const fileContent = await runSSMCommands(
       instanceId!,
       ["cat /etc/rabbitmq/rabbitmq.conf"],
-      process.env.REGION!,
+      region!,
     );
 
     const config: Record<string, string> = {};
@@ -105,11 +105,7 @@ export async function POST(
   const instanceId = instance.InstanceId;
   try {
     // Run all commands using our shared function.
-    const output = await runSSMCommands(
-      instanceId!,
-      commands,
-      process.env.REGION!,
-    );
+    const output = await runSSMCommands(instanceId!, commands, region!);
 
     const parts = output.split("__CONFIG_START__");
     const configData = parts.length > 1 ? parts[1] : output;

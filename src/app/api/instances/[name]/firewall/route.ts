@@ -1,32 +1,18 @@
 import { NextResponse } from "next/server";
-import { getInstanceSGRules } from "@/utils/AWS/Security-Groups/getInstanceSGRules";
-import { getInstanceAvailabilityZone } from "@/utils/AWS/EC2/getInstanceAvailabilityZone";
+import { getCurrentSecurityGroupRules } from "@/utils/AWS/Security-Groups/getCurrentSecurityGroupRules";
 import { 
   convertToSecurityGroupRules, 
   convertToUIFirewallRules,
-  convertIpPermissionsToSecurityGroupRules
+  getRulesToAddAndRemove
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
-import { IpPermission, SecurityGroupRule } from "@aws-sdk/client-ec2";
 
-let currentSGRules: SecurityGroupRule[] = [];
 
 export async function GET( _request: Request, { params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
 
   try {
-    const instanceName = name;
-    const region = await getInstanceAvailabilityZone(instanceName); // FIX - IF REGION PASSING CHANGES
-    const instanceSGRules = await getInstanceSGRules(instanceName, region);
-    if (!instanceSGRules?.IpPermissions) {
-      throw new Error("IpPermissions for security group not found.");
-    }
-
-    const ipPermissions: IpPermission[] = instanceSGRules.IpPermissions
-    const sgRules = convertIpPermissionsToSecurityGroupRules(ipPermissions);
-    
-    currentSGRules = sgRules;
-
-    const uiFirewallRules = convertToUIFirewallRules(sgRules);
+    const currentSGRules = await getCurrentSecurityGroupRules(name);
+    const uiFirewallRules = convertToUIFirewallRules(currentSGRules);
     return NextResponse.json(uiFirewallRules);
   } catch (error) {
     console.error("Error fetching firewall rules:", error);
@@ -38,14 +24,14 @@ export async function GET( _request: Request, { params }: { params: Promise<{ na
 export async function PUT(request: Request, { params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
   const { rules } = await request.json();
-  // add back in hidden ports: 80, 22, 15672 (don't allow user to toggle off through ui)
-  console.log("Instance name:", name);
-  console.log("Firewall Rules:", rules)
-
+  const currentSGRules = await getCurrentSecurityGroupRules(name);
   const newSGRules = convertToSecurityGroupRules(rules);
 
-  
-
+  const { rulesToAdd, rulesToRemove } = getRulesToAddAndRemove(currentSGRules, newSGRules);
+  console.log("\nOld rules:", currentSGRules);
+  console.log("\nNew Rules:", newSGRules);
+  console.log("\nRules to Add:", rulesToAdd);
+  console.log("\nRules to Remove:", rulesToRemove);
 
   return NextResponse.json({ message: "Sent a rules response"});
 }

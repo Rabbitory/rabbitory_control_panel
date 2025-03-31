@@ -1,5 +1,5 @@
 import { EC2Client, DescribeSecurityGroupsCommand } from "@aws-sdk/client-ec2";
-import { getInstanceSGRules } from "./getInstanceSGRules";
+import { getInstanceSGRules } from "./getCurrentSecurityGroupRules";
 import { fetchInstance } from "../EC2/fetchInstance";
 
 jest.mock("../EC2/fetchInstance", () => ({

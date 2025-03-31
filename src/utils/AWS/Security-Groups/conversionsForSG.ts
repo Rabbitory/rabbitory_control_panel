@@ -20,34 +20,40 @@ export function convertIpPermissionsToSecurityGroupRules(ipPermissions: IpPermis
     throw new Error("IpPermissions is undefined or empty.");
   }
 
-  const sgRules = ipPermissions.map((permission) => {
-    if (permission?.FromPort === undefined || permission?.ToPort === undefined) {
-      throw new Error("Missing required fields: FromPort or ToPort.");
-    }
+  const hiddenPorts = [80, 22, 15672]; // Ports to hide
 
-    const IpProtocol = permission?.IpProtocol ?? "tcp";
-
-    if (IpProtocol === undefined) {
-      throw new Error("Missing required field: IpProtocol.");
-    }
-
-    const IpRanges = (permission?.IpRanges || []).map((range) => {
-      if (!range.CidrIp) {
-        throw new Error("CidrIp is required in IpRange.");
+  const sgRules = ipPermissions
+    .filter(permission => 
+      !(permission?.FromPort && permission?.ToPort && hiddenPorts.includes(permission.FromPort))
+    ) // Exclude hidden ports
+    .map((permission) => {
+      if (permission?.FromPort === undefined || permission?.ToPort === undefined) {
+        throw new Error("Missing required fields: FromPort or ToPort.");
       }
+
+      const IpProtocol = permission?.IpProtocol ?? "tcp";
+
+      if (IpProtocol === undefined) {
+        throw new Error("Missing required field: IpProtocol.");
+      }
+
+      const IpRanges = (permission?.IpRanges || []).map((range) => {
+        if (!range.CidrIp) {
+          throw new Error("CidrIp is required in IpRange.");
+        }
+        return {
+          CidrIp: range.CidrIp,
+          Description: range.Description,
+        };
+      });
+
       return {
-        CidrIp: range.CidrIp,
-        Description: range.Description,
+        IpProtocol,
+        FromPort: permission.FromPort,
+        ToPort: permission.ToPort,
+        IpRanges,
       };
     });
-
-    return {
-      IpProtocol,
-      FromPort: permission?.FromPort,
-      ToPort: permission?.ToPort,
-      IpRanges,
-    };
-  });
 
   return sgRules;
 }
@@ -133,22 +139,12 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
   }));
 }
 
-// export function parseRules(oldRules: SecurityGroupRule[], newRules: SecurityGroupRule[]) {
-
-
-//   return {
-//     rulesToAdd: {},
-//     rulesToRemove: {}
-//   }
-// }
-
-export function compareAndFilterRules(
+export function getRulesToAddAndRemove(
   oldRules: SecurityGroupRule[], 
   newRules: SecurityGroupRule[]
 ) {
 
-  const ruleEquals = (rule1: SecurityGroupRule, rule2: SecurityGroupRule) => {
-    // Compare the protocol, port ranges, and IP ranges
+  const isSameRule = (rule1: SecurityGroupRule, rule2: SecurityGroupRule) => {
     return (
       rule1.IpProtocol === rule2.IpProtocol &&
       rule1.FromPort === rule2.FromPort &&
@@ -161,13 +157,12 @@ export function compareAndFilterRules(
     );
   };
 
-  // Determine which rules are new and which are removed
   const rulesToAdd = newRules.filter(newRule => 
-    !oldRules.some(oldRule => ruleEquals(newRule, oldRule))
+    !oldRules.some(oldRule => isSameRule(newRule, oldRule))
   );
 
   const rulesToRemove = oldRules.filter(oldRule => 
-    !newRules.some(newRule => ruleEquals(oldRule, newRule))
+    !newRules.some(newRule => isSameRule(oldRule, newRule))
   );
 
   return {

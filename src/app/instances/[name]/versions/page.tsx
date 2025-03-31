@@ -19,7 +19,7 @@ export default function VersionsPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/versions`,
+          `/api/instances/${instance?.name}/versions?region=${instance?.region}`,
           {
             headers: {
               "x-rabbitmq-username": instance?.user,
@@ -40,7 +40,7 @@ export default function VersionsPage() {
     };
 
     fetchVersions();
-  }, [instance?.name, instance?.user, instance?.password]);
+  }, [instance?.name, instance?.user, instance?.password, instance?.region]);
   return (
     <>
       {isFetching ? (

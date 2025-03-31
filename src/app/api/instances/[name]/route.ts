@@ -1,17 +1,24 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
-import { NextResponse } from "next/server";
+import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import { fetchFromDynamoDB } from "@/utils/dynamoDBUtils";
 import { decrypt } from "@/utils/encrypt";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
-
-const ec2Client = new EC2Client({ region: process.env.REGION });
+import { NextRequest, NextResponse } from "next/server";
 
 // Use NextRequest type and properly handle params
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ name: string }> }
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 }
+    );
+  }
   const { name: instanceName } = await params;
+  const ec2Client = new EC2Client({ region });
   const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance || !instance.InstanceId) {
     return NextResponse.json(

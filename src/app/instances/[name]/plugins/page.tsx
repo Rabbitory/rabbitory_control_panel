@@ -16,7 +16,7 @@ export default function PluginsPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/plugins`,
+          `/api/instances/${instance?.name}/plugins?region=${instance?.region}`,
           {
             headers: {
               "x-rabbitmq-username": instance?.user,
@@ -34,7 +34,7 @@ export default function PluginsPage() {
     };
 
     fetchPlugins();
-  }, [instance?.name, instance?.user, instance?.password]);
+  }, [instance?.name, instance?.user, instance?.password, instance?.region]);
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -52,10 +52,13 @@ export default function PluginsPage() {
     setIsSaving(true);
 
     try {
-      await axios.post(`/api/instances/${instance?.name}/plugins`, {
-        name: pluginName,
-        enabled: newValue,
-      });
+      await axios.post(
+        `/api/instances/${instance?.name}/plugins?region=${instance?.region}`,
+        {
+          name: pluginName,
+          enabled: newValue,
+        }
+      );
       console.log(`${pluginName} updated successfully to ${newValue}`);
     } catch (error) {
       console.error(`Error updating ${pluginName}:`, error);

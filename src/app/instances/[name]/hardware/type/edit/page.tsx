@@ -54,7 +54,7 @@ export default function HardwarePage() {
       region: instance?.region,
     });
 
-    router.push(`/instances/${instance?.name}`);
+    router.push(`/instances/${instance?.name}?region=${instance?.region}`);
   };
 
   if (loading) return <div>Loading...</div>;

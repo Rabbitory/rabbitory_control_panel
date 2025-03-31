@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import NavLayout from "@/app/components/NavLayout";
 import styles from "../instances/[name]/InstanceLayout.module.css";
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
@@ -16,12 +17,16 @@ export function InstanceContent({
 }) {
   const { setInstance } = useInstanceContext();
   const [isFetching, setIsFetching] = useState(true);
+  const searchParams = useSearchParams();
+  const region = searchParams.get("region");
 
   useEffect(() => {
     const fetchInstance = async () => {
       setIsFetching(true);
       try {
-        const response = await axios.get<Instance>(`/api/instances/${name}`);
+        const response = await axios.get<Instance>(
+          `/api/instances/${name}?region=${region}`,
+        );
         setInstance(response.data);
       } catch (error) {
         console.error("Error fetching instance:", error);
@@ -31,7 +36,7 @@ export function InstanceContent({
     };
 
     fetchInstance();
-  }, [name, setInstance]);
+  }, [name, setInstance, region]);
 
   if (isFetching) {
     return <div>Loading...</div>;

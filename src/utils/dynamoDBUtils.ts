@@ -1,5 +1,9 @@
 import { DynamoDBClient, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import {
+  PutCommand,
+  DynamoDBDocumentClient,
+  GetCommand,
+} from "@aws-sdk/lib-dynamodb";
 
 interface data {
   [key: string]: string;
@@ -24,9 +28,30 @@ export const storeToDynamoDB = async (tableName: string, data: data) => {
   }
 };
 
+export const fetchFromDynamoDB = async (
+  tableName: string,
+  partitionKey: { [key: string]: string }
+) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+  try {
+    console.log("Attempting to fetch from DynamoDB...");
+    const command = new GetCommand({
+      TableName: tableName,
+      Key: partitionKey,
+    });
+    const response = await docClient.send(command);
+    console.log("Item fetched successfully!");
+    return response;
+  } catch (err) {
+    console.error("Error fetching item, item not found", err);
+    throw new Error("Failed to fetch data from DynamoDB");
+  }
+};
+
 export const deleteFromDynamoDB = async (
   tableName: string,
-  partitionKey: { [key: string]: { S: string } },
+  partitionKey: { [key: string]: { S: string } }
 ) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
 

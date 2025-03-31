@@ -101,7 +101,7 @@ it("handles form submission and updates plugins", async () => {
 
   await waitFor(() =>
     expect(mockedAxios.post).toHaveBeenCalledWith(
-      `/api/instances/test-instance/plugins`,
+      `/api/instances/test-instance/plugins?region=${fakeInstance.region}`,
       { name: "rabbitmq_federation", enabled: true }
     )
   );

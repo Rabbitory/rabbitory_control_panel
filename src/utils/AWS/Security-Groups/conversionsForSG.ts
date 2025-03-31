@@ -117,7 +117,7 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
   }));
 }
 
-export function getRulesToAddAndRemove(
+export function getSGRulesToAddAndRemove(
   oldRules: SecurityGroupRule[], 
   newRules: SecurityGroupRule[]
 ) {
@@ -146,4 +146,20 @@ export function getRulesToAddAndRemove(
     rulesToAdd,
     rulesToRemove
   };
+}
+
+export function convertToRabbitmqPorts(securityGroupRules: SecurityGroupRule[]): number[] {
+  const rabbitmqPorts: number[] = [];
+
+  securityGroupRules.forEach(rule => {
+    const matchingPort = COMMON_PORTS.find(commonPort => 
+      (rule.FromPort === commonPort.port || rule.ToPort === commonPort.port)
+    );
+
+    if (matchingPort) {
+      rabbitmqPorts.push(matchingPort.port);
+    }
+  });
+
+  return rabbitmqPorts;
 }

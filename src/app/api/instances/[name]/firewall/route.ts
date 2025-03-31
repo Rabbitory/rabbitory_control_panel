@@ -3,9 +3,11 @@ import { getCurrentSecurityGroupRules } from "@/utils/AWS/Security-Groups/getCur
 import { 
   convertToSecurityGroupRules, 
   convertToUIFirewallRules,
-  getRulesToAddAndRemove
+  getSGRulesToAddAndRemove,
+  convertToRabbitmqPorts
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
 import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
+import { updateRabbitmqPorts } from "@/utils/RabbitMQ/updateRabbitmqPorts";
 
 
 export async function GET( _request: Request, { params }: { params: Promise<{ name: string }> }) {
@@ -25,18 +27,26 @@ export async function GET( _request: Request, { params }: { params: Promise<{ na
 export async function PUT(request: Request, { params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
   const { rules } = await request.json();
-  const currentSGRules = await getCurrentSecurityGroupRules(name);
-  const newSGRules = convertToSecurityGroupRules(rules);
 
-  const { rulesToAdd, rulesToRemove } = getRulesToAddAndRemove(currentSGRules, newSGRules);
+  try {
+    const currentSGRules = await getCurrentSecurityGroupRules(name);
+    const newSGRules = convertToSecurityGroupRules(rules);
 
-  // update ec2 security group
-  await updateInstanceSGRules(name, rulesToAdd, rulesToRemove);
+    const { rulesToAdd, rulesToRemove } = getSGRulesToAddAndRemove(currentSGRules, newSGRules);
 
-  // update rabbitmq ports
+    // Update EC2 security group
+    await updateInstanceSGRules(name, rulesToAdd, rulesToRemove);
 
+    // Update RabbitMQ ports
+    const rabbitmqPortsToAdd = convertToRabbitmqPorts(rulesToAdd);
+    const rabbitmqPortsToRemove = convertToRabbitmqPorts(rulesToRemove);
+    await updateRabbitmqPorts(name, 'us-east-1', rabbitmqPortsToAdd, rabbitmqPortsToRemove);
 
+    return NextResponse.json({ message: "Successfully updated security group and RabbitMQ ports" });
 
-  return NextResponse.json({ message: "Sent a rules response"});
+  } catch (error) {
+    console.error('Error updating ports:', error);
+    return NextResponse.json({ error: `Failed to update security group and RabbitMQ ports: ${error}` }, { status: 500 });
+  }
 }
 

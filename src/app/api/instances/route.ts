@@ -4,7 +4,7 @@ import {
   DescribeInstancesCommandOutput,
   Instance,
 } from "@aws-sdk/client-ec2";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
 import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
 import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
@@ -89,7 +89,7 @@ export const GET = async () => {
   return NextResponse.json(formattedInstances);
 };
 
-export const POST = async (request: Request) => {
+export const POST = async (request: NextRequest) => {
   const body = await request.json();
   if (!body) {
     return NextResponse.json(

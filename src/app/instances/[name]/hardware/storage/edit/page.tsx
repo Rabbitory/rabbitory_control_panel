@@ -51,7 +51,9 @@ export default function HardwarePage() {
       });
     } catch (error) {
       console.error(error);
-      alert("Failed to update storage size");
+      alert(
+        "Failed to update storage size. You might have to wait 6 hours since the last update.",
+      );
     }
   };
 

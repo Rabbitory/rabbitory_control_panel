@@ -1,23 +1,32 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import { validateConfiguration } from "@/utils/validateConfig";
 import parseConfig from "@/utils/parseConfig";
 
-const ec2Client = new EC2Client({ region: process.env.REGION });
-
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ name: string }> }
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> },
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
   const { name: instanceName } = await params;
+
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 },
+    );
+  }
+
+  const ec2Client = new EC2Client({ region });
 
   const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const instanceId = instance.InstanceId;
@@ -27,7 +36,7 @@ export async function GET(
     const fileContent = await runSSMCommands(
       instanceId!,
       ["cat /etc/rabbitmq/rabbitmq.conf"],
-      process.env.REGION!
+      process.env.REGION!,
     );
 
     const config: Record<string, string> = {};
@@ -38,14 +47,14 @@ export async function GET(
     console.error("Error fetching configuration:", error);
     return NextResponse.json(
       { message: "Error fetching configuration", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ name: string }> }
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const { name: instanceName } = await params;
 
@@ -53,19 +62,30 @@ export async function POST(
     configuration: Record<string, string>;
   };
 
+  if (newConfig.region === null) {
+    NextResponse.json(
+      { message: "Invalid configuration, needs region" },
+      { status: 400 },
+    );
+  }
+
   const { valid, errors } = validateConfiguration(newConfig);
   if (!valid) {
     console.error("Invalid configuration:", errors);
     return NextResponse.json(
       { message: "Invalid configuration", errors },
-      { status: 400 }
+      { status: 400 },
     );
   }
+
+  const region = newConfig.region;
+  const ec2Client = new EC2Client({ region });
+
   const commands: string[] = [];
   for (const [key, value] of Object.entries(newConfig)) {
     if (value !== "") {
       commands.push(
-        `sudo sed -i '/^${key}[[:space:]]*=.*/c\\${key} = ${value}' /etc/rabbitmq/rabbitmq.conf`
+        `sudo sed -i '/^${key}[[:space:]]*=.*/c\\${key} = ${value}' /etc/rabbitmq/rabbitmq.conf`,
       );
     }
   }
@@ -78,7 +98,7 @@ export async function POST(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const instanceId = instance.InstanceId;
@@ -87,7 +107,7 @@ export async function POST(
     const output = await runSSMCommands(
       instanceId!,
       commands,
-      process.env.REGION!
+      process.env.REGION!,
     );
 
     const parts = output.split("__CONFIG_START__");
@@ -100,7 +120,7 @@ export async function POST(
     console.error("Error updating configuration:", error);
     return NextResponse.json(
       { message: "Error updating configuration", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

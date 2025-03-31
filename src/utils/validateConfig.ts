@@ -4,7 +4,7 @@ export interface ValidationResult {
 }
 
 export function validateConfiguration(
-  config: Record<string, string>
+  config: Record<string, string>,
 ): ValidationResult {
   const errors: Record<string, string> = {};
   if (config["log.exchange"] !== undefined) {

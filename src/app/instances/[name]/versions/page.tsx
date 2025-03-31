@@ -20,8 +20,14 @@ export default function VersionsPage() {
       try {
         const response = await axios.get(
           `/api/instances/${instance?.name}/versions`,
+          {
+            headers: {
+              "x-rabbitmq-username": instance?.user,
+              "x-rabbitmq-password": instance?.password,
+            },
+          }
         );
-        console.log(response.data);
+
         setVersions({
           rabbitmq: response.data.rabbitmq_version,
           erlang: response.data.erlang_version,

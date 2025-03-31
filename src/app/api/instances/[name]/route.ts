@@ -23,6 +23,14 @@ export async function GET(
     const response = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {
       instanceId: instance.InstanceId,
     });
+
+    if (!response) {
+      return NextResponse.json(
+        { message: "Credentials are not ready yet! Try again later!" },
+        { status: 503 }
+      );
+    }
+    // Decrypt the credentials
     const encryptedUsername = response.Item?.encryptedUsername;
     const encryptedPassword = response.Item?.encryptedPassword;
 
@@ -34,11 +42,7 @@ export async function GET(
     }
     const username = decrypt(encryptedUsername);
     const password = decrypt(encryptedPassword);
-    console.log("username", username);
-    console.log("password", password);
-    //TODO
-    //cannot send api to get user and password from rabbitmq.
-    // will need to store them when creating a instance
+
     const endpointUrl = `amqp://${username}:${password}@${
       instance.PublicDnsName || instance.PublicIpAddress
     }:5672`;

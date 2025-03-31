@@ -28,9 +28,15 @@ export async function GET(
     );
   }
 
-  //TODO: need to get username and password from dynamodb
-  const username = "blackfries";
-  const password = "blackfries";
+  const username = request.headers.get("x-rabbitmq-username");
+  const password = request.headers.get("x-rabbitmq-password");
+  if (!username || !password) {
+    return NextResponse.json(
+      { message: "Username and password are required" },
+      { status: 400 }
+    );
+  }
+
   try {
     const rabbitUrl = `http://${publicDns}:15672/api/nodes`;
     const response = await axios.get(rabbitUrl, {

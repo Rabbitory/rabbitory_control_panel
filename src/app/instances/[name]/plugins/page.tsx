@@ -17,6 +17,12 @@ export default function PluginsPage() {
       try {
         const response = await axios.get(
           `/api/instances/${instance?.name}/plugins`,
+          {
+            headers: {
+              "x-rabbitmq-username": instance?.user,
+              "x-rabbitmq-password": instance?.password,
+            },
+          }
         );
         console.log(response.data);
         setEnabledPlugins(response.data);
@@ -32,7 +38,7 @@ export default function PluginsPage() {
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
-    pluginName: string,
+    pluginName: string
   ) => {
     e.preventDefault();
     const currentlyEnabled = enabledPlugins.includes(pluginName);
@@ -41,7 +47,7 @@ export default function PluginsPage() {
     //update the state immediately,
     // we do this so that the toggle button updates immediately.
     setEnabledPlugins((prev) =>
-      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName),
+      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
     );
     setIsSaving(true);
 
@@ -57,7 +63,7 @@ export default function PluginsPage() {
       setEnabledPlugins((prev) =>
         currentlyEnabled
           ? [...prev, pluginName]
-          : prev.filter((p) => p !== pluginName),
+          : prev.filter((p) => p !== pluginName)
       );
     } finally {
       setIsSaving(false);

@@ -5,12 +5,8 @@ interface data {
   [key: string]: string;
 }
 
-export const storeToDynamoDB = async (
-  tableName: string,
-  data: data,
-  region: string,
-) => {
-  const client = new DynamoDBClient({ region });
+export const storeToDynamoDB = async (tableName: string, data: data) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
 
   try {

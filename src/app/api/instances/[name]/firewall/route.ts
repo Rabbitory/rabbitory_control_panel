@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getInstanceSGRules } from "@/utils/AWS/Security-Groups/getInstanceSGRules";
 import { getInstanceAvailabilityZone } from "@/utils/AWS/EC2/getInstanceAvailabilityZone";
 import { 
-  // convertToSecurityGroupRules, 
+  convertToSecurityGroupRules, 
   convertToUIFirewallRules,
   convertIpPermissionsToSecurityGroupRules
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
@@ -30,10 +30,21 @@ export async function GET( _request: Request, { params }: { params: Promise<{ na
 }
 
 
-// export async function POST(req: Request, { params }: { params: Promise<{ name: string }> }) {
-//   const { name } = await params;
+export async function PUT(request: Request, { params }: { params: Promise<{ name: string }> }) {
+  const { name } = await params;
+  const { rules } = await request.json();
+  // add back in hidden ports: 80, 22, 15672 (don't allow user to toggle off through ui)
+  console.log("Instance name:", name);
+  console.log("Firewall Rules:", rules)
 
-//   // add back in hidden ports: 80, 22, 15672 (don't allow user to toggle off through ui)
+  const sgRules = convertToSecurityGroupRules(rules);
+  console.log("Security Group Rule Format:", sgRules);
+  sgRules.forEach(rule => {
+    console.log("cidr blocks");
+    const cidr = rule.IpRanges[0];
+    console.log(cidr);
+  })
 
-// }
+  return NextResponse.json({ message: "Sent a rules response"});
+}
 

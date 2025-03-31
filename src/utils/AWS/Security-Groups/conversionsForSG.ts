@@ -56,7 +56,12 @@ export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): Secu
   const securityGroupRules: SecurityGroupRule[] = [];
 
   for (const rule of firewallRules) {
-    const { sourceIp, description, commonPorts, customPorts } = rule;
+    const { description, commonPorts, customPorts } = rule;
+    let { sourceIp } = rule;
+
+    if (sourceIp === '') {
+      sourceIp = '0.0.0.0/0';
+    }
 
     const commonPortStrings = commonPorts.map((protocol) => {
       const ports = Object.keys(PORT_PROTOCOL_MAP);
@@ -127,4 +132,3 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
     customPorts: customPorts.join(", "), 
   }));
 }
-

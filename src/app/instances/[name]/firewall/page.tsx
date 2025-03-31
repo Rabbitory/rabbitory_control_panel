@@ -158,7 +158,8 @@ export default function FirewallPage({ params }: FirewallPageProps) {
     setIsSaving(true);
 
     try {
-      await axios.post(`/api/instances/${name}/firewall`, { rules });
+      const { data } = await axios.put(`/api/instances/${name}/firewall`, { rules });
+      console.log(data.message);
       console.log(rules);
       alert("Firewall rules updated successfully!");
     } catch (error) {

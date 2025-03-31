@@ -28,10 +28,26 @@ export async function PUT(request: Request, { params }: { params: Promise<{ name
   const newSGRules = convertToSecurityGroupRules(rules);
 
   const { rulesToAdd, rulesToRemove } = getRulesToAddAndRemove(currentSGRules, newSGRules);
-  console.log("\nOld rules:", currentSGRules);
-  console.log("\nNew Rules:", newSGRules);
-  console.log("\nRules to Add:", rulesToAdd);
-  console.log("\nRules to Remove:", rulesToRemove);
+  
+  console.log("\nOld rules:");
+  currentSGRules.forEach(rule => {
+    console.log(rule);
+  })
+
+  console.log("\nNew Rules:");
+  newSGRules.forEach(rule => {
+    console.log(rule);
+  })
+
+  console.log("\nRules to Add:");
+  rulesToAdd.forEach(rule => {
+    console.log(rule);
+  })
+
+  console.log("\nRules to Remove:");
+  rulesToRemove.forEach(rule => {
+    console.log(rule);
+  })
 
   return NextResponse.json({ message: "Sent a rules response"});
 }

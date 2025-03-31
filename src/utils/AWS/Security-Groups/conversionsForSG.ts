@@ -83,7 +83,7 @@ export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): Secu
     const customPortArray = customPorts
                                   .split(",")
                                   .map((port) => port.trim())
-                                  .filter((port) => !isNaN(Number(port)));
+                                  .filter((port) => port !== "" && !isNaN(Number(port)));
 
     const customPortNumbers = customPortArray
                                   .map(Number)
@@ -110,8 +110,6 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
     { description: string; commonPorts: string[]; customPorts: string[] }
   > = {};
 
-  const hiddenPorts = [80, 22, 15672]; // Ports to hide
-
   for (const rule of securityGroupRules) {
     const sourceIp = rule.IpRanges[0].CidrIp;
     const description = rule.IpRanges[0].Description || "";
@@ -124,12 +122,9 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
     if (PORT_PROTOCOL_MAP[port]) {
       firewallMap[sourceIp].commonPorts.push(PORT_PROTOCOL_MAP[port]);
     } else {
-      if (!hiddenPorts.includes(port)) {
-        firewallMap[sourceIp].customPorts.push(port.toString());
-      }
+      firewallMap[sourceIp].customPorts.push(port.toString());
     }
   }
-
 
   return Object.entries(firewallMap).map(([sourceIp, { description, commonPorts, customPorts }]) => ({
     sourceIp,
@@ -143,7 +138,6 @@ export function getRulesToAddAndRemove(
   oldRules: SecurityGroupRule[], 
   newRules: SecurityGroupRule[]
 ) {
-
   const isSameRule = (rule1: SecurityGroupRule, rule2: SecurityGroupRule) => {
     return (
       rule1.IpProtocol === rule2.IpProtocol &&
@@ -152,7 +146,7 @@ export function getRulesToAddAndRemove(
       rule1.IpRanges.length === rule2.IpRanges.length &&
       rule1.IpRanges.every((range, index) => 
         range.CidrIp === rule2.IpRanges[index].CidrIp &&
-        range.Description === rule2.IpRanges[index].Description
+        (range.Description ?? "") === (rule2.IpRanges[index].Description ?? "")
       )
     );
   };

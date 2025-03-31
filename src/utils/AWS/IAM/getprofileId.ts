@@ -2,9 +2,9 @@ import { IAMClient, GetInstanceProfileCommand } from "@aws-sdk/client-iam";
 // Change region as needed
 export default async function getInstanceProfileByName(
   instanceProfileName: string,
-  region: string | undefined
+  region: string | undefined,
 ) {
-  const iamClient = new IAMClient({ region: region });
+  const iamClient = new IAMClient({ region });
   try {
     const command = new GetInstanceProfileCommand({
       InstanceProfileName: instanceProfileName,

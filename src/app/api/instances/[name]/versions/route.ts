@@ -1,15 +1,24 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import axios from "axios";
 
-const ec2Client = new EC2Client({ region: process.env.REGION });
-
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ name: string }> },
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
   const { name: instanceName } = await params;
+
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 },
+    );
+  }
+
+  const ec2Client = new EC2Client({ region });
 
   const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance) {

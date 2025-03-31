@@ -48,7 +48,7 @@ export default function Home() {
               className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50"
             >
               <Link
-                href={`/instances/${instance.name}`}
+                href={`/instances/${instance.name}?region=${instance.region}`}
                 className="text-xl text-blue-600 hover:underline"
               >
                 {instance.name} | {instance.id} | {instance.region}

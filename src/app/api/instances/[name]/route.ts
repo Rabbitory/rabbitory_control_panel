@@ -1,14 +1,23 @@
 import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
-import { NextResponse } from "next/server";
-
-const ec2Client = new EC2Client({ region: process.env.REGION });
+import { NextRequest, NextResponse } from "next/server";
 
 // Use NextRequest type and properly handle params
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ name: string }> },
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
   const { name: instanceName } = await params;
+
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 },
+    );
+  }
+
+  const ec2Client = new EC2Client({ region });
 
   const describeParams = {
     Filters: [

@@ -1,22 +1,31 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import axios from "axios";
 
-const ec2Client = new EC2Client({ region: process.env.REGION });
-
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ name: string }> }
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> },
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
   const { name: instanceName } = await params;
+
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 },
+    );
+  }
+
+  const ec2Client = new EC2Client({ region });
 
   const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const publicDns = instance.PublicDnsName;
@@ -24,7 +33,7 @@ export async function GET(
   if (!publicDns) {
     return NextResponse.json(
       { message: "Instance not ready yet! Try again later!" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -44,16 +53,27 @@ export async function GET(
     console.error("Error fetching plugins:", error);
     return NextResponse.json(
       { message: "Error fetching plugins", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ name: string }> }
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> },
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
   const { name: instanceName } = await params;
+
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 },
+    );
+  }
+
+  const ec2Client = new EC2Client({ region });
 
   const { name, enabled } = (await request.json()) as {
     name: string;
@@ -64,7 +84,7 @@ export async function POST(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const instanceId = instance.InstanceId;
@@ -87,7 +107,7 @@ export async function POST(
     console.error("Error updating plugins:", error);
     return NextResponse.json(
       { message: "Error updating plugins", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,19 +1,11 @@
-import { IpPermission } from "@aws-sdk/client-ec2"; // Assuming you are importing this from AWS SDK
+import { IpPermission } from "@aws-sdk/client-ec2";
 import { FirewallRule, SecurityGroupRule } from "@/types/firewall";
+import { COMMON_PORTS } from "@/utils/firewallConstants";
 
-const PORT_PROTOCOL_MAP: Record<number, string> = {
-  5672: "AMQP",
-  1883: "MQTT",
-  8883: "MQTTS",
-  61613: "STOMP",
-  61614: "STOMPS",
-  443: "HTTPS",
-  15674: "STOMP_WS",
-  15675: "STOMP_SSL",
-  15692: "STREAM",
-  15693: "STREAM_SSL",
-  5671: "AMQPS",
-};
+const PORT_PROTOCOL_MAP: Record<number, string> = COMMON_PORTS.reduce((acc, { port, name }) => {
+  acc[port] = name;
+  return acc;
+}, {} as Record<number, string>);
 
 export function convertIpPermissionsToSecurityGroupRules(ipPermissions: IpPermission[]): SecurityGroupRule[] {
   if (!ipPermissions) {
@@ -22,7 +14,7 @@ export function convertIpPermissionsToSecurityGroupRules(ipPermissions: IpPermis
 
   const hiddenPorts = [80, 22, 15672]; // Ports to hide
 
-  const sgRules = ipPermissions
+  return ipPermissions
     .filter(permission => 
       !(permission?.FromPort && permission?.ToPort && hiddenPorts.includes(permission.FromPort))
     ) // Exclude hidden ports
@@ -54,8 +46,6 @@ export function convertIpPermissionsToSecurityGroupRules(ipPermissions: IpPermis
         IpRanges,
       };
     });
-
-  return sgRules;
 }
 
 export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): SecurityGroupRule[] {
@@ -69,28 +59,21 @@ export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): Secu
       sourceIp = '0.0.0.0/0';
     }
 
-    const commonPortStrings = commonPorts.map((protocol) => {
-      const ports = Object.keys(PORT_PROTOCOL_MAP);
-      const matchingPort = ports.find(port => PORT_PROTOCOL_MAP[Number(port)] === protocol);
-      return matchingPort;
-    })
+    const commonPortNumbers = commonPorts
+      .map(protocol => {
+        const portEntry = COMMON_PORTS.find(({ name }) => name === protocol);
+        return portEntry ? portEntry.port : null;
+      })
+      .filter((port): port is number => port !== null); // Remove null values
 
-    const commonPortNumbers = commonPortStrings
-                                  .map(Number)
-                                  .filter(port => !isNaN(port));
-      
+    const customPortNumbers = customPorts
+      .split(",")
+      .map((port) => port.trim())
+      .filter((port) => port !== "" && !isNaN(Number(port)))
+      .map(Number);
 
-    const customPortArray = customPorts
-                                  .split(",")
-                                  .map((port) => port.trim())
-                                  .filter((port) => port !== "" && !isNaN(Number(port)));
-
-    const customPortNumbers = customPortArray
-                                  .map(Number)
-                                  .filter((port) => !isNaN(port));
-    
     const allPorts = [...commonPortNumbers, ...customPortNumbers];
-      
+
     for (const port of allPorts) {
       securityGroupRules.push({
         IpProtocol: "tcp",

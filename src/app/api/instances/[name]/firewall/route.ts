@@ -5,6 +5,7 @@ import {
   convertToUIFirewallRules,
   getRulesToAddAndRemove
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
+import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
 
 
 export async function GET( _request: Request, { params }: { params: Promise<{ name: string }> }) {
@@ -28,26 +29,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ name
   const newSGRules = convertToSecurityGroupRules(rules);
 
   const { rulesToAdd, rulesToRemove } = getRulesToAddAndRemove(currentSGRules, newSGRules);
-  
-  console.log("\nOld rules:");
-  currentSGRules.forEach(rule => {
-    console.log(rule);
-  })
 
-  console.log("\nNew Rules:");
-  newSGRules.forEach(rule => {
-    console.log(rule);
-  })
+  // update ec2 security group
+  await updateInstanceSGRules(name, rulesToAdd, rulesToRemove);
 
-  console.log("\nRules to Add:");
-  rulesToAdd.forEach(rule => {
-    console.log(rule);
-  })
+  // update rabbitmq ports
 
-  console.log("\nRules to Remove:");
-  rulesToRemove.forEach(rule => {
-    console.log(rule);
-  })
+
 
   return NextResponse.json({ message: "Sent a rules response"});
 }

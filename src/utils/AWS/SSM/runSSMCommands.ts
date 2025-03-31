@@ -3,11 +3,13 @@ import {
   SendCommandCommand,
   GetCommandInvocationCommand,
 } from "@aws-sdk/client-ssm";
+
 export async function runSSMCommands(
   instanceId: string,
   commands: string[],
   region: string
 ): Promise<string> {
+  
   const ssmClient = new SSMClient({ region });
   const sendCmd = new SendCommandCommand({
     InstanceIds: [instanceId],

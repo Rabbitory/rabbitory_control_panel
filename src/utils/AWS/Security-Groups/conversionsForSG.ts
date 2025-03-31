@@ -1,7 +1,7 @@
 import { IpPermission } from "@aws-sdk/client-ec2"; // Assuming you are importing this from AWS SDK
 import { FirewallRule, SecurityGroupRule } from "@/types/firewall";
 
-const PORT_SERVICE_MAP: Record<number, string> = {
+const PORT_PROTOCOL_MAP: Record<number, string> = {
   5672: "AMQP",
   1883: "MQTT",
   8883: "MQTTS",
@@ -25,22 +25,19 @@ export function convertIpPermissionsToSecurityGroupRules(ipPermissions: IpPermis
       throw new Error("Missing required fields: FromPort or ToPort.");
     }
 
-    // If IpProtocol is missing, default to "tcp"
     const IpProtocol = permission?.IpProtocol ?? "tcp";
 
-    // Check if IpProtocol is undefined, and throw error if necessary
     if (IpProtocol === undefined) {
       throw new Error("Missing required field: IpProtocol.");
     }
 
-    // Ensure IpRanges have valid CidrIp (string)
     const IpRanges = (permission?.IpRanges || []).map((range) => {
       if (!range.CidrIp) {
         throw new Error("CidrIp is required in IpRange.");
       }
       return {
-        CidrIp: range.CidrIp, // Make sure CidrIp is a string
-        Description: range.Description, // Optional field
+        CidrIp: range.CidrIp,
+        Description: range.Description,
       };
     });
 
@@ -60,18 +57,29 @@ export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): Secu
 
   for (const rule of firewallRules) {
     const { sourceIp, description, commonPorts, customPorts } = rule;
+
+    const commonPortStrings = commonPorts.map((protocol) => {
+      const ports = Object.keys(PORT_PROTOCOL_MAP);
+      const matchingPort = ports.find(port => PORT_PROTOCOL_MAP[Number(port)] === protocol);
+      return matchingPort;
+    })
+
+    const commonPortNumbers = commonPortStrings
+                                  .map(Number)
+                                  .filter(port => !isNaN(port));
+      
+
     const customPortArray = customPorts
-        .split(",")
-        .map((port) => port.trim())
-        .filter((port) => !isNaN(Number(port)));
+                                  .split(",")
+                                  .map((port) => port.trim())
+                                  .filter((port) => !isNaN(Number(port)));
 
-    const allPorts = [
-      ...commonPorts.map((service) =>
-        Object.keys(PORT_SERVICE_MAP).find((port) => PORT_SERVICE_MAP[Number(port)] === service)
-      ).map(Number), // Convert service names back to port numbers
-      ...customPortArray.map(Number), // Convert custom ports to numbers
-    ].filter((port) => !isNaN(port)); // Remove any undefined or invalid ports
-
+    const customPortNumbers = customPortArray
+                                  .map(Number)
+                                  .filter((port) => !isNaN(port));
+    
+    const allPorts = [...commonPortNumbers, ...customPortNumbers];
+      
     for (const port of allPorts) {
       securityGroupRules.push({
         IpProtocol: "tcp",
@@ -84,36 +92,6 @@ export function convertToSecurityGroupRules(firewallRules: FirewallRule[]): Secu
 
   return securityGroupRules;
 }
-
-// export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]): FirewallRule[] {
-//   const firewallMap: Record<
-//     string,
-//     { description: string; commonPorts: string[]; customPorts: number[] }
-//   > = {};
-
-//   for (const rule of securityGroupRules) {
-//     const sourceIp = rule.IpRanges[0].CidrIp;
-//     const description = rule.IpRanges[0].Description || "";
-//     const port = rule.FromPort;
-
-//     if (!firewallMap[sourceIp]) {
-//       firewallMap[sourceIp] = { description, commonPorts: [], customPorts: [] };
-//     }
-
-//     if (PORT_SERVICE_MAP[port]) {
-//       firewallMap[sourceIp].commonPorts.push(PORT_SERVICE_MAP[port]);
-//     } else {
-//       firewallMap[sourceIp].customPorts.push(port);
-//     }
-//   }
-
-//   return Object.entries(firewallMap).map(([sourceIp, { description, commonPorts, customPorts }]) => ({
-//     sourceIp,
-//     description,
-//     commonPorts,
-//     customPorts: customPorts.join(", "),
-//   }));
-// }
 
 export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]): FirewallRule[] {
   const firewallMap: Record<
@@ -132,8 +110,8 @@ export function convertToUIFirewallRules(securityGroupRules: SecurityGroupRule[]
       firewallMap[sourceIp] = { description, commonPorts: [], customPorts: [] };
     }
 
-    if (PORT_SERVICE_MAP[port]) {
-      firewallMap[sourceIp].commonPorts.push(PORT_SERVICE_MAP[port]);
+    if (PORT_PROTOCOL_MAP[port]) {
+      firewallMap[sourceIp].commonPorts.push(PORT_PROTOCOL_MAP[port]);
     } else {
       if (!hiddenPorts.includes(port)) {
         firewallMap[sourceIp].customPorts.push(port.toString());

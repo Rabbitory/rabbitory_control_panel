@@ -19,7 +19,7 @@ export default function VersionsPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/versions`,
+          `/api/instances/${instance?.name}/versions?region=${instance?.region}`,
         );
         console.log(response.data);
         setVersions({
@@ -34,7 +34,7 @@ export default function VersionsPage() {
     };
 
     fetchVersions();
-  }, [instance?.name]);
+  }, [instance?.name, instance?.region]);
   return (
     <>
       {isFetching ? (

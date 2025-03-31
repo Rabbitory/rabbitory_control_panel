@@ -61,11 +61,12 @@ export async function pollRabbitMQServerStatus(
         const encryptedPassword = await encrypt(password);
 
         if (encryptedUsername && encryptedPassword) {
-          await storeToDynamoDB(
-            "RabbitoryInstancesMetadata",
-            { instanceId, instanceName, encryptedUsername, encryptedPassword },
-            region,
-          );
+          await storeToDynamoDB("RabbitoryInstancesMetadata", {
+            instanceId,
+            instanceName,
+            encryptedUsername,
+            encryptedPassword,
+          });
         }
         return; // Stop polling once the server is up and metadata stored.
       }

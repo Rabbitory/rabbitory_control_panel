@@ -3,10 +3,15 @@ import {
   PutCommand,
   DynamoDBDocumentClient,
   GetCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 
-interface data {
-  [key: string]: string;
+type data = Record<string, unknown>;
+interface BackupDefinition {
+  rabbitmq_version: string;
+  timestamp: string;
+  trigger: string;
+  definitions: data;
 }
 
 export const storeToDynamoDB = async (tableName: string, data: data) => {
@@ -66,5 +71,35 @@ export const deleteFromDynamoDB = async (
     console.log("Item deleted successfully:", response);
   } catch (err) {
     console.error("Error deleting item:", err);
+  }
+};
+
+export const appendBackupDefinition = async (
+  instanceId: string,
+  newBackup: BackupDefinition
+) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+
+  const params = {
+    TableName: "RabbitoryInstancesMetadata",
+    Key: { instanceId },
+    UpdateExpression:
+      "SET backups = list_append(:newBackup, if_not_exists(backups, :emptyList))",
+    ExpressionAttributeValues: {
+      ":emptyList": [],
+      ":newBackup": [newBackup],
+    },
+    ReturnValues: "UPDATED_NEW" as const,
+  };
+
+  try {
+    const command = new UpdateCommand(params);
+    const response = await docClient.send(command);
+    console.log("Backup appended successfully!");
+    return response;
+  } catch (err) {
+    console.error("Error appending backup:", err);
+    throw new Error("Failed to append backup to DynamoDB");
   }
 };

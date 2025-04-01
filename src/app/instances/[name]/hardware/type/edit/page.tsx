@@ -122,7 +122,10 @@ export default function HardwarePage() {
               e.preventDefault();
               setSaving(true);
               const success = await updateHardware();
-              if (success) router.push(`/instances/${instance?.name}`);
+              if (success)
+                router.push(
+                  `/instances/${instance?.name}?region=${instance?.region}`,
+                );
             }}
           >
             {saving ? "Saving..." : "Submit"}

@@ -92,7 +92,10 @@ export default function StorageEditPage() {
               onClick={async (e) => {
                 e.preventDefault();
                 const success = await updateStorageSize();
-                if (success) router.push(`/instances/${instance?.name}`);
+                if (success)
+                  router.push(
+                    `/instances/${instance?.name}?region=${instance?.region}`,
+                  );
               }}
               className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
             >

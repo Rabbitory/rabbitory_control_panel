@@ -1,14 +1,16 @@
 import {
-  SSMClient,
   SendCommandCommand,
   GetCommandInvocationCommand,
 } from "@aws-sdk/client-ssm";
+import { getSSMClient } from "./ssmClient";
+
 export async function runSSMCommands(
   instanceId: string,
   commands: string[],
   region: string
 ): Promise<string> {
-  const ssmClient = new SSMClient({ region });
+  
+  const ssmClient = getSSMClient(region);
   const sendCmd = new SendCommandCommand({
     InstanceIds: [instanceId],
     DocumentName: "AWS-RunShellScript",
@@ -36,9 +38,7 @@ export async function runSSMCommands(
 
   if (status !== "Success" || !invocationRes?.StandardOutputContent) {
     throw new Error(
-      `Command failed with status: ${status} - ${
-        invocationRes ? String(invocationRes) : ""
-      }`
+      `Command failed with status: ${status} - ${JSON.stringify(invocationRes, null, 2)}`
     );
   }
 

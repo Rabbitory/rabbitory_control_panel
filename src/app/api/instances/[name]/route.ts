@@ -1,5 +1,5 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
+import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { fetchFromDynamoDB } from "@/utils/dynamoDBUtils";
 import { decrypt } from "@/utils/encrypt";
 import { NextRequest, NextResponse } from "next/server";

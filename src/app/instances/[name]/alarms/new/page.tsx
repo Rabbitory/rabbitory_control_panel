@@ -10,15 +10,18 @@ export default function AlarmsPage() {
   const [saving, setSaving] = useState(false);
   const [alarmType, setAlarmType] = useState("");
   const [timeThreshold, setTimeThreshold] = useState(600);
-  const [valueThreshold, setValueThreshold] = useState(0);
+  const [storageThreshold, setStorageThreshold] = useState(90);
   const [reminderInterval, setReminderInterval] = useState(0);
 
   const createAlarm = async () => {
     try {
-      await axios.post(`/api/instances/${instance?.id}/alarms`, {
-        type: alarmType,
-        data: {},
-      });
+      await axios.post(
+        `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
+        {
+          type: alarmType,
+          data: { timeThreshold, storageThreshold, reminderInterval },
+        },
+      );
       return true;
     } catch (error) {
       console.error(error);
@@ -66,14 +69,30 @@ export default function AlarmsPage() {
           </div>
           <div className="flex items-center gap-4">
             <label htmlFor="memo" className="text-xl text-gray-700 w-1/4">
-              Time Threshold
+              Storage Threshold
             </label>
             <input
-              id="timeThreshold"
-              name="timeThreshold"
+              id="storageThreshold"
+              name="storageThreshold"
               type="number"
-              value={timeThreshold}
-              onChange={(e) => setTimeThreshold(Number(e.target.value))}
+              value={storageThreshold}
+              onChange={(e) => setStorageThreshold(Number(e.target.value))}
+              className="w-3/4 p-2 border rounded-md text-xl"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <label
+              htmlFor="reminderInterval"
+              className="text-xl text-gray-700 w-1/4"
+            >
+              Reminder Interval
+            </label>
+            <input
+              id="reminderInterval"
+              name="reminderInterval"
+              type="number"
+              value={reminderInterval}
+              onChange={(e) => setReminderInterval(Number(e.target.value))}
               className="w-3/4 p-2 border rounded-md text-xl"
             />
           </div>

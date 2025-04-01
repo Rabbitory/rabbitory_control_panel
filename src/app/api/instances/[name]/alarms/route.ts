@@ -35,7 +35,7 @@ export async function GET(
 
     const alarms = response.Item?.alarms;
 
-    return NextResponse.json(alarms || []);
+    return NextResponse.json(alarms || {});
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -71,7 +71,7 @@ export async function POST(
   }
 
   const alarms = await request.json();
-
+  console.log(alarms);
   try {
     const response = await appendAlarmsSettings(instance.InstanceId, alarms);
     console.log(response.Attributes?.alarms);

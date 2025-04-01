@@ -15,7 +15,7 @@ interface BackupDefinition {
 }
 
 interface AlarmSettings {
-  alarmType: string;
+  type: string;
   data: data;
 }
 
@@ -109,21 +109,44 @@ export const appendBackupDefinition = async (
   }
 };
 
+const ensureAlarmsExists = async (instanceId: string) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+  const params = {
+    TableName: "RabbitoryInstancesMetadata",
+    Key: { instanceId },
+    UpdateExpression: "SET alarms = if_not_exists(alarms, :emptyMap)",
+    ExpressionAttributeValues: {
+      ":emptyMap": {},
+    },
+    ReturnValues: "UPDATED_NEW" as const,
+  };
+
+  await docClient.send(new UpdateCommand(params));
+};
+
 export const appendAlarmsSettings = async (
   instanceId: string,
   newAlarm: AlarmSettings,
 ) => {
+  await ensureAlarmsExists(instanceId);
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
+  console.log(newAlarm.type, newAlarm.data);
+  const newId = crypto.randomUUID();
+  const newAlarmRecord = { id: newId, data: newAlarm.data };
 
   const params = {
     TableName: "RabbitoryInstancesMetadata",
     Key: { instanceId },
     UpdateExpression:
-      "SET alarms = list_append(:newAlarm, if_not_exists(alarms, :emptyList))",
+      "SET alarms.#alarmType = list_append(if_not_exists(alarms.#alarmType, :emptyList), :newAlarm)",
+    ExpressionAttributeNames: {
+      "#alarmType": newAlarm.type,
+    },
     ExpressionAttributeValues: {
       ":emptyList": [],
-      ":newAlarm": [newAlarm],
+      ":newAlarm": [newAlarmRecord],
     },
     ReturnValues: "UPDATED_NEW" as const,
   };

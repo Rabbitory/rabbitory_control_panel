@@ -64,6 +64,7 @@ export async function pollRabbitMQServerStatus(
           await storeToDynamoDB("RabbitoryInstancesMetadata", {
             instanceId,
             instanceName,
+            region,
             encryptedUsername,
             encryptedPassword,
           });

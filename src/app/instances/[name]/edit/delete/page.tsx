@@ -2,13 +2,19 @@
 
 import * as React from "react";
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useInstanceContext } from "../../InstanceContext";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-export default function DeletePage() {
-  const { instance } = useInstanceContext();
-  const name = instance?.name;
+export default function DeletePage({
+  params,
+}: {
+  params: Promise<{ name: string }>;
+}) {
+  const searchParams = useSearchParams();
+  const region = searchParams.get("region");
+  const { name } = React.use(params);
+
   const [inputText, setInputText] = useState("");
   const [validInput, setValidInput] = useState(false);
   const router = useRouter();
@@ -27,9 +33,7 @@ export default function DeletePage() {
   const handleDelete = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await axios.post(
-        `/api/instances/${name}/delete?region=${instance?.region}`,
-      );
+      await axios.post(`/api/instances/${name}/delete?region=${region}`);
       router.push(`/`);
     } catch (err) {
       console.error("Error deleting instance:", err);

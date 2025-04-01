@@ -1,11 +1,9 @@
 import axios from "axios";
 import { storeToDynamoDB } from "../dynamoDBUtils";
-import {
-  waitUntilInstanceRunning,
-  EC2Client,
-  DescribeInstancesCommand,
-} from "@aws-sdk/client-ec2";
+import { waitUntilInstanceRunning, EC2Client } from "@aws-sdk/client-ec2";
 import { encrypt } from "../encrypt";
+import { getDefinitions } from "./backupDefinitions";
+import { fetchInstance } from "../AWS/EC2/fetchInstace";
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,
@@ -20,23 +18,14 @@ export async function pollRabbitMQServerStatus(
     { InstanceIds: instanceId ? [instanceId] : undefined }
   );
 
-  const describeParams = {
-    InstanceIds: instanceId ? [instanceId] : undefined,
-  };
-  const describeCommand = new DescribeInstancesCommand(describeParams);
-  const response = await ec2Client.send(describeCommand);
-
-  if (
-    !response.Reservations ||
-    response.Reservations.length === 0 ||
-    !response.Reservations[0].Instances ||
-    response.Reservations[0].Instances.length === 0
-  ) {
-    console.error("No instance information found.");
-    return;
+  let instance = await fetchInstance(instanceName, ec2Client);
+  while (!instance || !instance.PublicDnsName) {
+    console.log("Instance not ready yet! Waiting for DNS...");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Re-fetch the instance information
+    instance = await fetchInstance(instanceName, ec2Client);
   }
-
-  const instance = response.Reservations[0].Instances[0];
+  console.log("Instance is ready!");
   const rabbitUrl = `http://${instance.PublicDnsName}:15672/api/health/checks/port-listener/15672`;
   const interval = 5000;
   const timeout = 120000;
@@ -61,12 +50,21 @@ export async function pollRabbitMQServerStatus(
         const encryptedPassword = encrypt(password);
 
         if (encryptedUsername && encryptedPassword) {
-          await storeToDynamoDB("RabbitoryInstancesMetadata", {
-            instanceId,
-            instanceName,
-            encryptedUsername,
-            encryptedPassword,
-          });
+          const backupDefinitions = await getDefinitions(
+            instance.PublicDnsName,
+            username,
+            password
+          );
+          console.log("Backup definitions:", backupDefinitions);
+          if (backupDefinitions) {
+            await storeToDynamoDB("RabbitoryInstancesMetadata", {
+              instanceId,
+              instanceName,
+              encryptedUsername,
+              encryptedPassword,
+              backups: [backupDefinitions],
+            });
+          }
         }
         return; // Stop polling once the server is up and metadata stored.
       }

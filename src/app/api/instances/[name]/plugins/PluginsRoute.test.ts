@@ -4,12 +4,12 @@
 import { GET, POST } from "./route";
 import axios from "axios";
 import { createMocks } from "node-mocks-http";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
+import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import { NextRequest } from "next/server";
 
 jest.mock("axios");
-jest.mock("@/utils/AWS/EC2/fetchInstace");
+jest.mock("@/utils/AWS/EC2/fetchInstance");
 jest.mock("@/utils/AWS/SSM/runSSMCommands");
 
 const mockedAxios = jest.mocked(axios);

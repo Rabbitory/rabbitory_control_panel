@@ -57,7 +57,9 @@ export default function Home() {
                 label="edit"
                 options={{
                   delete: () =>
-                    router.push(`/instances/${instance.name}/edit/delete`),
+                    router.push(
+                      `/instances/${instance.name}/edit/delete?region=${instance.region}`
+                    ),
                 }}
               />
             </li>

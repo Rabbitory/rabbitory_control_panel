@@ -163,3 +163,15 @@ export function convertToRabbitmqPorts(securityGroupRules: SecurityGroupRule[]):
 
   return rabbitmqPorts;
 }
+
+export function getRabbitmqPortsToAddAndRemove(sgRulesToAdd: SecurityGroupRule[], sgRulesToRemove: SecurityGroupRule[]) {
+  const rabbitmqPortsToAdd = convertToRabbitmqPorts(sgRulesToAdd);
+  const rabbitmqPortsToRemove = convertToRabbitmqPorts(sgRulesToRemove);
+  const uniquePortsToAdd = rabbitmqPortsToAdd.filter(port => !rabbitmqPortsToRemove.includes(port));
+  const uniquePortsToRemove = rabbitmqPortsToRemove.filter(port => !rabbitmqPortsToAdd.includes(port));
+
+  return {
+    portsToAdd: uniquePortsToAdd,
+    portsToRemove: uniquePortsToRemove
+  }
+}

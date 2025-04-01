@@ -4,7 +4,7 @@ import {
   convertToSecurityGroupRules, 
   convertToUIFirewallRules,
   getSGRulesToAddAndRemove,
-  convertToRabbitmqPorts
+  getRabbitmqPortsToAddAndRemove
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
 import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
 import { updateRabbitmqPorts } from "@/utils/RabbitMQ/updateRabbitmqPorts";
@@ -38,9 +38,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ name
     await updateInstanceSGRules(name, rulesToAdd, rulesToRemove);
 
     // Update RabbitMQ ports
-    const rabbitmqPortsToAdd = convertToRabbitmqPorts(rulesToAdd);
-    const rabbitmqPortsToRemove = convertToRabbitmqPorts(rulesToRemove);
-    await updateRabbitmqPorts(name, 'us-east-1', rabbitmqPortsToAdd, rabbitmqPortsToRemove);
+    const { portsToAdd, portsToRemove } = getRabbitmqPortsToAddAndRemove(rulesToAdd, rulesToRemove);
+
+
+    console.log("Rules to add:", rulesToAdd);
+    console.log("Adding these ports:", portsToAdd);
+
+    console.log("Rules to remove:", rulesToRemove);
+    console.log("Removing these ports:", portsToRemove);
+
+    await updateRabbitmqPorts(name, 'us-east-1', portsToAdd, portsToRemove);
 
     return NextResponse.json({ message: "Successfully updated security group and RabbitMQ ports" });
 

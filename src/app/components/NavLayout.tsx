@@ -49,6 +49,14 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Hardware
           </Link>
         </li>
+        <li className="mb-4">
+          <Link
+            href={`/instances/${name}/logs`}
+            className="text-gray-700 text-xl hover:text-black"
+          >
+            Logs
+          </Link>
+        </li>
       </ul>
     </nav>
   );

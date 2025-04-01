@@ -1,5 +1,5 @@
 import { EC2Client, DescribeSecurityGroupsCommand } from "@aws-sdk/client-ec2";
-import { getInstanceSGRules } from "./getCurrentSecurityGroupRules";
+import { getCurrentSecurityGroupRules } from "./getCurrentSecurityGroupRules";
 import { fetchInstance } from "../EC2/fetchInstance";
 
 jest.mock("../EC2/fetchInstance", () => ({
@@ -52,7 +52,7 @@ it("should return the security group for an instance", async () => {
   mockSend.mockResolvedValueOnce({ SecurityGroups: [mockSecurityGroup] });
 
   const client = new EC2Client({});
-  const securityGroup = await getInstanceSGRules("my-instance", "us-east-1");
+  const securityGroup = await getCurrentSecurityGroupRules("my-instance");
 
   expect(securityGroup).toEqual(mockSecurityGroup);
   expect(fetchInstance).toHaveBeenCalledWith("my-instance", client);
@@ -66,7 +66,7 @@ it("should throw an error if no security group is found", async () => {
   (fetchInstance as jest.Mock).mockResolvedValue(mockInstance);
 
   const client = new EC2Client({});
-  await expect(getInstanceSGRules("my-instance", "us-east-1")).rejects.toThrow("No security groups found for the instance.");
+  await expect(getCurrentSecurityGroupRules("my-instance")).rejects.toThrow("No security groups found for the instance.");
 
   expect(fetchInstance).toHaveBeenCalledWith("my-instance", client);
 });
@@ -77,7 +77,7 @@ it("should throw an error if no security group details are found", async () => {
   mockSend.mockResolvedValueOnce({ SecurityGroups: [] });
 
   const client = new EC2Client({});
-  await expect(getInstanceSGRules("my-instance", "us-east-1")).rejects.toThrow("No security group details found.");
+  await expect(getCurrentSecurityGroupRules("my-instance")).rejects.toThrow("No security group details found.");
   
   expect(fetchInstance).toHaveBeenCalledWith("my-instance", client);
   expect(mockSend).toHaveBeenCalledWith(expect.any(DescribeSecurityGroupsCommand));

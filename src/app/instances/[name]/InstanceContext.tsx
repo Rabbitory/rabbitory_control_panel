@@ -8,15 +8,15 @@ interface InstanceContextType {
   setInstance: (instance: Instance) => void;
 }
 
-const InstanceContext = createContext<InstanceContextType | undefined>(
-  undefined,
+export const InstanceContext = createContext<InstanceContextType | undefined>(
+  undefined
 );
 
 export function useInstanceContext() {
   const context = useContext(InstanceContext);
   if (context === undefined) {
     throw new Error(
-      "useInstanceContext must be used within an InstanceProvider",
+      "useInstanceContext must be used within an InstanceProvider"
     );
   }
   return context;

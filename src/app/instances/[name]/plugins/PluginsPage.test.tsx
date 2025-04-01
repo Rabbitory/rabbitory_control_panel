@@ -1,93 +1,110 @@
-// import React, { act } from "react";
-// import { render, screen, waitFor } from "@testing-library/react";
-// import userEvent from "@testing-library/user-event";
+import React from "react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { InstanceContext } from "../InstanceContext";
+import PluginsPage from "./page";
+import axios from "axios";
+import { Instance } from "@/types/instance";
 
-// import PluginsPage from "./page";
-// import axios from "axios";
-// import { Suspense } from "react";
+jest.mock("axios");
 
-// jest.mock("axios");
-// const mockedAxios = jest.mocked(axios);
+const mockedAxios = jest.mocked(axios);
 
-// const params = Promise.resolve({ name: "test-instance" });
+const fakePluginsData = ["rabbitmq_management", "rabbitmq_management_agent"];
+const fakeInstance: Instance = {
+  id: "i-123456",
+  publicDns: "test.dns",
+  type: "t2.micro",
+  region: "us-east-1",
+  name: "test-instance",
+  launchTime: "2023-10-01T00:00:00Z",
+  port: 5672,
+  user: "blackfries",
+  password: "blackfries",
+  endpointUrl: "test.dns:5672",
+  state: "running",
+  EBSVolumeId: "vol-123456",
+};
+beforeEach(() => {
+  mockedAxios.get.mockReset();
+  mockedAxios.post.mockReset();
+});
 
-// const fakePluginsData = ["rabbitmq_management", "rabbitmq_management_agent"];
-// beforeEach(() => {
-//   mockedAxios.get.mockReset();
-//   mockedAxios.post.mockReset();
-// });
+it("renders loading state and then plugins form", async () => {
+  mockedAxios.get.mockImplementationOnce(
+    () =>
+      new Promise((resolve) =>
+        setTimeout(() => resolve({ data: fakePluginsData }), 200)
+      )
+  );
 
-// it("renders loading state and then plugins form", async () => {
-//   mockedAxios.get.mockImplementationOnce(
-//     () =>
-//       new Promise((resolve) =>
-//         setTimeout(() => resolve({ data: fakePluginsData }), 50)
-//       )
-//   );
+  render(
+    <InstanceContext.Provider
+      value={{
+        instance: fakeInstance,
+        setInstance: jest.fn(),
+      }}
+    >
+      <PluginsPage />
+    </InstanceContext.Provider>
+  );
 
-//   await act(async () => {
-//     render(
-//       <Suspense fallback={<div>Suspense Fallback</div>}>
-//         <PluginsPage params={params} />
-//       </Suspense>
-//     );
-//   });
+  expect(screen.getByText(/loading/i)).toBeInTheDocument();
+  expect(mockedAxios.get).toHaveBeenCalledTimes(1);
 
-//   await waitFor(() =>
-//     expect(screen.queryByText(/Suspense Fallback/i)).not.toBeInTheDocument()
-//   );
+  await waitFor(() => {
+    expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+  });
 
-//   expect(screen.getByText(/loading/i)).toBeInTheDocument();
-//   expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+  // Check that the input for setting1 contains the value from fakePluginsData.
+  const checkbox1 = screen.getByRole("checkbox", {
+    name: /^rabbitmq_management$/i,
+  });
+  const checkbox2 = screen.getByRole("checkbox", {
+    name: /^rabbitmq_management_agent$/i,
+  });
 
-//   await waitFor(() => {
-//     expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
-//   });
+  const checkbox3 = screen.getByRole("checkbox", {
+    name: /^rabbitmq_federation$/i,
+  });
+  expect(checkbox1).toBeChecked();
+  expect(checkbox2).toBeChecked();
+  expect(checkbox3).not.toBeChecked();
+});
 
-//   // Check that the input for setting1 contains the value from fakePluginsData.
-//   const checkbox1 = screen.getByRole("checkbox", {
-//     name: /^rabbitmq_management$/i,
-//   });
-//   const checkbox2 = screen.getByRole("checkbox", {
-//     name: /^rabbitmq_management_agent$/i,
-//   });
+it("handles form submission and updates plugins", async () => {
+  mockedAxios.get.mockResolvedValueOnce({ data: fakePluginsData });
+  mockedAxios.post.mockResolvedValueOnce({});
 
-//   const checkbox3 = screen.getByRole("checkbox", {
-//     name: /^rabbitmq_federation$/i,
-//   });
-//   expect(checkbox1).toBeChecked();
-//   expect(checkbox2).toBeChecked();
-//   expect(checkbox3).not.toBeChecked();
-// });
+  render(
+    <InstanceContext.Provider
+      value={{
+        instance: fakeInstance,
+        setInstance: jest.fn(),
+      }}
+    >
+      <PluginsPage />
+    </InstanceContext.Provider>
+  );
 
-// it("handles form submission and updates plugins", async () => {
-//   mockedAxios.get.mockResolvedValueOnce({ data: fakePluginsData });
-//   mockedAxios.post.mockResolvedValueOnce({});
+  await waitFor(() => expect(mockedAxios.get).toHaveBeenCalledTimes(1));
 
-//   render(<PluginsPage params={params} />);
+  const checkbox3 = screen.getByRole("checkbox", {
+    name: /^rabbitmq_federation$/i,
+  });
 
-//   await waitFor(() => expect(mockedAxios.get).toHaveBeenCalledTimes(1));
+  expect(checkbox3).not.toBeChecked();
+  const user = userEvent.setup();
+  await user.click(checkbox3);
 
-//   const checkbox3 = screen.getByRole("checkbox", {
-//     name: /^rabbitmq_federation$/i,
-//   });
+  expect(checkbox3).toBeChecked();
 
-//   expect(checkbox3).not.toBeChecked();
-//   const user = userEvent.setup();
-//   await user.click(checkbox3);
-
-//   expect(checkbox3).toBeChecked();
-
-//   await waitFor(() =>
-//     expect(mockedAxios.post).toHaveBeenCalledWith(
-//       `/api/instances/test-instance/plugins`,
-//       { name: "rabbitmq_federation", enabled: true }
-//     )
-//   );
-//   //we need to make sure that the checkbox is still checked after the post request
-//   expect(checkbox3).toBeChecked();
-// });
-
-it("yes", () => {
-  expect(true).toBe(true);
+  await waitFor(() =>
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      `/api/instances/test-instance/plugins?region=${fakeInstance.region}`,
+      { name: "rabbitmq_federation", enabled: true }
+    )
+  );
+  //we need to make sure that the checkbox is still checked after the post request
+  expect(checkbox3).toBeChecked();
 });

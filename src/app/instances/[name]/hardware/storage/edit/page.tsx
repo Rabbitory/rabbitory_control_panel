@@ -89,12 +89,13 @@ export default function StorageEditPage() {
           </div>
           <div className="flex justify-end gap-4">
             <button
+              disabled={saving}
               onClick={async (e) => {
                 e.preventDefault();
                 const success = await updateStorageSize();
                 if (success)
                   router.push(
-                    `/instances/${instance?.name}?region=${instance?.region}`,
+                    `/instances/${instance?.name}/hardware?region=${instance?.region}`,
                   );
               }}
               className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"

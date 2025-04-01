@@ -3,12 +3,10 @@
 import { useInstanceContext } from "../../../InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function HardwarePage() {
-  const router = useRouter();
   const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
@@ -124,9 +122,7 @@ export default function HardwarePage() {
               setSaving(true);
               const success = await updateHardware();
               if (success)
-                router.push(
-                  `/instances/${instance?.name}?region=${instance?.region}`,
-                );
+                window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
             }}
           >
             {saving ? "Saving..." : "Submit"}

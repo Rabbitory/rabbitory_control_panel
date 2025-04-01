@@ -49,6 +49,17 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Hardware
           </Link>
         </li>
+        <li>
+          <button
+            className="py-2 px-6 bg-orange-500 text-white rounded-md hover:bg-orange-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            onClick={(e) => {
+              e.preventDefault();
+              window.open(`http://${instance?.publicDns}:15672`);
+            }}
+          >
+            To RabbitMQ Manager
+          </button>
+        </li>
       </ul>
     </nav>
   );

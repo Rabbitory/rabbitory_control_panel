@@ -7,12 +7,13 @@ import {
   _InstanceType,
 } from "@aws-sdk/client-ec2";
 import getUbuntuAmiId from "../AMI/AMI";
-// import generateName from "@/utils/randomNameGenerator";
 import getInstanceProfileByName from "../IAM/getprofileId";
-import {
-  createSecurityGroup,
-  getDefaultVpcId,
-} from "../Security-Groups/createBrokerSG";
+// import {
+//   createSecurityGroup,
+//   getDefaultVpcId,
+// } from "../Security-Groups/createBrokerSG";
+
+import { createInstanceSG } from '../Security-Groups/createInstanceSG';
 
 // async function getInstanceDetails(
 //   instanceId: string | undefined,
@@ -170,8 +171,6 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
 `;
   const ec2Client = new EC2Client({ region });
   const amiId = await getUbuntuAmiId(region); // Changed from getAmiId to getUbuntuAmiId
-
-  const vpcId = await getDefaultVpcId(ec2Client);
   const IPN = await getInstanceProfileByName(
     "RMQBrokerInstanceProfile",
     region,
@@ -179,7 +178,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
 
   if (!IPN) return false;
 
-  const securityGroupId = await createSecurityGroup(ec2Client, vpcId);
+  const securityGroupId = await createInstanceSG(instanceName, region);
 
   // Data must be base64 encoded
   const encodedUserData = Buffer.from(userDataScript).toString("base64");

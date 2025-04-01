@@ -125,7 +125,7 @@ export default function NewFormPage() {
                 <button
                   type="button"
                   onClick={handleGenerate}
-                  className="px-4 py-2 bg-gray-300 rounded-full hover:bg-gray-400 text-xl"
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 text-xl"
                 >
                   Generate random name
                 </button>

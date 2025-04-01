@@ -3,7 +3,7 @@ import { storeToDynamoDB } from "../dynamoDBUtils";
 import { waitUntilInstanceRunning, EC2Client } from "@aws-sdk/client-ec2";
 import { encrypt } from "../encrypt";
 import { getDefinitions } from "./backupDefinitions";
-import { fetchInstance } from "../AWS/EC2/fetchInstace";
+import { fetchInstance } from "../AWS/EC2/fetchInstance";
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,

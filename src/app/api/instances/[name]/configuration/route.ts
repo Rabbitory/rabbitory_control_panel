@@ -1,6 +1,6 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
+import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import { validateConfiguration } from "@/utils/validateConfig";
 import parseConfig from "@/utils/parseConfig";

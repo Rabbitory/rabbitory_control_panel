@@ -16,7 +16,7 @@ export default function LogsPage() {
       setError(null);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/logs`
+          `/api/instances/${instance?.name}/logs?region=${instance?.region}`
         );
         setLogs(response.data.logs);
       } catch (error) {
@@ -33,7 +33,7 @@ export default function LogsPage() {
     const interval = setInterval(fetchLogs, 30000);
 
     return () => clearInterval(interval);
-  }, [instance?.name]);
+  }, [instance?.name, instance?.region]);
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">

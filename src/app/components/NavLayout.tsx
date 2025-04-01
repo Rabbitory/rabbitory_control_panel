@@ -66,6 +66,22 @@ export default function NavLayout({ name }: NavLayoutProps) {
           </Link>
         </li>
         <li className="mb-4">
+          <Link
+            href={`/instances/${name}/firewall`}
+            className="text-gray-700 text-xl hover:text-black"
+          >
+            Firewall
+          </Link>
+        </li>
+        <li className="mb-4">
+          <Link
+            href={`/instances/${name}/alarms?region=${instance?.region}`}
+            className="text-gray-700 text-xl hover:text-black"
+          >
+            Alarms
+          </Link>
+        </li>
+        <li className="mb-4">
           <button
             className="py-2 px-6 bg-orange-500 text-white rounded-md hover:bg-orange-300 focus:outline-none focus:ring-2 focus:ring-green-500"
             onClick={(e) => {
@@ -75,11 +91,6 @@ export default function NavLayout({ name }: NavLayoutProps) {
           >
             To RabbitMQ Manager
           </button>
-        </li>
-        <li className="mb-4">
-          <Link href={`/instances/${name}/firewall`} className="text-gray-700 text-xl hover:text-black">
-            Firewall
-          </Link>
         </li>
       </ul>
     </nav>

@@ -14,6 +14,11 @@ interface BackupDefinition {
   definitions: data;
 }
 
+interface AlarmSettings {
+  alarmType: string;
+  data: data;
+}
+
 export const storeToDynamoDB = async (tableName: string, data: data) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
@@ -35,7 +40,7 @@ export const storeToDynamoDB = async (tableName: string, data: data) => {
 
 export const fetchFromDynamoDB = async (
   tableName: string,
-  partitionKey: { [key: string]: string }
+  partitionKey: { [key: string]: string },
 ) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
@@ -56,7 +61,7 @@ export const fetchFromDynamoDB = async (
 
 export const deleteFromDynamoDB = async (
   tableName: string,
-  partitionKey: { [key: string]: { S: string } }
+  partitionKey: { [key: string]: { S: string } },
 ) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
 
@@ -76,7 +81,7 @@ export const deleteFromDynamoDB = async (
 
 export const appendBackupDefinition = async (
   instanceId: string,
-  newBackup: BackupDefinition
+  newBackup: BackupDefinition,
 ) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
@@ -101,5 +106,35 @@ export const appendBackupDefinition = async (
   } catch (err) {
     console.error("Error appending backup:", err);
     throw new Error("Failed to append backup to DynamoDB");
+  }
+};
+
+export const appendAlarmsSettings = async (
+  instanceId: string,
+  newAlarm: AlarmSettings,
+) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+
+  const params = {
+    TableName: "RabbitoryInstancesMetadata",
+    Key: { instanceId },
+    UpdateExpression:
+      "SET alarms = list_append(:newAlarm, if_not_exists(alarms, :emptyList))",
+    ExpressionAttributeValues: {
+      ":emptyList": [],
+      ":newAlarm": [newAlarm],
+    },
+    ReturnValues: "UPDATED_NEW" as const,
+  };
+
+  try {
+    const command = new UpdateCommand(params);
+    const response = await docClient.send(command);
+    console.log("Alarm appended successfully!");
+    return response;
+  } catch (err) {
+    console.error("Error appending alarm:", err);
+    throw new Error("Failed to append alarm to DynamoDB");
   }
 };

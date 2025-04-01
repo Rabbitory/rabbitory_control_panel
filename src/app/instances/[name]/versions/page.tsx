@@ -19,9 +19,15 @@ export default function VersionsPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/versions`,
+          `/api/instances/${instance?.name}/versions?region=${instance?.region}`,
+          {
+            headers: {
+              "x-rabbitmq-username": instance?.user,
+              "x-rabbitmq-password": instance?.password,
+            },
+          }
         );
-        console.log(response.data);
+
         setVersions({
           rabbitmq: response.data.rabbitmq_version,
           erlang: response.data.erlang_version,
@@ -34,7 +40,7 @@ export default function VersionsPage() {
     };
 
     fetchVersions();
-  }, [instance?.name]);
+  }, [instance?.name, instance?.user, instance?.password, instance?.region]);
   return (
     <>
       {isFetching ? (

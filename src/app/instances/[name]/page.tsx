@@ -35,16 +35,20 @@ export default function InstancePage() {
           <strong>Password:</strong> {instance?.password}
         </li>
         <li>
-          <strong>Endpoint URL:</strong> {instance?.endpointUrl}
+          <strong>Endpoint URL:</strong> {instance?.endpointUrl}{" "}
+          <a
+            onClick={async (e) => {
+              e.preventDefault();
+              if (instance?.endpointUrl === undefined) return;
+              await navigator.clipboard.writeText(instance?.endpointUrl);
+            }}
+          >
+            Copy URL
+          </a>
         </li>
         <Link href="/">
           <button>Go Back</button>
         </Link>
-        <button
-          onClick={() => window.open(`http://${instance?.publicDns}:15672`)}
-        >
-          To RabbitMQ Manager
-        </button>
       </ul>
     </>
   );

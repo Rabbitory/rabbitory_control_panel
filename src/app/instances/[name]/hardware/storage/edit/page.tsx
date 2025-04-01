@@ -56,7 +56,9 @@ export default function StorageEditPage() {
     } catch (error) {
       setSaving(false);
       console.error(error);
-      alert("Failed to update storage size");
+      alert(
+        "Failed to update storage size. You might have to wait 6 hours since the last update.",
+      );
       return false;
     }
   };

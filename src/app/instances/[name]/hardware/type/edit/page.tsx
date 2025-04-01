@@ -50,7 +50,6 @@ export default function HardwarePage() {
         instanceType: instanceSize,
         region: instance?.region,
       });
-
       return true;
     } catch (error) {
       setSaving(false);

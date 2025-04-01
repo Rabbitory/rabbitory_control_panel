@@ -5,19 +5,19 @@ import {
   EC2Client,
   DescribeInstancesCommand,
 } from "@aws-sdk/client-ec2";
-import encrypt from "../encrypt";
+import { encrypt } from "../encrypt";
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,
   instanceName: string,
   username: string,
   password: string,
-  region: string,
+  region: string
 ) {
   const ec2Client = new EC2Client({ region });
   await waitUntilInstanceRunning(
     { client: ec2Client, maxWaitTime: 3000 },
-    { InstanceIds: instanceId ? [instanceId] : undefined },
+    { InstanceIds: instanceId ? [instanceId] : undefined }
   );
 
   const describeParams = {
@@ -57,15 +57,17 @@ export async function pollRabbitMQServerStatus(
       ) {
         console.log("RabbitMQ is up; storing metadata in DynamoDB...");
 
-        const encryptedUsername = await encrypt(username);
-        const encryptedPassword = await encrypt(password);
+        const encryptedUsername = encrypt(username);
+        const encryptedPassword = encrypt(password);
 
         if (encryptedUsername && encryptedPassword) {
-          await storeToDynamoDB(
-            "RabbitoryInstancesMetadata",
-            { instanceId, instanceName, encryptedUsername, encryptedPassword },
+          await storeToDynamoDB("RabbitoryInstancesMetadata", {
+            instanceId,
+            instanceName,
             region,
-          );
+            encryptedUsername,
+            encryptedPassword,
+          });
         }
         return; // Stop polling once the server is up and metadata stored.
       }
@@ -78,7 +80,7 @@ export async function pollRabbitMQServerStatus(
           }
         } else {
           console.log(
-            "RabbitMQ is up, waiting for metadata to be available...",
+            "RabbitMQ is up, waiting for metadata to be available..."
           );
         }
       } else {

@@ -1,52 +1,58 @@
-import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
-import { NextResponse } from "next/server";
-
-const ec2Client = new EC2Client({ region: process.env.REGION });
+import { EC2Client } from "@aws-sdk/client-ec2";
+import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
+import { fetchFromDynamoDB } from "@/utils/dynamoDBUtils";
+import { decrypt } from "@/utils/encrypt";
+import { NextRequest, NextResponse } from "next/server";
 
 // Use NextRequest type and properly handle params
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ name: string }> },
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> }
 ) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
+  if (!region) {
+    return NextResponse.json(
+      { message: "Missing region parameter" },
+      { status: 400 }
+    );
+  }
   const { name: instanceName } = await params;
-
-  const describeParams = {
-    Filters: [
-      {
-        Name: "tag:Name",
-        Values: [instanceName],
-      },
-      {
-        Name: "tag:Publisher",
-        Values: ["Rabbitory"],
-      },
-    ],
-  };
-
+  const ec2Client = new EC2Client({ region });
+  const instance = await fetchInstance(instanceName, ec2Client);
+  if (!instance || !instance.InstanceId) {
+    return NextResponse.json(
+      { message: `No instance found with name: ${instanceName}` },
+      { status: 404 }
+    );
+  }
   try {
-    const command = new DescribeInstancesCommand(describeParams);
-    const response = await ec2Client.send(command);
+    const response = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {
+      instanceId: instance.InstanceId,
+    });
 
-    if (
-      !response.Reservations ||
-      response.Reservations.length === 0 ||
-      !response.Reservations[0].Instances ||
-      response.Reservations[0].Instances.length === 0
-    ) {
+    if (!response) {
       return NextResponse.json(
-        { message: `No instance found with name: ${instanceName}` },
-        { status: 404 },
+        { message: "Credentials are not ready yet! Try again later!" },
+        { status: 503 }
       );
     }
+    // Decrypt the credentials
+    const encryptedUsername = response.Item?.encryptedUsername;
+    const encryptedPassword = response.Item?.encryptedPassword;
 
-    const instance = response.Reservations[0].Instances[0];
+    if (!encryptedUsername || !encryptedPassword) {
+      return NextResponse.json(
+        { message: "No credentials found for this instance" },
+        { status: 404 }
+      );
+    }
+    const username = decrypt(encryptedUsername);
+    const password = decrypt(encryptedPassword);
 
-    //TODO
-    //cannot send api to get user and password from rabbitmq.
-    // will need to store them when creating a instance
-    // const endpointUrl = `amqp://${username}:${password}@${
-    //   instance.PublicDnsName || instance.PublicIpAddress
-    // }:5672`;
+    const endpointUrl = `amqp://${username}:${password}@${
+      instance.PublicDnsName || instance.PublicIpAddress
+    }:5672`;
     // Format the instance data
     const formattedInstance = {
       id: instance.InstanceId,
@@ -56,9 +62,9 @@ export async function GET(
       publicDns: instance.PublicDnsName || "N/A",
       launchTime: instance.LaunchTime,
       region: instance.Placement?.AvailabilityZone?.slice(0, -1),
-      //user: username,
-      //password: password,
-      // endpointUrl,
+      user: username,
+      password: password,
+      endpointUrl,
       port: 5672,
       state: instance.State?.Name,
       EBSVolumeId: instance.BlockDeviceMappings?.[0].Ebs?.VolumeId || "N/A",
@@ -69,7 +75,7 @@ export async function GET(
     console.error("Error fetching instance details:", error);
     return NextResponse.json(
       { message: "Error fetching instance details", error: String(error) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

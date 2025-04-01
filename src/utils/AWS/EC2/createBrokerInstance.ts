@@ -54,7 +54,7 @@ export default async function createInstance(
   instanceType: _InstanceType = "t2.micro",
   username: string = "admin",
   password: string = "password",
-  storageSize: number = 8
+  storageSize: number = 8,
 ) {
   const userDataScript = `#!/bin/bash
 # Update package lists and install RabbitMQ server and wget
@@ -173,7 +173,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   const amiId = await getUbuntuAmiId(region); // Changed from getAmiId to getUbuntuAmiId
   const IPN = await getInstanceProfileByName(
     "RMQBrokerInstanceProfile",
-    region
+    region,
   );
 
   if (!IPN) return false;

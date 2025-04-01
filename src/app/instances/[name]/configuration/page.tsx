@@ -22,7 +22,7 @@ export default function ConfigurationPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/configuration`,
+          `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
         );
         console.log(response.data);
         setConfiguration(response.data);
@@ -33,7 +33,7 @@ export default function ConfigurationPage() {
       }
     };
     fetchConfiguration();
-  }, [instance?.name]);
+  }, [instance?.name, instance?.region]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -52,7 +52,7 @@ export default function ConfigurationPage() {
     setIsSaving(true);
     try {
       const response = await axios.post(
-        `/api/instances/${instance?.name}/configuration`,
+        `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
         {
           configuration,
         },

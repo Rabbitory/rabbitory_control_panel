@@ -6,9 +6,9 @@ import {
 import { SecurityGroupRule } from "../../../types/firewall";
 import { fetchInstance } from "../EC2/fetchInstance";
 
-const ec2Client = new EC2Client({ region: "us-east-1" }); // Change to your region
 
-const getSecurityGroupId = async (instanceName: string): Promise<string> => {
+
+const getSecurityGroupId = async (instanceName: string, ec2Client: EC2Client): Promise<string> => {
   try {
     const instance = await fetchInstance(instanceName, ec2Client);
 
@@ -30,12 +30,15 @@ const getSecurityGroupId = async (instanceName: string): Promise<string> => {
 
 export const updateInstanceSGRules = async (
   instanceName: string,
+  region: string,
   rulesToAdd: SecurityGroupRule[],
   rulesToRemove: SecurityGroupRule[]
-) => {
+): Promise<void> => {
+
+  const ec2Client = new EC2Client({ region });
 
   try {
-    const securityGroupId = await getSecurityGroupId(instanceName);
+    const securityGroupId = await getSecurityGroupId(instanceName, ec2Client);
 
     if (rulesToRemove.length > 0) {
       await ec2Client.send(new RevokeSecurityGroupIngressCommand({

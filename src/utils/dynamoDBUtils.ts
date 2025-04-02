@@ -19,6 +19,11 @@ interface AlarmSettings {
   data: data;
 }
 
+interface AlarmRecord {
+  id: string;
+  data: data;
+}
+
 export const storeToDynamoDB = async (tableName: string, data: data) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
@@ -40,7 +45,7 @@ export const storeToDynamoDB = async (tableName: string, data: data) => {
 
 export const fetchFromDynamoDB = async (
   tableName: string,
-  partitionKey: { [key: string]: string },
+  partitionKey: { [key: string]: string }
 ) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
@@ -61,7 +66,7 @@ export const fetchFromDynamoDB = async (
 
 export const deleteFromDynamoDB = async (
   tableName: string,
-  partitionKey: { [key: string]: { S: string } },
+  partitionKey: { [key: string]: { S: string } }
 ) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
 
@@ -81,7 +86,7 @@ export const deleteFromDynamoDB = async (
 
 export const appendBackupDefinition = async (
   instanceId: string,
-  newBackup: BackupDefinition,
+  newBackup: BackupDefinition
 ) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
@@ -127,12 +132,13 @@ const ensureAlarmsExists = async (instanceId: string) => {
 
 export const appendAlarmsSettings = async (
   instanceId: string,
-  newAlarm: AlarmSettings,
+  newAlarm: AlarmSettings
 ) => {
   await ensureAlarmsExists(instanceId);
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
   console.log(newAlarm.type, newAlarm.data);
+
   const newId = crypto.randomUUID();
   const newAlarmRecord = { id: newId, data: newAlarm.data };
 
@@ -160,4 +166,49 @@ export const appendAlarmsSettings = async (
     console.error("Error appending alarm:", err);
     throw new Error("Failed to append alarm to DynamoDB");
   }
+};
+
+export const deleteAlarmFromDynamoDB = async (
+  instanceId: string,
+  alarmType: string,
+  alarmId: string
+) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+
+  const getParams = {
+    TableName: "RabbitoryInstancesMetadata",
+    Key: { instanceId },
+  };
+
+  const getCommand = new GetCommand(getParams);
+  const getResponse = await docClient.send(getCommand);
+
+  if (!getResponse.Item) {
+    throw new Error(`Item with instanceId ${instanceId} not found.`);
+  }
+
+  const alarms: { [key: string]: AlarmRecord[] } =
+    getResponse.Item.alarms || {};
+  const alarmArray: AlarmRecord[] = alarms[alarmType] || [];
+
+  const updatedAlarmArray = alarmArray.filter((alarm) => alarm.id !== alarmId);
+
+  const updateParams = {
+    TableName: "RabbitoryInstancesMetadata",
+    Key: { instanceId },
+    UpdateExpression: "SET alarms.#alarmType = :updatedList",
+    ExpressionAttributeNames: {
+      "#alarmType": alarmType,
+    },
+    ExpressionAttributeValues: {
+      ":updatedList": updatedAlarmArray,
+    },
+    ReturnValues: "UPDATED_NEW" as const,
+  };
+
+  const updateCommand = new UpdateCommand(updateParams);
+  const updateResponse = await docClient.send(updateCommand);
+  console.log("Alarm deleted successfully!");
+  return updateResponse;
 };

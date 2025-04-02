@@ -1,11 +1,15 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-import { appendAlarmsSettings, fetchFromDynamoDB } from "@/utils/dynamoDBUtils";
+import {
+  appendAlarmsSettings,
+  deleteAlarmFromDynamoDB,
+  fetchFromDynamoDB,
+} from "@/utils/dynamoDBUtils";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -14,7 +18,7 @@ export async function GET(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -24,7 +28,7 @@ export async function GET(
   if (!instance || !instance.InstanceId) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -40,14 +44,14 @@ export async function GET(
     console.error(error);
     return NextResponse.json(
       { message: "Error fetching alarms settings" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -56,7 +60,7 @@ export async function POST(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -66,7 +70,7 @@ export async function POST(
   if (!instance || !instance.InstanceId) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -80,7 +84,42 @@ export async function POST(
     console.error(error);
     return NextResponse.json(
       { message: "Error adding alarms settings" },
-      { status: 500 },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> }
+) {
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
+  const type = searchParams.get("type");
+  const alarmId = searchParams.get("id");
+  const { name: instanceName } = await params;
+
+  if (!region || !type || !alarmId) {
+    return NextResponse.json({ message: "Missing parameter" }, { status: 400 });
+  }
+
+  const client = new EC2Client({ region });
+  const instance = await fetchInstance(instanceName, client);
+
+  if (!instance || !instance.InstanceId) {
+    return NextResponse.json(
+      { message: `No instance found with name: ${instanceName}` },
+      { status: 404 }
+    );
+  }
+  try {
+    await deleteAlarmFromDynamoDB(instance.InstanceId, type, alarmId);
+    return NextResponse.json({ message: "Alarm deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: "Error fetching alarms settings" },
+      { status: 500 }
     );
   }
 }

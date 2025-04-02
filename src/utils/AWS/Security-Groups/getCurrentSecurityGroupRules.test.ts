@@ -16,10 +16,6 @@ jest.mock("@aws-sdk/client-ec2", () => {
   };
 });
 
-jest.mock("@/utils/AWS/EC2/getInstanceAvailabilityZone", () => ({
-  getInstanceAvailabilityZone: jest.fn(),
-}));
-
 jest.mock("@/utils/AWS/Security-Groups/conversionsForSG", () => ({
   convertIpPermissionsToSecurityGroupRules: jest.fn(),
 }));
@@ -54,7 +50,7 @@ it("should return the security group rules for an instance", async () => {
   (fetchInstance as jest.Mock).mockResolvedValue(mockInstance);
   mockSend.mockResolvedValueOnce({ SecurityGroups: [mockSecurityGroup] });
   (convertIpPermissionsToSecurityGroupRules as jest.Mock).mockReturnValue(mockConvertedRules);
-  const securityGroupRules = await getCurrentSecurityGroupRules("my-instance");
+  const securityGroupRules = await getCurrentSecurityGroupRules("my-instance", 'us-east-1');
 
   expect(securityGroupRules).toEqual(mockConvertedRules);
   expect(fetchInstance).toHaveBeenCalledWith("my-instance", expect.objectContaining({ send: expect.any(Function) }));

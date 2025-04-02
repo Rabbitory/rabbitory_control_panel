@@ -1,34 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getCurrentSecurityGroupRules } from "@/utils/AWS/Security-Groups/getCurrentSecurityGroupRules";
-import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
-import { updateRabbitmqPorts } from "@/utils/RabbitMQ/updateRabbitmqPorts";
 import { 
   convertToSecurityGroupRules, 
   convertToUIFirewallRules,
   getSGRulesToAddAndRemove,
   getRabbitmqPortsToAddAndRemove
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
+import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
+import { updateRabbitmqPorts } from "@/utils/RabbitMQ/updateRabbitmqPorts";
 
 
-export async function GET(
-  request: NextRequest, 
-  { params }: { params: Promise<{ name: string }> }
-) {
-  
-  const searchParams = request.nextUrl.searchParams;
-  const region = searchParams.get("region");
-  const { name: instanceName } = await params;
-
-  if (!region) {
-    return NextResponse.json(
-      { message: "Missing region parameter" },
-      { status: 400 },
-    );
-  }
+export async function GET( _request: Request, { params }: { params: Promise<{ name: string }> }) {
+  const { name } = await params;
 
   try {
-    // update all these functions to take a region parameter
-    const currentSGRules = await getCurrentSecurityGroupRules(instanceName, region);
+    const currentSGRules = await getCurrentSecurityGroupRules(name);
     const uiFirewallRules = convertToUIFirewallRules(currentSGRules);
     return NextResponse.json(uiFirewallRules);
   } catch (error) {
@@ -38,39 +24,36 @@ export async function GET(
 }
 
 
-export async function PUT(
-  request: NextRequest, 
-  { params }: { params: Promise<{ name: string }> }
-) {
-
-  const searchParams = request.nextUrl.searchParams;
-  const region = searchParams.get("region");
-  const { name: instanceName } = await params;
+export async function PUT(request: Request, { params }: { params: Promise<{ name: string }> }) {
+  const { name } = await params;
   const { rules } = await request.json();
 
-  if (!region) {
-    return NextResponse.json(
-      { message: "Missing region parameter" },
-      { status: 400 },
-    );
-  }
-
   try {
-    const currentSGRules = await getCurrentSecurityGroupRules(instanceName, region);
+    const currentSGRules = await getCurrentSecurityGroupRules(name);
     const newSGRules = convertToSecurityGroupRules(rules);
-    const { rulesToAdd, rulesToRemove } = getSGRulesToAddAndRemove(currentSGRules, newSGRules);
-    await updateInstanceSGRules(instanceName, region, rulesToAdd, rulesToRemove);
-    
-    const { portsToAdd, portsToRemove } = getRabbitmqPortsToAddAndRemove(rulesToAdd, rulesToRemove);
-    await updateRabbitmqPorts(instanceName, 'us-east-1', portsToAdd, portsToRemove);
 
-    // re-fetch new AWS Security Group rule
-    // convert these fetched rules to sg rules and send to in NextResponse
-    const updatedSGRules = await getCurrentSecurityGroupRules(instanceName, region);
-    const updatedUiFirewallRules = convertToUIFirewallRules(updatedSGRules);
-    return NextResponse.json(updatedUiFirewallRules);
+    const { rulesToAdd, rulesToRemove } = getSGRulesToAddAndRemove(currentSGRules, newSGRules);
+
+    // Update EC2 security group
+    await updateInstanceSGRules(name, rulesToAdd, rulesToRemove);
+
+    // Update RabbitMQ ports
+    const { portsToAdd, portsToRemove } = getRabbitmqPortsToAddAndRemove(rulesToAdd, rulesToRemove);
+
+
+    console.log("Rules to add:", rulesToAdd);
+    console.log("Adding these ports:", portsToAdd);
+
+    console.log("Rules to remove:", rulesToRemove);
+    console.log("Removing these ports:", portsToRemove);
+
+    await updateRabbitmqPorts(name, 'us-east-1', portsToAdd, portsToRemove);
+
+    return NextResponse.json({ message: "Successfully updated security group and RabbitMQ ports" });
+
   } catch (error) {
     console.error('Error updating ports:', error);
     return NextResponse.json({ error: `Failed to update security group and RabbitMQ ports: ${error}` }, { status: 500 });
   }
 }
+

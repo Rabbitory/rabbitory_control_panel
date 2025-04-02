@@ -1,5 +1,6 @@
 import { EC2Client, DescribeSecurityGroupsCommand, SecurityGroup as AwsSecurityGroup } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "../EC2/fetchInstance";
+import { getInstanceAvailabilityZone } from "@/utils/AWS/EC2/getInstanceAvailabilityZone";
 import { convertIpPermissionsToSecurityGroupRules } from "@/utils/AWS/Security-Groups/conversionsForSG";
 import { SecurityGroupRule } from "@/types/firewall";
 
@@ -44,7 +45,8 @@ export async function getInstanceIpPermissions(instanceName: string, region: str
   }
 }
 
-export async function getCurrentSecurityGroupRules(instanceName: string, region: string): Promise<SecurityGroupRule[]> {
+export async function getCurrentSecurityGroupRules(instanceName: string): Promise<SecurityGroupRule[]> {
+  const region = await getInstanceAvailabilityZone(instanceName);
   const instanceSGRules = await getInstanceIpPermissions(instanceName, region);
 
   if (!instanceSGRules?.IpPermissions) {

@@ -98,7 +98,7 @@ export default function AlarmsPage() {
           </div>
           <div className="flex justify-end gap-4">
             <button
-              disabled={saving}
+              disabled={saving || alarmType === ""}
               onClick={async (e) => {
                 e.preventDefault();
                 setSaving(true);

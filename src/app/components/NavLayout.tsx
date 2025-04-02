@@ -57,7 +57,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Definitions
           </Link>
         </li>
-        <li>
+        <li className="mb-4">
           <Link
             href={`/instances/${name}/logs?region=${instance?.region}`}
             className="text-gray-700 text-xl hover:text-black"

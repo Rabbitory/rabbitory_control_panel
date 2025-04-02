@@ -27,7 +27,6 @@ export async function GET(
   }
 
   try {
-    // update all these functions to take a region parameter
     const currentSGRules = await getCurrentSecurityGroupRules(instanceName, region);
     const uiFirewallRules = convertToUIFirewallRules(currentSGRules);
     return NextResponse.json(uiFirewallRules);
@@ -64,8 +63,6 @@ export async function PUT(
     const { portsToAdd, portsToRemove } = getRabbitmqPortsToAddAndRemove(rulesToAdd, rulesToRemove);
     await updateRabbitmqPorts(instanceName, 'us-east-1', portsToAdd, portsToRemove);
 
-    // re-fetch new AWS Security Group rule
-    // convert these fetched rules to sg rules and send to in NextResponse
     const updatedSGRules = await getCurrentSecurityGroupRules(instanceName, region);
     const updatedUiFirewallRules = convertToUIFirewallRules(updatedSGRules);
     return NextResponse.json(updatedUiFirewallRules);

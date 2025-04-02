@@ -2,6 +2,7 @@
 
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
+import Dropdown from "@/app/components/Dropdown";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -52,6 +53,36 @@ export default function AlarmsPage() {
     }
   };
 
+  const handleTrigger = async (type: "storage" | "memory", alarm: Alarm) => {
+    try {
+      await axios.post(
+        `/api/instances/${instance?.name}/alarms/trigger?region=${instance?.region}&type=${type}`,
+        alarm,
+        {
+          headers: {
+            "x-rabbitmq-username": instance?.user,
+            "x-rabbitmq-password": instance?.password,
+          },
+        }
+      );
+      console.log("Alarm triggered successfully");
+    } catch (error) {
+      console.error("Error triggering alarm:", error);
+    }
+  };
+
+  const handleResolve = async (id: Alarm["id"]) => {
+    try {
+      await axios.post(
+        `/api/instances/${instance?.name}/alarms/resolve?region=${instance?.region}&&id=${id}`,
+        null
+      );
+      console.log("Alarm resolved successfully");
+    } catch (error) {
+      console.error("Error resolving alarm:", error);
+    }
+  };
+
   return (
     <>
       <button
@@ -74,7 +105,7 @@ export default function AlarmsPage() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">
               Storage Alarms
             </h2>
-            <div className="overflow-x-auto">
+            <div className="overflow-visible">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
@@ -108,12 +139,14 @@ export default function AlarmsPage() {
                           {alarm.data.timeThreshold}
                         </td>
                         <td className="p-2 border-b">
-                          <button
-                            onClick={() => handleDelete("storage", alarm.id)}
-                            className="px-3 py-1 bg-red-500 text-white rounded-md"
-                          >
-                            Delete
-                          </button>
+                          <Dropdown
+                            label="Actions"
+                            options={{
+                              Delete: () => handleDelete("storage", alarm.id),
+                              Trigger: () => handleTrigger("storage", alarm),
+                              Resolve: () => handleResolve(alarm.id),
+                            }}
+                          />
                         </td>
                       </tr>
                     ))
@@ -128,7 +161,7 @@ export default function AlarmsPage() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">
               Memory Alarms
             </h2>
-            <div className="overflow-x-auto">
+            <div className="overflow-visible">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
@@ -162,12 +195,14 @@ export default function AlarmsPage() {
                           {alarm.data.timeThreshold}
                         </td>
                         <td className="p-2 border-b">
-                          <button
-                            onClick={() => handleDelete("memory", alarm.id)}
-                            className="px-3 py-1 bg-red-500 text-white rounded-md"
-                          >
-                            Delete
-                          </button>
+                          <Dropdown
+                            label="Actions"
+                            options={{
+                              Delete: () => handleDelete("memory", alarm.id),
+                              Trigger: () => handleTrigger("memory", alarm),
+                              Resolve: () => handleResolve(alarm.id),
+                            }}
+                          />
                         </td>
                       </tr>
                     ))

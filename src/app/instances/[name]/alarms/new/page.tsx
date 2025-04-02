@@ -20,7 +20,7 @@ export default function AlarmsPage() {
         {
           type: alarmType,
           data: { timeThreshold, storageThreshold, reminderInterval },
-        },
+        }
       );
       return true;
     } catch (error) {

@@ -17,7 +17,6 @@ export async function updateVolumeSize(
 
     return true;
   } catch (error) {
-    console.error("Error updating volume:", error);
-    return false;
+    throw new Error(`Error updating volume: ${error}`);
   }
 }

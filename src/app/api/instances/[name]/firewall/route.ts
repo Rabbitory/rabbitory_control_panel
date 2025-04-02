@@ -28,7 +28,7 @@ export async function GET(
 
   try {
     // update all these functions to take a region parameter
-    const currentSGRules = await getCurrentSecurityGroupRules(instanceName);
+    const currentSGRules = await getCurrentSecurityGroupRules(instanceName, region);
     const uiFirewallRules = convertToUIFirewallRules(currentSGRules);
     return NextResponse.json(uiFirewallRules);
   } catch (error) {
@@ -56,20 +56,21 @@ export async function PUT(
   }
 
   try {
-    const currentSGRules = await getCurrentSecurityGroupRules(instanceName);
+    const currentSGRules = await getCurrentSecurityGroupRules(instanceName, region);
     const newSGRules = convertToSecurityGroupRules(rules);
     const { rulesToAdd, rulesToRemove } = getSGRulesToAddAndRemove(currentSGRules, newSGRules);
-    await updateInstanceSGRules(instanceName, rulesToAdd, rulesToRemove);
+    await updateInstanceSGRules(instanceName, region, rulesToAdd, rulesToRemove);
     
     const { portsToAdd, portsToRemove } = getRabbitmqPortsToAddAndRemove(rulesToAdd, rulesToRemove);
     await updateRabbitmqPorts(instanceName, 'us-east-1', portsToAdd, portsToRemove);
 
     // re-fetch new AWS Security Group rule
     // convert these fetched rules to sg rules and send to in NextResponse
-    return NextResponse.json({ message: "Successfully updated security group and RabbitMQ ports" });
+    const updatedSGRules = await getCurrentSecurityGroupRules(instanceName, region);
+    const updatedUiFirewallRules = convertToUIFirewallRules(updatedSGRules);
+    return NextResponse.json(updatedUiFirewallRules);
   } catch (error) {
     console.error('Error updating ports:', error);
     return NextResponse.json({ error: `Failed to update security group and RabbitMQ ports: ${error}` }, { status: 500 });
   }
 }
-

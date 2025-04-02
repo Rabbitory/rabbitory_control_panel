@@ -1,7 +1,6 @@
 import { EC2Client, DescribeSecurityGroupsCommand } from "@aws-sdk/client-ec2";
 import { getCurrentSecurityGroupRules } from "./getCurrentSecurityGroupRules";
 import { fetchInstance } from "../EC2/fetchInstance";
-import { getInstanceAvailabilityZone } from "../EC2/getInstanceAvailabilityZone";
 import { convertIpPermissionsToSecurityGroupRules } from "@/utils/AWS/Security-Groups/conversionsForSG";
 
 jest.mock("../EC2/fetchInstance", () => ({
@@ -31,7 +30,6 @@ beforeEach(() => {
   mockSend.mockClear();
   (fetchInstance as jest.Mock).mockClear();
   (EC2Client as jest.Mock).mockImplementation(() => ({ send: mockSend }));
-  (getInstanceAvailabilityZone as jest.Mock).mockResolvedValue("us-east-1");
   (convertIpPermissionsToSecurityGroupRules as jest.Mock).mockClear(); // Reset mock state
 });
 

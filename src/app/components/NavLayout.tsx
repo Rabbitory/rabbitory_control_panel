@@ -77,7 +77,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
           </button>
         </li>
         <li className="mb-4">
-          <Link href={`/instances/${name}/firewall?region=${instance?.region}`} className="text-gray-700 text-xl hover:text-black">
+          <Link href={`/instances/${name}/firewall`} className="text-gray-700 text-xl hover:text-black">
             Firewall
           </Link>
         </li>

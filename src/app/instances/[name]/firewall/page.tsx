@@ -3,15 +3,21 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import React from "react";
-import { useInstanceContext } from "../InstanceContext";
 import { FirewallRule } from "@/types/firewall";
 import { Info } from "lucide-react";
 import { isValidDescription, isValidSourceIp, isInRangeCustomPort } from "@/utils/firewallValidation";
 import { COMMON_PORTS } from "@/utils/firewallConstants";
 
+interface Params {
+  name: string;
+}
 
-export default function FirewallPage() {
-  const { instance } = useInstanceContext();
+interface FirewallPageProps {
+  params: Promise<Params>;
+}
+
+export default function FirewallPage({ params }: FirewallPageProps) {
+  const { name } = React.use(params);
   const [rules, setRules] = useState<FirewallRule[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -21,8 +27,7 @@ export default function FirewallPage() {
     async function fetchRules() {
       setIsFetching(true);
       try {
-        const { data } = await axios.get(`/api/instances/${instance?.name}/firewall?region=${instance?.region}`);
-        // `/api/instances/${instance?.name}/configuration?region=${instance?.region}`
+        const { data } = await axios.get(`/api/instances/${name}/firewall`);
         setRules(data);
       } catch (error) {
         console.error("Error fetching rules:", error);
@@ -32,7 +37,7 @@ export default function FirewallPage() {
     }
 
     fetchRules();
-  }, [instance?.name, instance?.region]);
+  }, [name]);
 
   const resetError = (errorMessage: string) => {
     setErrors((prevErrors) => prevErrors.filter((error) => error !== errorMessage));
@@ -142,11 +147,7 @@ export default function FirewallPage() {
     setIsSaving(true);
 
     try {
-      const { data } = await axios.put(
-        `/api/instances/${instance?.name}/firewall?region=${instance?.region}`,
-         { rules }
-        );
-      // `/api/instances/${instance?.name}/configuration?region=${instance?.region}`
+      const { data } = await axios.put(`/api/instances/${name}/firewall`, { rules });
       console.log(data.message);
       console.log(rules);
       alert("Firewall rules updated successfully!");

@@ -1,4 +1,4 @@
-import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
+import { Instance, EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { NextRequest, NextResponse } from "next/server";
 import { deleteBroker } from "@/utils/AWS/EC2/deleteBrokerInstance";
@@ -23,20 +23,26 @@ export async function POST(
   const ec2Client = new EC2Client({ region });
 
   const instance = await fetchInstance(name, ec2Client);
+  if (!instance) {
+    return NextResponse.json(
+      { message: `No instance found with name: ${name}` },
+      { status: 404 },
+    );
+  }
 
   const instanceId = instance?.InstanceId;
   if (instanceId === undefined) {
     return NextResponse.json(
-      { message: `No instance found with name: ${name}` },
-      { status: 500 },
+      { message: `Error getting instance ID for instance: ${name}` },
+      { status: 404 },
     );
   }
 
-  const groupName = await getGroupName(instanceId, ec2Client);
+  const groupName = await getGroupName(instance);
   if (groupName === undefined) {
     return NextResponse.json(
       { message: `No security group found for instance: ${name}` },
-      { status: 500 },
+      { status: 404 },
     );
   }
 
@@ -51,25 +57,15 @@ export async function POST(
   );
 }
 
-const getGroupName = async (instanceId: string, client: EC2Client) => {
-  const describeCommand = new DescribeInstancesCommand({
-    InstanceIds: [instanceId],
-  });
-  const response = await client.send(describeCommand);
-
-  const instance = response.Reservations?.[0]?.Instances?.[0];
-  if (!instance) {
-    throw new Error(`Instance ${instanceId} not found`);
-  }
-
+const getGroupName = async (instance: Instance) => {
+  const id = instance.InstanceId;
   const securityGroups = instance.SecurityGroups ? instance.SecurityGroups[0] : null;
   if (!securityGroups) {
-    throw new Error(`No security groups found for instance ${instanceId}`);
+    throw new Error(`No security groups found for instance ${id}`);
   }
-
   const groupId = securityGroups.GroupId;
   if (!groupId) {
-    throw new Error(`No group ID found for security group of instance ${instanceId}`);
+    throw new Error(`No group ID found for security group of instance ${id}`);
   }
 
   return groupId;

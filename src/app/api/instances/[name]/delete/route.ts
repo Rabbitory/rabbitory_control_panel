@@ -1,4 +1,4 @@
-import { Instance, EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
+import { Instance, EC2Client, } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { NextRequest, NextResponse } from "next/server";
 import { deleteBroker } from "@/utils/AWS/EC2/deleteBrokerInstance";

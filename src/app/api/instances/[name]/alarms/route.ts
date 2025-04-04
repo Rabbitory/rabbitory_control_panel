@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { startMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
 import { decrypt } from "@/utils/encrypt";
+import { stopMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
 import {
   appendAlarmsSettings,
   deleteAlarmFromDynamoDB,
@@ -178,6 +179,7 @@ export async function DELETE(
     );
   }
   try {
+    await stopMetricsMonitoring(alarmId);
     await deleteAlarmFromDynamoDB(instance.InstanceId, type, alarmId);
     return NextResponse.json({ message: "Alarm deleted successfully" });
   } catch (error) {

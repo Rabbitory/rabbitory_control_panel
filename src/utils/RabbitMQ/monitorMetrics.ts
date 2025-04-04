@@ -33,7 +33,6 @@ export async function startMetricsMonitoring(
 
   // Stop existing task if there is one
   stopMetricsMonitoring(alarm.id);
-
   const task = cron.schedule(`*/${reminderInterval} * * * *`, async () => {
     try {
       const response = await axios.get(rabbitmqUrl, {
@@ -123,8 +122,13 @@ export async function sendNotification(data: {
   instanceDns: string;
 }) {
   try {
+    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+    if (!webhookUrl) {
+      throw new Error('SLACK_WEBHOOK_URL is not defined');
+    }
+
     await axios.post(
-      'https://hooks.slack.com/services/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',
+      webhookUrl,
       {
         text: `Alarm triggered for ${data.instanceDns}\nType: ${data.type}\nCurrent value: ${data.currentValue}\nThreshold: ${data.threshold}\nAlarm ID: ${data.alarmId}`
       },

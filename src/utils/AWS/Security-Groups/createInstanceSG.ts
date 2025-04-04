@@ -33,7 +33,7 @@ export const getVpcId = async (client: EC2Client): Promise<string> => {
 };
 
 export const generateUniqueSGName = (instanceName: string): string => {
-  return `rabbitmq-sg-${instanceName.replace(/[^a-zA-Z0-9-]/g, "-").toLowerCase()}`;
+  return `rabbitory-broker-sg-${instanceName.replace(/[^a-zA-Z0-9-]/g, "-").toLowerCase()}`;
 };
 
 export const initializeInstanceSG = async (vpcId: string, client: EC2Client, instanceName: string): Promise<string> => {

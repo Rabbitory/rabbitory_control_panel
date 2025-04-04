@@ -4,6 +4,7 @@ import { waitUntilInstanceRunning, EC2Client } from "@aws-sdk/client-ec2";
 import { encrypt } from "../encrypt";
 import { getDefinitions } from "./backupDefinitions";
 import { fetchInstance } from "../AWS/EC2/fetchInstance";
+import eventEmitter from "../eventEmitter";
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,
@@ -13,6 +14,7 @@ export async function pollRabbitMQServerStatus(
   region: string
 ) {
   const ec2Client = new EC2Client({ region });
+
   await waitUntilInstanceRunning(
     { client: ec2Client, maxWaitTime: 3000 },
     { InstanceIds: instanceId ? [instanceId] : undefined }
@@ -50,12 +52,13 @@ export async function pollRabbitMQServerStatus(
         const encryptedPassword = encrypt(password);
 
         if (encryptedUsername && encryptedPassword) {
+          console.log("Backup definitions...");
           const backupDefinitions = await getDefinitions(
             instance.PublicDnsName,
             username,
             password
           );
-          console.log("Backup definitions:", backupDefinitions);
+
           if (backupDefinitions) {
             await storeToDynamoDB("RabbitoryInstancesMetadata", {
               instanceId,
@@ -63,6 +66,15 @@ export async function pollRabbitMQServerStatus(
               encryptedUsername,
               encryptedPassword,
               backups: [backupDefinitions],
+            });
+            console.log("Emitting notification event");
+            eventEmitter.emit("notification", {
+              type: "instanceReady",
+              payload: {
+                instanceId,
+                instanceName,
+                timestamp: new Date().toISOString(),
+              },
             });
           }
         }

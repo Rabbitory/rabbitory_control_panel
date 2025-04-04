@@ -1,6 +1,7 @@
 import "@/app/global.css";
 import Link from "next/link";
 import React from "react";
+import Notifications from "./components/Notification";
 // import { Roboto } from 'next/font/google';
 // import { JetBrains_Mono } from 'next/font/google';
 
@@ -23,7 +24,6 @@ interface RootLayoutProps {
 //   variable: '--font-jetbrains-mono', // Define a CSS variable for the font
 // });
 
-
 export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
     <html lang="en">
@@ -37,11 +37,11 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
             >
               Rabbitory
             </Link>
+            <Notifications />
           </h1>
         </div>
         <main>{children}</main>
       </body>
     </html>
   );
-  
 }

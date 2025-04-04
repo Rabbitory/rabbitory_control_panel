@@ -48,7 +48,7 @@ export async function POST(
 
   await deleteBroker(instanceId, ec2Client);
   await deleteSecurityGroup(groupName, ec2Client);
-  await deleteFromDynamoDB("RabbitoryInstancesMetadata", {
+  await deleteFromDynamoDB("rabbitory-instances-metadata", {
     instanceId: { S: instanceId },
   });
   return NextResponse.json(

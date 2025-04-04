@@ -1,52 +1,13 @@
 import {
   EC2Client,
   RunInstancesCommand,
-  // DescribeInstancesCommand,
   RunInstancesCommandInput,
-  // waitUntilInstanceRunning,
   _InstanceType,
 } from "@aws-sdk/client-ec2";
 import getUbuntuAmiId from "../AMI/AMI";
 import getInstanceProfileByName from "../IAM/getprofileId";
-// import {
-//   createSecurityGroup,
-//   getDefaultVpcId,
-// } from "../Security-Groups/createBrokerSG";
 
 import { createInstanceSG } from '../Security-Groups/createInstanceSG';
-
-// async function getInstanceDetails(
-//   instanceId: string | undefined,
-//   ec2Client: EC2Client,
-// ) {
-//   const describeCommand = new DescribeInstancesCommand({
-//     InstanceIds: instanceId ? [instanceId] : undefined,
-//   });
-//   const describeResponse = await ec2Client.send(describeCommand);
-
-//   if (
-//     !describeResponse.Reservations ||
-//     describeResponse.Reservations.length === 0 ||
-//     !describeResponse.Reservations[0].Instances ||
-//     describeResponse.Reservations[0].Instances.length === 0
-//   ) {
-//     throw new Error("No instance information found.");
-//   }
-
-//   const instance = describeResponse.Reservations[0].Instances[0];
-//   const publicDns = instance.PublicDnsName || "N/A";
-//   const publicIp = instance.PublicIpAddress || "N/A";
-
-//   return { publicDns, publicIp };
-// }
-
-// # Create Dead-Letter Queue
-// /usr/local/bin/rabbitmqadmin declare queue name=${dlqName} durable=true
-// # Build JSON arguments for the main queue using the provided dead-letter queue name
-// json_args="{\\"x-dead-letter-exchange\\": \\"\\", \\"x-dead-letter-routing-key\\": \\"${dlqName}\\"}"
-
-// # Create Main Queue with DLQ settings (dead-letter exchange is the default exchange "")
-// /usr/local/bin/rabbitmqadmin declare queue name=${mainQueueName} durable=true arguments="$json_args"
 
 export default async function createInstance(
   region: string,
@@ -170,9 +131,9 @@ rabbitmqadmin declare queue name=logstream durable=true arguments='{"x-max-lengt
 rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" destination_type="queue" routing_key="#"
 `;
   const ec2Client = new EC2Client({ region });
-  const amiId = await getUbuntuAmiId(region); // Changed from getAmiId to getUbuntuAmiId
+  const amiId = await getUbuntuAmiId(region);
   const IPN = await getInstanceProfileByName(
-    "RMQBrokerInstanceProfile",
+    "rabbitory-broker-instance-profile",
     region,
   );
 
@@ -183,7 +144,6 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   // Data must be base64 encoded
   const encodedUserData = Buffer.from(userDataScript).toString("base64");
 
-  // const instanceName = generateName();
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI (OS) id (Ubuntu in this example) - region specific
     InstanceType: instanceType, // Instance hardware

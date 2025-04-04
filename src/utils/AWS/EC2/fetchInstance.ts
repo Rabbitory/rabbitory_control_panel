@@ -1,4 +1,3 @@
-// utils/fetchInstance.ts
 import {
   EC2Client,
   DescribeInstancesCommand,

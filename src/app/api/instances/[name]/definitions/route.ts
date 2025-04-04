@@ -30,7 +30,7 @@ export async function GET(
     );
   }
   try {
-    const response = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {
+    const response = await fetchFromDynamoDB("rabbitory-instances-metadata", {
       instanceId: instance.InstanceId,
     });
 

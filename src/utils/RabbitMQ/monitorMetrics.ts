@@ -1,5 +1,8 @@
 import axios from 'axios';
 import cron from 'node-cron';
+import { ScheduledTask } from 'node-cron';
+import { fetchFromDynamoDB } from '../dynamoDBUtils';
+import { decrypt } from '../encrypt';
 
 interface AlarmThresholds {
   timeThreshold: number;
@@ -7,15 +10,29 @@ interface AlarmThresholds {
   reminderInterval: number;
 }
 
+interface Alarm {
+  id: string;
+  data: AlarmThresholds;
+}
+
+interface AlarmList {
+  [key: string]: Alarm[];
+}
+
+const monitoringTasks = new Map<string, ScheduledTask>();
+
 export async function startMetricsMonitoring(
   publicDns: string,
   username: string,
   password: string,
   alarm: { id: string; data: AlarmThresholds },
   type: 'memory' | 'storage'
-) {
+): Promise<void> {
   const rabbitmqUrl = `http://${publicDns}:15672/api/nodes`;
   const reminderInterval = alarm.data.reminderInterval;
+
+  // Stop existing task if there is one
+  stopMetricsMonitoring(alarm.id);
 
   const task = cron.schedule(`*/${reminderInterval} * * * *`, async () => {
     try {
@@ -54,7 +71,48 @@ export async function startMetricsMonitoring(
     }
   });
 
-  return task;
+  monitoringTasks.set(alarm.id, task);
+}
+
+export function stopMetricsMonitoring(alarmId: string): void {
+  try {
+    const task = monitoringTasks.get(alarmId);
+    if (task) {
+      task.stop();
+      monitoringTasks.delete(alarmId);
+    }
+  } catch (error) {
+    console.error('Error stopping metrics monitoring:', error);
+  }
+}
+
+export async function initializeAllMonitoring(): Promise<void> {
+  try {
+    const response = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {});
+    if (!response.Item) return;
+
+    const instance = response.Item;
+    const alarms = instance.alarms || {};
+
+    const username = decrypt(instance.encryptedUsername);
+    const password = decrypt(instance.encryptedPassword);
+    const alarmEntries: [string, Alarm[]][] = Object.entries(alarms);
+
+    // Start monitoring for each alarm type
+    for (const [alarmType, alarmList] of alarmEntries) {
+      for (const alarm of alarmList) {
+        await startMetricsMonitoring(
+          instance.publicDns,
+          username,
+          password,
+          alarm,
+          alarmType as 'memory' | 'storage'
+        );
+      }
+    }
+  } catch (error) {
+    console.error('Error initializing monitoring:', error);
+  }
 }
 
 export async function sendNotification(data: {

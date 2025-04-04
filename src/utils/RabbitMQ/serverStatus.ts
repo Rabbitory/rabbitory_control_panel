@@ -57,7 +57,7 @@ export async function pollRabbitMQServerStatus(
           );
           console.log("Backup definitions:", backupDefinitions);
           if (backupDefinitions) {
-            await storeToDynamoDB("RabbitoryInstancesMetadata", {
+            await storeToDynamoDB("rabbitory-instances-metadata", {
               instanceId,
               instanceName,
               encryptedUsername,

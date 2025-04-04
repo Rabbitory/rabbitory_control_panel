@@ -1,6 +1,7 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
+import { Alarm } from "@/types/alarms";
 import { startMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
 import { decrypt } from "@/utils/encrypt";
 import { stopMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
@@ -77,10 +78,10 @@ export async function POST(
     );
   }
 
-  const newAlarm = await request.json();
+  const alarmData = await request.json();
 
   try {
-    const response = await appendAlarmsSettings(instance.InstanceId, newAlarm);
+    const response = await appendAlarmsSettings(instance.InstanceId, alarmData);
 
     const metadata = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {
       instanceId: instance.InstanceId,
@@ -89,7 +90,7 @@ export async function POST(
     const encryptedUsername = metadata.Item?.encryptedUsername;
     const encryptedPassword = metadata.Item?.encryptedPassword;
     const publicDns = instance.PublicDnsName;
-    const type = newAlarm.type;
+    const type = alarmData.type;
 
     if (!encryptedUsername || !encryptedPassword || !publicDns) {
       return NextResponse.json(
@@ -100,13 +101,16 @@ export async function POST(
 
     const username = decrypt(encryptedUsername);
     const password = decrypt(encryptedPassword);
+    const alarms = response.Attributes?.alarms;
+    // we append the newest alarm, so order is maintained
+    const newAlarm: Alarm = alarms[type]?.slice(-1)[0];
 
     await startMetricsMonitoring(
       publicDns,
       username,
       password,
       newAlarm,
-      newAlarm.type,
+      alarmData.type,
     );
 
     return NextResponse.json({
@@ -179,7 +183,7 @@ export async function DELETE(
     );
   }
   try {
-    await stopMetricsMonitoring(alarmId);
+    stopMetricsMonitoring(alarmId);
     await deleteAlarmFromDynamoDB(instance.InstanceId, type, alarmId);
     return NextResponse.json({ message: "Alarm deleted successfully" });
   } catch (error) {

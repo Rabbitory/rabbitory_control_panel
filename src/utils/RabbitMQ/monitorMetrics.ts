@@ -4,20 +4,6 @@ import { ScheduledTask } from 'node-cron';
 import { fetchFromDynamoDB } from '../dynamoDBUtils';
 import { decrypt } from '../encrypt';
 
-interface AlarmThresholds {
-  timeThreshold: number;
-  storageThreshold: number;
-  reminderInterval: number;
-}
-
-interface Alarm {
-  id: string;
-  data: AlarmThresholds;
-}
-
-interface AlarmList {
-  [key: string]: Alarm[];
-}
 
 const monitoringTasks = new Map<string, ScheduledTask>();
 
@@ -30,6 +16,7 @@ export async function startMetricsMonitoring(
 ): Promise<void> {
   const rabbitmqUrl = `http://${publicDns}:15672/api/nodes`;
   const reminderInterval = alarm.data.reminderInterval;
+  console.log("This is the alarm object:", alarm)
 
   // Stop existing task if there is one
   stopMetricsMonitoring(alarm.id);
@@ -75,11 +62,17 @@ export async function startMetricsMonitoring(
 
 export function stopMetricsMonitoring(alarmId: string): void {
   try {
+    console.log(`Attempting to stop monitoring for alarm ${alarmId}`);
     const task = monitoringTasks.get(alarmId);
     if (task) {
+      console.log(`Found task for alarm ${alarmId}, stopping...`);
       task.stop();
       monitoringTasks.delete(alarmId);
+      console.log(`Successfully stopped and removed task for alarm ${alarmId}`);
+    } else {
+      console.log(`No task found for alarm ${alarmId}`);
     }
+    console.log('Current monitoring tasks:', Array.from(monitoringTasks.keys()));
   } catch (error) {
     console.error('Error stopping metrics monitoring:', error);
   }

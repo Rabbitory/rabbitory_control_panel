@@ -1,6 +1,8 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
+import { startMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
+import { decrypt } from "@/utils/encrypt";
 import {
   appendAlarmsSettings,
   deleteAlarmFromDynamoDB,
@@ -74,20 +76,83 @@ export async function POST(
     );
   }
 
-  const alarms = await request.json();
-  console.log(alarms);
+  const newAlarm = await request.json();
+
   try {
-    const response = await appendAlarmsSettings(instance.InstanceId, alarms);
-    console.log(response.Attributes?.alarms);
-    return NextResponse.json(response.Attributes?.alarms);
+    const response = await appendAlarmsSettings(instance.InstanceId, newAlarm);
+
+    const metadata = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {
+      instanceId: instance.InstanceId,
+    });
+
+    const encryptedUsername = metadata.Item?.encryptedUsername;
+    const encryptedPassword = metadata.Item?.encryptedPassword;
+    const publicDns = instance.PublicDnsName;
+    const type = newAlarm.type;
+
+    if (!encryptedUsername || !encryptedPassword || !publicDns) {
+      return NextResponse.json(
+        { message: "RabbitMQ credentials not found" },
+        { status: 500 }
+      );
+    }
+
+    const username = decrypt(encryptedUsername);
+    const password = decrypt(encryptedPassword);
+
+    await startMetricsMonitoring(
+      publicDns,
+      username,
+      password,
+      newAlarm,
+      newAlarm.type,
+    );
+
+    return NextResponse.json({
+      message: "Alarm added and monitoring started",
+      alarms: response.Attributes?.alarms
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { message: "Error adding alarms settings" },
+      { message: "Error adding alarm and starting monitoring" },
       { status: 500 }
     );
   }
 }
+
+// import { startMetricsMonitoring } from '@/utils/RabbitMQ/monitorMetrics';
+//
+// export async function POST(
+//   request: NextRequest,
+//   { params }: { params: Promise<{ name: string }> }
+// ) {
+//   // ... existing code ...
+//
+//   try {
+//     const response = await axios.get(rabbitmqUrl, {
+//       auth: { username, password }
+//     });
+//
+//     // Start the monitoring cron job
+//     await startMetricsMonitoring(
+//       publicDns,
+//       username,
+//       password,
+// [alarms], // Pass the alarm settings
+// type as 'memory' | 'storage'
+//     );
+//
+//     return NextResponse.json({ message: "Monitoring started successfully" });
+//   } catch (error) {
+//     console.error("Error starting monitoring:", error);
+//     return NextResponse.json(
+//       { message: "Error starting monitoring" },
+//       { status: 500 }
+//     );
+//   }
+// }
+// }
 
 export async function DELETE(
   request: NextRequest,

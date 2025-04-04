@@ -1,6 +1,7 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
+import { sendNotification } from "@/utils/RabbitMQ/monitorMetrics";
 import axios from "axios";
 
 export async function POST(
@@ -55,6 +56,12 @@ export async function POST(
   //
   // alarm type is sent as searchParams
   const type = searchParams.get("type");
+  if (!type) {
+    return NextResponse.json(
+      { message: "Missing parameters" },
+      { status: 400 }
+    );
+  }
 
   // Below is the url to get the rabbitmq nodes metrics
   //To send a axios request, you will need to have this url and
@@ -86,6 +93,13 @@ export async function POST(
     // settings. And probably only send more notifications if the stats exceed the threshold
 
     console.log("Nodes:", nodes);
+    sendNotification({
+      alarmId: alarms.id,
+      type: type,
+      currentValue: 0,
+      threshold: alarms.data.storageThreshold,
+      instanceDns: publicDns,
+    });
     return NextResponse.json({ message: "Trigger successfully" });
   } catch (error) {
     console.error("Error trigger alarms:", error);

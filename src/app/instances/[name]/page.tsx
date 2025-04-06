@@ -9,7 +9,7 @@ export default function InstancePage() {
   const { instance } = useInstanceContext();
 
   return (
-    <>
+    <div className="flex-1 max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
       <h2 className="font-heading1">{instance?.name}</h2>
       <ul>
         <li>
@@ -50,6 +50,6 @@ export default function InstancePage() {
           <button>Go Back</button>
         </Link>
       </ul>
-    </>
+    </div>
   );
 }

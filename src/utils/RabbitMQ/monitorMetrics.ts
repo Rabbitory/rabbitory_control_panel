@@ -4,20 +4,6 @@ import { ScheduledTask } from 'node-cron';
 import { fetchFromDynamoDB } from '../dynamoDBUtils';
 import { decrypt } from '../encrypt';
 
-interface AlarmThresholds {
-  timeThreshold: number;
-  storageThreshold: number;
-  reminderInterval: number;
-}
-
-interface Alarm {
-  id: string;
-  data: AlarmThresholds;
-}
-
-interface AlarmList {
-  [key: string]: Alarm[];
-}
 
 const monitoringTasks = new Map<string, ScheduledTask>();
 
@@ -30,10 +16,10 @@ export async function startMetricsMonitoring(
 ): Promise<void> {
   const rabbitmqUrl = `http://${publicDns}:15672/api/nodes`;
   const reminderInterval = alarm.data.reminderInterval;
+  console.log("This is the alarm object:", alarm)
 
   // Stop existing task if there is one
   stopMetricsMonitoring(alarm.id);
-
   const task = cron.schedule(`*/${reminderInterval} * * * *`, async () => {
     try {
       const response = await axios.get(rabbitmqUrl, {
@@ -76,11 +62,17 @@ export async function startMetricsMonitoring(
 
 export function stopMetricsMonitoring(alarmId: string): void {
   try {
+    console.log(`Attempting to stop monitoring for alarm ${alarmId}`);
     const task = monitoringTasks.get(alarmId);
     if (task) {
+      console.log(`Found task for alarm ${alarmId}, stopping...`);
       task.stop();
       monitoringTasks.delete(alarmId);
+      console.log(`Successfully stopped and removed task for alarm ${alarmId}`);
+    } else {
+      console.log(`No task found for alarm ${alarmId}`);
     }
+    console.log('Current monitoring tasks:', Array.from(monitoringTasks.keys()));
   } catch (error) {
     console.error('Error stopping metrics monitoring:', error);
   }
@@ -123,8 +115,13 @@ export async function sendNotification(data: {
   instanceDns: string;
 }) {
   try {
+    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+    if (!webhookUrl) {
+      throw new Error('SLACK_WEBHOOK_URL is not defined');
+    }
+
     await axios.post(
-      'https://hooks.slack.com/services/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',
+      webhookUrl,
       {
         text: `Alarm triggered for ${data.instanceDns}\nType: ${data.type}\nCurrent value: ${data.currentValue}\nThreshold: ${data.threshold}\nAlarm ID: ${data.alarmId}`
       },

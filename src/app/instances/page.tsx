@@ -26,13 +26,12 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="p-6">
-      {/* Heading and button on the same line */}
+    <div className="p-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-semibold text-gray-900">Instances</h1>
+        <h1 className="font-heading1 text-3xl  text-gray-900">Instances</h1>
         <Link href="/instances/newForm">
-          <button className="py-2 px-6 bg-green-400 text-white rounded-md hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-            Create New Instance
+          <button className="font-heading py-2 px-6 bg-green-400 text-white rounded-md hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500">
+            + Create New Instance
           </button>
         </Link>
       </div>
@@ -41,7 +40,7 @@ export default function Home() {
       {instances.length === 0 ? (
         <p className="text-lg text-gray-600 mb-6">No instances yet.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="font-text1 space-y-4">
           {instances.map((instance) => (
             <li
               key={instance.name}

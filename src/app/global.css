@@ -3,3 +3,10 @@
 /* @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities"; */
+
+@theme inline {
+  --font-heading1: var(--font-poppins);
+  --font-text1: var(--font-metrophobic);
+  --font-heading2: var(--font-jetBrains);
+  --font-text2: var(--font-roboto);
+}

@@ -10,7 +10,7 @@ export default function InstancePage() {
 
   return (
     <>
-      <h2>{instance?.name}</h2>
+      <h2 className="font-heading1">{instance?.name}</h2>
       <ul>
         <li>
           <strong>Status:</strong> {instance?.state}

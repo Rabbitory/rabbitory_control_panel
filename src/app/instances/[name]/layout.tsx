@@ -14,10 +14,8 @@ export default async function InstanceLayout({
   const { name } = await params;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <InstanceProvider>
-        <InstanceContent name={name}>{children}</InstanceContent>
-      </InstanceProvider>
-    </div>
+    <InstanceProvider>
+      <InstanceContent name={name}>{children}</InstanceContent>
+    </InstanceProvider>
   );
 }

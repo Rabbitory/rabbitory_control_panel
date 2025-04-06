@@ -1,13 +1,33 @@
 "use client";
 
 import { useInstanceContext } from "../../InstanceContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 export default function AlarmsPage() {
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState("");
+  const [fetching, setFetching] = useState(true);
+
+  useEffect(() => {
+    const fetchCurrentWebhookUrl = async () => {
+      try {
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+        );
+
+        setWebhookUrl(response.data.webhookUrl || "");
+      } catch (error) {
+        console.error("Error fetching webhook url:", error);
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchCurrentWebhookUrl();
+  }, [instance?.name, instance?.region]);
 
   const saveWebhookUrl = async () => {
     try {
@@ -23,6 +43,16 @@ export default function AlarmsPage() {
       return false;
     }
   };
+
+  async function testWebhook() {
+    await axios.post(
+      `/api/instances/${instance?.name}/alarms/slack/test?region=${instance?.region}`,
+      { text: "This a test for Rabbitory's alarms" },
+    );
+    alert("Message sent");
+  }
+
+  if (fetching) return <div>Loading...</div>;
 
   return (
     <>
@@ -58,6 +88,27 @@ export default function AlarmsPage() {
             </button>
           </div>
         </fieldset>
+        <div className="flex justify-end gap-4">
+          <button
+            disabled={saving}
+            onClick={async (e) => {
+              e.preventDefault();
+              testWebhook();
+            }}
+            className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
+          >
+            Test Webhook
+          </button>
+        </div>
+        <div className="flex justify-end gap-4">
+          <a
+            href="/slack-alarms-tutorial.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            How to set up Slack
+          </a>
+        </div>
       </div>
     </>
   );

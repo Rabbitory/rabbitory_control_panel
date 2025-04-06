@@ -4,9 +4,9 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities"; */
 
-@theme {
+/* @theme {
   --color-
-}
+} */
 
 @theme inline {
   --font-heading1: var(--font-poppins);

@@ -128,7 +128,7 @@ export default function ConfigurationPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className={`px-4 py-2 text-white rounded-md
+              className={`font-heading1 px-4 py-2 text-white rounded-md
                 ${isSaving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "bg-btn1 hover:bg-btnhover1"}
               `}
             >

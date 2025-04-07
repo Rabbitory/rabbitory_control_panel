@@ -60,15 +60,14 @@ export default function HardwarePage() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="font-heading1 text-3xl text-gray-900 mb-10">Edit Hardware</h1>
-      <p className="font-text1 text-xl mb-6">Current instance hardware: {instance?.type}</p>
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-md shadow-md mt-6 text-pagetext1">
+      <h1 className="font-heading1 text-2xl mb-10">Edit Instance Type + Size</h1>
+      <p className="font-text1 text-md mb-6">Current instance hardware: {instance?.type}</p>
       <fieldset disabled={saving} className="space-y-4">
-        {/* <div className="flex items-center gap-4"> */}
           <div className="flex items-center gap-4">
             <label
               htmlFor="instanceType"
-              className="font-text1 text-xl text-gray-700 w-1/4"
+              className="font-text1 text-md w-1/4"
             >
               New Instance Type:
             </label>
@@ -77,7 +76,7 @@ export default function HardwarePage() {
               name="instanceType"
               value={selectedInstanceType}
               onChange={(e) => setSelectedInstanceType(e.target.value)}
-              className="font-text1 w-1/4 p-2 border rounded-md text-xl"
+              className="font-text1 w-1/4 p-2 border rounded-md text-sm"
             >
               <option value="">Select an instance type</option>
               {Object.keys(instanceTypes).map((type) => (
@@ -91,7 +90,7 @@ export default function HardwarePage() {
           <div className="flex items-center gap-4">
             <label
               htmlFor="instanceSize"
-              className="font-text1 text-xl text-gray-700 w-1/4"
+              className="font-text1 text-md w-1/4"
             >
               New Instance Size:
             </label>
@@ -99,7 +98,7 @@ export default function HardwarePage() {
               id="instanceSize"
               name="instanceSize"
               disabled={!selectedInstanceType}
-              className="font-text1 w-1/4 p-2 border rounded-md text-xl"
+              className="font-text1 w-1/4 p-2 border rounded-md text-sm"
               value={instanceSize}
               onChange={(e) => setInstanceSize(e.target.value)}
             >
@@ -111,21 +110,22 @@ export default function HardwarePage() {
               ))}
             </select>
           </div>
-        {/* </div> */}
-        <button
-          type="submit"
-          className="font-heading1 w-1/9 py-2 bg-green-400 text-white rounded-md hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
-          disabled={saving}
-          onClick={async (e) => {
-            e.preventDefault();
-            setSaving(true);
-            const success = await updateHardware();
-            if (success)
-              window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
-          }}
-        >
-          {saving ? "Saving..." : "Save"}
-        </button>
+          <button
+                className={`font-heading1 px-4 py-2 text-white rounded-md
+                  ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "bg-btn1 hover:bg-btnhover1"}
+                `}
+                type="submit"
+                disabled={saving}
+                onClick={async (e) => {
+                  e.preventDefault();
+                  setSaving(true);
+                  const success = await updateHardware();
+                  if (success)
+                    window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
+                }}
+              >
+                {saving ? "Saving..." : "Save"}
+          </button>
       </fieldset>
     </div>
   );

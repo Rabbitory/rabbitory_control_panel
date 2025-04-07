@@ -36,19 +36,19 @@ export default function LogsPage() {
   }, [instance?.name, instance?.region]);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="font-heading1 text-3xl text-gray-900 mb-10">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-sm shadow-md mt-6 text-pagetext1">
+      <h1 className="font-heading1 text-2xl mb-10">
         RabbitMQ Logs
       </h1>
 
-      {isFetching && <p className="text-gray-600">Fetching logs...</p>}
+      {isFetching && <p className="font-text1">Fetching logs...</p>}
       {error && <p className="text-red-600">{error}</p>}
 
       {logs && (
         <div className="relative">
           <button
             onClick={() => navigator.clipboard.writeText(logs)}
-            className="absolute top-2 right-2 px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            className="font-heading1 absolute top-2 right-2 px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
           >
             Copy
           </button>

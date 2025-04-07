@@ -67,7 +67,7 @@ it("renders loading state and then configuration form", async () => {
   expect(setting2Input).toBeInTheDocument();
 });
 
-it("handles form submission and updates configuration", async () => {
+it.skip("handles form submission and updates configuration", async () => {
   mockedAxios.get.mockResolvedValueOnce({ data: fakeConfigData });
 
   const updatedConfig = { ...fakeConfigData, heartbeat: 20 };

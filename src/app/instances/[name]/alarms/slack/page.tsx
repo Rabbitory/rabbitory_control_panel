@@ -3,7 +3,6 @@
 import { useInstanceContext } from "../../InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Link from "next/link";
 
 export default function AlarmsPage() {
   const { instance } = useInstanceContext();

@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-import axios from "axios";
-
-const appDataPath = path.join(process.cwd(), "src/utils/Slack/appData.json");
+import { sendSlackMessage } from "@/utils/Slack/webhookUtils";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -15,15 +11,13 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const fileData = await fs.readFile(appDataPath, "utf8");
-  const appData = JSON.parse(fileData);
-  const webhookUrl = appData.webhookUrl;
-
-  await axios.post(webhookUrl, {
-    text,
-  });
-
-  return new NextResponse(JSON.stringify({ success: true, text }), {
-    status: 200,
-  });
+  try {
+    await sendSlackMessage(text);
+    return NextResponse.json({ success: true, text });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to send test message" },
+      { status: 500 }
+    );
+  }
 }

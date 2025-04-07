@@ -4,10 +4,8 @@ import { ScheduledTask } from 'node-cron';
 import { fetchFromDynamoDB } from '../dynamoDBUtils';
 import { decrypt } from '../encrypt';
 import { AlarmThresholds, Alarm } from '@/types/alarms';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { sendSlackMessage } from '../Slack/webhookUtils';
 
-const appDataPath = path.join(process.cwd(), "src/utils/Slack/appData.json");
 const monitoringTasks = new Map<string, ScheduledTask>();
 
 export async function startMetricsMonitoring(
@@ -118,26 +116,14 @@ export async function sendNotification(data: {
   instanceDns: string;
 }) {
   try {
-    const fileData = await fs.readFile(appDataPath, "utf8");
-    const appData = JSON.parse(fileData);
-    const webhookUrl = appData.webhookUrl;
-
-    if (!webhookUrl) {
-      throw new Error('SLACK_WEBHOOK_URL is not defined');
-    }
-
-    await axios.post(
-      webhookUrl,
-      {
-        text: `Alarm triggered for ${data.instanceDns}\nType: ${data.type}\nCurrent value: ${data.currentValue}\nThreshold: ${data.threshold}\nAlarm ID: ${data.alarmId}`
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
+    const message = [
+      `Alarm triggered for ${data.instanceDns}`,
+      `Type: ${data.type}`,
+      `Current value: ${data.currentValue.toFixed(2)}%`,
+      `Threshold: ${data.threshold}%`,
+      `Alarm ID: ${data.alarmId}`
+    ].join('\n');
+    await sendSlackMessage(message);
     console.log('Alarm triggered:', data);
   } catch (error) {
     console.error('Failed to send notification:', error);

@@ -92,7 +92,7 @@ export const appendBackupDefinition = async (
   const docClient = DynamoDBDocumentClient.from(client);
 
   const params = {
-    TableName: "RabbitoryInstancesMetadata",
+    TableName: "rabbitory-instances-metadata",
     Key: { instanceId },
     UpdateExpression:
       "SET backups = list_append(:newBackup, if_not_exists(backups, :emptyList))",

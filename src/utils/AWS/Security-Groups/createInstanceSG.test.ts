@@ -44,8 +44,8 @@ it("should throw an error if no VPCs are found", async () => {
 });
 
 it("should generate a unique security group name", () => {
-  expect(generateUniqueSGName("My Instance")).toBe("rabbitmq-sg-my-instance");
-  expect(generateUniqueSGName("Instance@123!")).toBe("rabbitmq-sg-instance-123-");
+  expect(generateUniqueSGName("My Instance")).toBe("rabbitory-broker-sg-my-instance");
+  expect(generateUniqueSGName("Instance@123!")).toBe("rabbitory-broker-sg-instance-123-");
 });
 
 it("should create a security group and return its ID", async () => {

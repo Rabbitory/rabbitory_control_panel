@@ -92,6 +92,11 @@ export default function NavLayout({ name }: NavLayoutProps) {
             To RabbitMQ Manager
           </button>
         </li>
+        <li className="mb-4">
+          <Link href={`/instances/${name}/firewall?region=${instance?.region}`} className="text-gray-700 text-xl hover:text-black">
+            Firewall
+          </Link>
+        </li>
       </ul>
     </nav>
   );

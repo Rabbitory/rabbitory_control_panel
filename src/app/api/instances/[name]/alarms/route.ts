@@ -90,7 +90,7 @@ export async function POST(
   try {
     const response = await appendAlarmsSettings(instance.InstanceId, alarmData);
 
-    const metadata = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {
+    const metadata = await fetchFromDynamoDB("rabbitory-instances-metadata", {
       instanceId: instance.InstanceId,
     });
 
@@ -201,56 +201,3 @@ export async function DELETE(
     );
   }
 }
-
-// Error fetching item, item not found ResourceNotFoundException: Requested resource not found
-//     at <unknown> (ResourceNotFoundException: Requested resource not found)
-//     at async fetchFromDynamoDB (src/utils/dynamoDBUtils.ts:58:21)
-//     at async GET (src/app/api/instances/[name]/alarms/route.ts:40:21)
-//   56 |       Key: partitionKey,
-//   57 |     });
-// > 58 |     const response = await docClient.send(command);
-//      |                     ^
-//   59 |     console.log("Item fetched successfully!");
-//   60 |     return response;
-//   61 |   } catch (err) { {
-//   '$fault': 'client',
-//   '$metadata': [Object],
-//   __type: 'com.amazonaws.dynamodb.v20120810#ResourceNotFoundException'
-// }
-// Error: Failed to fetch data from DynamoDB
-//     at fetchFromDynamoDB (src/utils/dynamoDBUtils.ts:63:10)
-//     at async GET (src/app/api/instances/[name]/alarms/route.ts:40:21)
-//   61 |   } catch (err) {
-//   62 |     console.error("Error fetching item, item not found", err);
-// > 63 |     throw new Error("Failed to fetch data from DynamoDB");
-//      |          ^
-//   64 |   }
-//   65 | };
-//   66 |
-// GET /api/instances/peach-retail-crawdad/alarms?region=us-east-1 500 in 2569ms
-// Error fetching item, item not found ResourceNotFoundException: Requested resource not found
-//     at <unknown> (ResourceNotFoundException: Requested resource not found)
-//     at async fetchFromDynamoDB (src/utils/dynamoDBUtils.ts:58:21)
-//     at async GET (src/app/api/instances/[name]/alarms/route.ts:40:21)
-//   56 |       Key: partitionKey,
-//   57 |     });
-// > 58 |     const response = await docClient.send(command);
-//      |                     ^
-//   59 |     console.log("Item fetched successfully!");
-//   60 |     return response;
-//   61 |   } catch (err) { {
-//   '$fault': 'client',
-//   '$metadata': [Object],
-//   __type: 'com.amazonaws.dynamodb.v20120810#ResourceNotFoundException'
-// }
-// Error: Failed to fetch data from DynamoDB
-//     at fetchFromDynamoDB (src/utils/dynamoDBUtils.ts:63:10)
-//     at async GET (src/app/api/instances/[name]/alarms/route.ts:40:21)
-//   61 |   } catch (err) {
-//   62 |     console.error("Error fetching item, item not found", err);
-// > 63 |     throw new Error("Failed to fetch data from DynamoDB");
-//      |          ^
-//   64 |   }
-//   65 | };
-//   66 |
-//  GET /api/instances/peach-retail-crawdad/alarms?region=us-east-1 500 in 2721ms

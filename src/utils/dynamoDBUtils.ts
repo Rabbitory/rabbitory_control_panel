@@ -118,7 +118,7 @@ const ensureAlarmsExists = async (instanceId: string) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
   const params = {
-    TableName: "RabbitoryInstancesMetadata",
+    TableName: "rabbitory-instances-metadata",
     Key: { instanceId },
     UpdateExpression: "SET alarms = if_not_exists(alarms, :emptyMap)",
     ExpressionAttributeValues: {
@@ -143,7 +143,7 @@ export const appendAlarmsSettings = async (
   const newAlarmRecord = { id: newId, data: newAlarm.data };
 
   const params = {
-    TableName: "RabbitoryInstancesMetadata",
+    TableName: "rabbitory-instances-metadata",
     Key: { instanceId },
     UpdateExpression:
       "SET alarms.#alarmType = list_append(if_not_exists(alarms.#alarmType, :emptyList), :newAlarm)",
@@ -177,7 +177,7 @@ export const deleteAlarmFromDynamoDB = async (
   const docClient = DynamoDBDocumentClient.from(client);
 
   const getParams = {
-    TableName: "RabbitoryInstancesMetadata",
+    TableName: "rabbitory-instances-metadata",
     Key: { instanceId },
   };
 
@@ -195,7 +195,7 @@ export const deleteAlarmFromDynamoDB = async (
   const updatedAlarmArray = alarmArray.filter((alarm) => alarm.id !== alarmId);
 
   const updateParams = {
-    TableName: "RabbitoryInstancesMetadata",
+    TableName: "rabbitory-instances-metadata",
     Key: { instanceId },
     UpdateExpression: "SET alarms.#alarmType = :updatedList",
     ExpressionAttributeNames: {

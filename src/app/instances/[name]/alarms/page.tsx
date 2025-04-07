@@ -29,6 +29,7 @@ export default function AlarmsPage() {
         const response = await axios.get(
           `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         );
+        console.log("This is the response:", response.data)
         setMemoryAlarms(response.data.memory || []);
         setStorageAlarms(response.data.storage || []);
       } catch (error) {

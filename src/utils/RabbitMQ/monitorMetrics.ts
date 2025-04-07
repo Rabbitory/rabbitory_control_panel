@@ -3,6 +3,7 @@ import cron from 'node-cron';
 import { ScheduledTask } from 'node-cron';
 import { fetchFromDynamoDB } from '../dynamoDBUtils';
 import { decrypt } from '../encrypt';
+import { AlarmThresholds, Alarm } from '@/types/alarms';
 
 
 const monitoringTasks = new Map<string, ScheduledTask>();
@@ -80,7 +81,7 @@ export function stopMetricsMonitoring(alarmId: string): void {
 
 export async function initializeAllMonitoring(): Promise<void> {
   try {
-    const response = await fetchFromDynamoDB("RabbitoryInstancesMetadata", {});
+    const response = await fetchFromDynamoDB("rabbitory-instances-metadata", {});
     if (!response.Item) return;
 
     const instance = response.Item;

@@ -1,4 +1,4 @@
-interface AlarmThresholds {
+export interface AlarmThresholds {
   timeThreshold: number;
   storageThreshold: number;
   reminderInterval: number;

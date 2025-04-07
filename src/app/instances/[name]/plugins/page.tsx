@@ -75,7 +75,7 @@ export default function PluginsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">
+      <h1 className="font-heading1 text-3xl text-gray-900 mb-10 text-center">
         Plugins
       </h1>
       {isSaving && <p className="text-gray-600">Saving...</p>}
@@ -92,8 +92,8 @@ export default function PluginsPage() {
                 className="flex flex-col md:flex-row items-center justify-between border-b pb-4"
               >
                 <div className="mb-2 md:mb-0">
-                  <h2 className="text-xl font-semibold">{plugin.name}</h2>
-                  <p className="text-gray-600">{plugin.description}</p>
+                  <h2 className="font-heading1 text-xl ">{plugin.name}</h2>
+                  <p className="font-text1 text-gray-600">{plugin.description}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="relative inline-flex items-center cursor-pointer">

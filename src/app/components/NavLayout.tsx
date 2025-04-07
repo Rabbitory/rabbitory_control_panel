@@ -10,13 +10,22 @@ export default function NavLayout({ name }: NavLayoutProps) {
 
   return (
     <nav className="font-heading1 w-70 bg-gray-200 p-4 min-h-screen pl-10 pr-10">
+      <button
+        className="text-xl py-2 px-6 bg-orange-500 text-white rounded-md hover:bg-orange-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+        onClick={(e) => {
+          e.preventDefault();
+          window.open(`http://${instance?.publicDns}:15672`);
+        }}
+      >
+        To RabbitMQ Manager
+      </button>
       <h1 className="text-xl font-semibold mt-8 mb-8 hover:text-gray-700">
         <Link href={`/instances/${name}?region=${instance?.region}`}>
           Overview
         </Link>
       </h1>
       <ul>
-        <li className="mb-4">
+        <li className="mb-6">
           <Link
             href={`/instances/${name}/plugins?region=${instance?.region}`}
             className="text-gray-700 text-xl hover:text-black"
@@ -24,7 +33,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Plugins
           </Link>
         </li>
-        <li className="mb-4">
+        <li className="mb-6">
           <Link
             href={`/instances/${name}/versions?region=${instance?.region}`}
             className="text-gray-700 text-xl hover:text-black"
@@ -32,7 +41,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Versions
           </Link>
         </li>
-        <li className="mb-4">
+        <li className="mb-6">
           <Link
             href={`/instances/${name}/configuration?region=${instance?.region}`}
             className="text-gray-700 text-xl hover:text-black"
@@ -40,7 +49,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Configuration
           </Link>
         </li>
-        <li className="mb-4">
+        <li className="mb-6">
           <Link
             href={`/instances/${name}/hardware?region=${instance?.region}`}
             className="text-gray-700 text-xl hover:text-black"
@@ -48,7 +57,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Hardware
           </Link>
         </li>
-        <li className="mb-4">
+        <li className="mb-6">
           <Link
             href={`/instances/${name}/definitions?region=${instance?.region}`}
             className="text-gray-700 text-xl hover:text-black"
@@ -56,7 +65,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Definitions
           </Link>
         </li>
-        <li>
+        <li className="mb-6">
           <Link
             href={`/instances/${name}/logs?region=${instance?.region}`}
             className="text-gray-700 text-xl hover:text-black"
@@ -64,22 +73,12 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Logs
           </Link>
         </li>
-        <li className="mb-4">
+        <li className="mb-6">
           <Link href={`/instances/${name}/firewall?region=${instance?.region}`} className="text-gray-700 text-xl hover:text-black">
             Firewall
           </Link>
         </li>
-        <li className="mb-4">
-          <button
-            className="py-2 px-6 bg-orange-500 text-white rounded-md hover:bg-orange-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-            onClick={(e) => {
-              e.preventDefault();
-              window.open(`http://${instance?.publicDns}:15672`);
-            }}
-          >
-            To RabbitMQ Manager
-          </button>
-        </li>
+
       </ul>
     </nav>
   );

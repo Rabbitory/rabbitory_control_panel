@@ -37,7 +37,7 @@ export default function LogsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6">
+      <h1 className="font-heading1 text-3xl text-gray-900 mb-10">
         RabbitMQ Logs
       </h1>
 
@@ -52,7 +52,7 @@ export default function LogsPage() {
           >
             Copy
           </button>
-          <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap font-mono text-sm">
+          <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap font-text1 text-sm">
             {logs}
           </pre>
         </div>

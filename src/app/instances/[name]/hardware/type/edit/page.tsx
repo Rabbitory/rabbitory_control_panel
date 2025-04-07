@@ -60,75 +60,73 @@ export default function HardwarePage() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <>
-      <div>
-        <h1>Edit Hardware</h1>
-        <p>Current instance hardware: {instance?.type}</p>
-        <fieldset disabled={saving} className="space-y-4">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
+      <h1 className="font-heading1 text-3xl text-gray-900 mb-10">Edit Hardware</h1>
+      <p className="font-text1 text-xl mb-6">Current instance hardware: {instance?.type}</p>
+      <fieldset disabled={saving} className="space-y-4">
+        {/* <div className="flex items-center gap-4"> */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4">
-              <label
-                htmlFor="instanceType"
-                className="text-xl text-gray-700 w-1/4"
-              >
-                New Instance Type:
-              </label>
-              <select
-                id="instanceType"
-                name="instanceType"
-                value={selectedInstanceType}
-                onChange={(e) => setSelectedInstanceType(e.target.value)}
-                className="w-3/4 p-2 border rounded-md text-xl"
-              >
-                <option value="">Select an instance type</option>
-                {Object.keys(instanceTypes).map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label
-                htmlFor="instanceSize"
-                className="text-xl text-gray-700 w-1/4"
-              >
-                New Instance Size:
-              </label>
-              <select
-                id="instanceSize"
-                name="instanceSize"
-                disabled={!selectedInstanceType}
-                className="w-3/4 p-2 border rounded-md text-xl"
-                value={instanceSize}
-                onChange={(e) => setInstanceSize(e.target.value)}
-              >
-                <option value="">Select an instance size</option>
-                {filteredInstanceTypes.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <label
+              htmlFor="instanceType"
+              className="font-text1 text-xl text-gray-700 w-1/4"
+            >
+              New Instance Type:
+            </label>
+            <select
+              id="instanceType"
+              name="instanceType"
+              value={selectedInstanceType}
+              onChange={(e) => setSelectedInstanceType(e.target.value)}
+              className="font-text1 w-1/4 p-2 border rounded-md text-xl p-2"
+            >
+              <option value="">Select an instance type</option>
+              {Object.keys(instanceTypes).map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
           </div>
-          <button
-            type="submit"
-            className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
-            disabled={saving}
-            onClick={async (e) => {
-              e.preventDefault();
-              setSaving(true);
-              const success = await updateHardware();
-              if (success)
-                window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
-            }}
-          >
-            {saving ? "Saving..." : "Submit"}
-          </button>
-        </fieldset>
-      </div>
-    </>
+
+          <div className="flex items-center gap-4">
+            <label
+              htmlFor="instanceSize"
+              className="font-text1 text-xl text-gray-700 w-1/4"
+            >
+              New Instance Size:
+            </label>
+            <select
+              id="instanceSize"
+              name="instanceSize"
+              disabled={!selectedInstanceType}
+              className="font-text1 w-1/4 p-2 border rounded-md text-xl"
+              value={instanceSize}
+              onChange={(e) => setInstanceSize(e.target.value)}
+            >
+              <option value="">Select an instance size</option>
+              {filteredInstanceTypes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        {/* </div> */}
+        <button
+          type="submit"
+          className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
+          disabled={saving}
+          onClick={async (e) => {
+            e.preventDefault();
+            setSaving(true);
+            const success = await updateHardware();
+            if (success)
+              window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
+          }}
+        >
+          {saving ? "Saving..." : "Submit"}
+        </button>
+      </fieldset>
+    </div>
   );
 }

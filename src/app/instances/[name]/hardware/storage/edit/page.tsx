@@ -66,45 +66,43 @@ export default function StorageEditPage() {
   if (!currentVolumeSize) return <div>Loading...</div>;
 
   return (
-    <>
-      <div>
-        <h1>Hardware</h1>
-        <p>Current instance storage size:{` ${currentVolumeSize} GB`}</p>
-        <fieldset disabled={saving} className="space-y-4">
-          <div className="flex items-center gap-4">
-            <label
-              htmlFor="storageSize"
-              className="text-xl text-gray-700 w-1/4"
-            >
-              Storage Size (GB):
-            </label>
-            <input
-              id="storageSize"
-              name="storageSize"
-              type="number"
-              value={newVolumeSize}
-              onChange={(e) => setNewVolumeSize(Number(e.target.value))}
-              className="w-3/4 p-2 border rounded-md text-xl"
-            />
-          </div>
-          <div className="flex justify-end gap-4">
-            <button
-              disabled={saving}
-              onClick={async (e) => {
-                e.preventDefault();
-                const success = await updateStorageSize();
-                if (success)
-                  router.push(
-                    `/instances/${instance?.name}/hardware?region=${instance?.region}`,
-                  );
-              }}
-              className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
-            >
-              {saving ? "Saving..." : "Submit"}
-            </button>
-          </div>
-        </fieldset>
-      </div>
-    </>
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
+      <h1 className="font-heading1 text-3xl text-gray-900 mb-10">Hardware</h1>
+      <p className="font-text1 text-xl mb-6">Current instance storage size:{` ${currentVolumeSize} GB`}</p>
+      <fieldset disabled={saving} className="space-y-4">
+        <div className="flex items-center gap-4">
+          <label
+            htmlFor="storageSize"
+            className="font-text1 text-xl text-gray-700 w-1/4"
+          >
+            Storage Size (GB):
+          </label>
+          <input
+            id="storageSize"
+            name="storageSize"
+            type="number"
+            value={newVolumeSize}
+            onChange={(e) => setNewVolumeSize(Number(e.target.value))}
+            className="font-text1 w-1/9 p-2 border rounded-md text-xl"
+          />
+        </div>
+        <div className="flex justify-end gap-4">
+          <button
+            disabled={saving}
+            onClick={async (e) => {
+              e.preventDefault();
+              const success = await updateStorageSize();
+              if (success)
+                router.push(
+                  `/instances/${instance?.name}/hardware?region=${instance?.region}`,
+                );
+            }}
+            className="font-heading1 w-1/9 py-2 bg-green-400 text-white rounded-md hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </fieldset>
+    </div>
   );
 }

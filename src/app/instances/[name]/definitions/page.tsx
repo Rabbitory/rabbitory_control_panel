@@ -78,10 +78,10 @@ export default function DefinitionsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">
-        {instance?.name} Definitions
+      <h1 className="font-heading1 text-3xl text-gray-900 mb-6 text-center">
+        Definitions
       </h1>
-      <p className="text-gray-700 mb-4 text-center">
+      <p className="text-gray-700 mb-10">
         Download backups of the cluster definitions. See{" "}
         <a
           href="https://www.rabbitmq.com/docs/definitions"
@@ -98,7 +98,7 @@ export default function DefinitionsPage() {
         <button
           onClick={handleManualBackup}
           disabled={isSaving}
-          className="px-4 py-2 bg-green-400 text-white rounded-md"
+          className="font-heading1 px-4 py-2 bg-green-400 text-white rounded-md"
         >
           {isSaving ? "Creating Backup..." : "Manual backup"}
         </button>
@@ -109,7 +109,7 @@ export default function DefinitionsPage() {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
-            <thead>
+            <thead className="font-heading1">
               <tr>
                 <th className="p-2 text-left border-b">Date</th>
                 <th className="p-2 text-left border-b">Broker version</th>
@@ -117,10 +117,10 @@ export default function DefinitionsPage() {
                 <th className="p-2 text-left border-b"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="font-text1">
               {backups.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-2 text-center text-gray-600">
+                  <td colSpan={4} className="p-2 text-gray-600">
                     No backups found.
                   </td>
                 </tr>

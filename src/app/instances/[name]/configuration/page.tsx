@@ -68,7 +68,7 @@ export default function ConfigurationPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">
+      <h1 className="font-heading1 text-3xl mb-6 text-center">
         Configuration
       </h1>
       {isFetching ? (
@@ -76,19 +76,19 @@ export default function ConfigurationPage() {
       ) : (
         <form onSubmit={handleSubmit}>
           <table className="w-full border-collapse">
-            <thead>
+            <thead className="font-heading1 text-xl font-light">
               <tr>
                 <th className="p-2 text-left border-b">Setting</th>
                 <th className="p-2 text-left border-b">Description</th>
                 <th className="p-2 text-left border-b">Value</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="font-text1">
               {configItems.map((item) => (
-                <tr key={item.key}>
-                  <td className="p-2 font-semibold border-b">{item.key}</td>
+                <tr key={item.key} className="p-2">
+                  <td className="p-2 border-b">{item.key}</td>
                   <td className="p-2 border-b">{item.description}</td>
-                  <td className="p-2 border-b">
+                  <td className="p-2 border-b w-1/6 text-center">
                     {item.type === "dropdown" && item.options ? (
                       <select
                         name={item.key}
@@ -118,7 +118,7 @@ export default function ConfigurationPage() {
               ))}
             </tbody>
           </table>
-          <div className="flex justify-end gap-4 mt-6">
+          <div className="font-heading1 flex justify-end gap-4 mt-6">
             <Link
               href="/"
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md text-center"

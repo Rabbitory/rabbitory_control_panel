@@ -4,9 +4,19 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities"; */
 
-/* @theme {
-  --color-
-} */
+@theme {
+  --color-header1: #F5C19F; /* Manhattan Organe */
+  --color-navbar1: #29363A; /* Dark Gray-ish Navy */
+  --color-mainbg1: #E5E5E4; /* Quill Gray */
+  --color-cardbg1: #86563c;
+  --color-btn1: #EC7D2F; /* Medium Orange */
+  --color-btnhover1: #8AD02B; /* Yellow Green */
+  --color-cancelbtn1: #86563c;
+  --color-headertext1: #FFFFFF; /* White */
+  --color-navbartext1: #E5E5E4;
+  --color-pagetext1: #29363A; /* Dark Gray-ish Navy */
+  --color-othertext1: #86563c;
+}
 
 @theme inline {
   --font-heading1: var(--font-poppins);

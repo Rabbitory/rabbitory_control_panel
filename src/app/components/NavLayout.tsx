@@ -9,9 +9,9 @@ export default function NavLayout({ name }: NavLayoutProps) {
   const { instance } = useInstanceContext();
 
   return (
-    <nav className="font-heading1 w-70 bg-gray-200 p-4 min-h-screen pl-10 pr-10">
+    <nav className="w-60 bg-navbar1 p-4 min-h-screen pl-10 pr-10 h-full">
       <button
-        className="text-xl py-2 px-6 bg-orange-500 text-white rounded-md hover:bg-orange-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="text py-2 px-6 bg-btn1 text-white rounded-md hover:bg-btnhover1 focus:outline-none focus:ring-2 focus:ring-green-500"
         onClick={(e) => {
           e.preventDefault();
           window.open(`http://${instance?.publicDns}:15672`);
@@ -19,16 +19,16 @@ export default function NavLayout({ name }: NavLayoutProps) {
       >
         To RabbitMQ Manager
       </button>
-      <h1 className="text-xl font-semibold mt-8 mb-8 hover:text-gray-700">
+      <h1 className="font-text1 text-xl font-semibold mt-8 mb-8 text-navbartext1 hover:text-header1">
         <Link href={`/instances/${name}?region=${instance?.region}`}>
           Overview
         </Link>
       </h1>
-      <ul>
+      <ul >
         <li className="mb-6">
           <Link
             href={`/instances/${name}/plugins?region=${instance?.region}`}
-            className="text-gray-700 text-xl hover:text-black"
+            className="font-text1 text-lg text-navbartext1 hover:text-header1"
           >
             Plugins
           </Link>
@@ -36,7 +36,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-6">
           <Link
             href={`/instances/${name}/versions?region=${instance?.region}`}
-            className="text-gray-700 text-xl hover:text-black"
+            className="font-text1 text-lg text-navbartext1 hover:text-header1"
           >
             Versions
           </Link>
@@ -44,7 +44,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-6">
           <Link
             href={`/instances/${name}/configuration?region=${instance?.region}`}
-            className="text-gray-700 text-xl hover:text-black"
+            className="font-text1 text-lg text-navbartext1 hover:text-header1"
           >
             Configuration
           </Link>
@@ -52,7 +52,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-6">
           <Link
             href={`/instances/${name}/hardware?region=${instance?.region}`}
-            className="text-gray-700 text-xl hover:text-black"
+            className="font-text1 text-lg text-navbartext1 hover:text-header1"
           >
             Hardware
           </Link>
@@ -60,7 +60,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-6">
           <Link
             href={`/instances/${name}/definitions?region=${instance?.region}`}
-            className="text-gray-700 text-xl hover:text-black"
+            className="font-text1 text-lg text-navbartext1 hover:text-header1"
           >
             Definitions
           </Link>
@@ -68,13 +68,15 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-6">
           <Link
             href={`/instances/${name}/logs?region=${instance?.region}`}
-            className="text-gray-700 text-xl hover:text-black"
+            className="font-text1 text-lg text-navbartext1 hover:text-header1"
           >
             Logs
           </Link>
         </li>
         <li className="mb-6">
-          <Link href={`/instances/${name}/firewall?region=${instance?.region}`} className="text-gray-700 text-xl hover:text-black">
+          <Link 
+            href={`/instances/${name}/firewall?region=${instance?.region}`} 
+            className="font-text1 text-lg text-navbartext1 hover:text-header1">
             Firewall
           </Link>
         </li>

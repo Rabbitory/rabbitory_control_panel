@@ -58,11 +58,11 @@ export default function InstancePage() {
 
   return (
     <div className="flex-1 max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md m-6">
-      <h1 className="font-heading1 text-3xl pb-6 text-center">{instance?.name}</h1>
+      <h1 className="font-heading1 text-2xl pb-6 text-center">{instance?.name}</h1>
   
-      <h2 className="font-heading1 font-semibold text-xl pb-4">Instance Info:</h2>
+      <h2 className="font-heading1 font-semibold text-md pb-4">Instance Info:</h2>
       <table className="w-full table-auto mb-6">
-        <tbody>
+        <tbody className="font-text1">
           <tr>
             <td className="font-semibold">Status:</td>
             <td>{instance?.state}</td>
@@ -82,9 +82,9 @@ export default function InstancePage() {
         </tbody>
       </table>
   
-      <h2 className="font-heading1 font-semibold text-xl pb-4">RabbitMQ Server Info:</h2>
+      <h2 className="font-heading1 font-semibold text-md pb-4">RabbitMQ Server Info:</h2>
       <table className="w-full table-auto mb-6">
-        <tbody>
+        <tbody className="font-text1">
           <tr>
             <td className="font-semibold">Port:</td>
             <td>{instance?.port}</td>
@@ -98,7 +98,7 @@ export default function InstancePage() {
             <td>{instance?.password}</td>
           </tr>
           <tr>
-            <td className="font-semibold">Endpoint URL:</td>
+            <td className="font-semibold">RabbitMQ URL:</td>
             <td>
               {instance?.endpointUrl}{" "}
               <a

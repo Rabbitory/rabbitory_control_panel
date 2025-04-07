@@ -44,7 +44,7 @@ export function InstanceContent({
   return (
     <div className="grid grid-cols-[200px_1fr] gap-5 items-start">
       <NavLayout name={name} />
-      <section>
+      <section >
         {children}
       </section>
     </div>

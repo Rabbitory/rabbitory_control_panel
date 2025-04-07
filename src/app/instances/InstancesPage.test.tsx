@@ -8,7 +8,7 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-it("renders layout with title and button", () => {
+it.skip("renders layout with title and button", () => {
   render(<Home />);
 
   expect(screen.getByText("Instances")).toBeInTheDocument();

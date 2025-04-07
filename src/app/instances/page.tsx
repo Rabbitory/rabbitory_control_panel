@@ -26,11 +26,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="p-10">
+    <div className="mt-15 ml-30 mr-30">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="font-heading1 text-3xl  text-gray-900">Instances</h1>
+        <h1 className="font-heading1 text-3xl text-pagetext1">Instances</h1>
         <Link href="/instances/newForm">
-          <button className="font-heading py-2 px-6 bg-green-400 text-white rounded-md hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500">
+          <button className="font-heading py-2 px-6 bg-btn1 text-white rounded-md hover:bg-btnhover1 focus:outline-none focus:ring-2 focus:ring-green-500 text-xl">
             + Create New Instance
           </button>
         </Link>
@@ -44,11 +44,11 @@ export default function Home() {
           {instances.map((instance) => (
             <li
               key={instance.name}
-              className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50"
+              className="flex justify-between items-center p-4 border-gray-700 rounded-lg bg-white hover:bg-gray-100"
             >
               <Link
                 href={`/instances/${instance.name}?region=${instance.region}`}
-                className="text-xl text-blue-600 hover:underline"
+                className="text-pagetext1 hover:underline"
               >
                 {instance.name} | {instance.id} | {instance.region}
               </Link>

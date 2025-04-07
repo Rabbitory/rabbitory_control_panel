@@ -77,7 +77,7 @@ export default function HardwarePage() {
               name="instanceType"
               value={selectedInstanceType}
               onChange={(e) => setSelectedInstanceType(e.target.value)}
-              className="font-text1 w-1/4 p-2 border rounded-md text-xl p-2"
+              className="font-text1 w-1/4 p-2 border rounded-md text-xl"
             >
               <option value="">Select an instance type</option>
               {Object.keys(instanceTypes).map((type) => (
@@ -114,7 +114,7 @@ export default function HardwarePage() {
         {/* </div> */}
         <button
           type="submit"
-          className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
+          className="font-heading1 w-1/9 py-2 bg-green-400 text-white rounded-md hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
           disabled={saving}
           onClick={async (e) => {
             e.preventDefault();
@@ -124,7 +124,7 @@ export default function HardwarePage() {
               window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
           }}
         >
-          {saving ? "Saving..." : "Submit"}
+          {saving ? "Saving..." : "Save"}
         </button>
       </fieldset>
     </div>

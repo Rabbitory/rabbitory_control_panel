@@ -67,7 +67,7 @@ export default function StorageEditPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="font-heading1 text-3xl text-gray-900 mb-10">Hardware</h1>
+      <h1 className="font-heading1 text-3xl text-gray-900 mb-10">Edit Storage</h1>
       <p className="font-text1 text-xl mb-6">Current instance storage size:{` ${currentVolumeSize} GB`}</p>
       <fieldset disabled={saving} className="space-y-4">
         <div className="flex items-center gap-4">

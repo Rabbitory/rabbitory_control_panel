@@ -27,7 +27,7 @@ export default function AlarmsPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/alarms?region=${instance?.region}`
+          `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         );
         setMemoryAlarms(response.data.memory || []);
         setStorageAlarms(response.data.storage || []);
@@ -44,7 +44,7 @@ export default function AlarmsPage() {
   const handleDelete = async (type: "storage" | "memory", id: string) => {
     try {
       await axios.delete(
-        `/api/instances/${instance?.name}/alarms?region=${instance?.region}&type=${type}&id=${id}`
+        `/api/instances/${instance?.name}/alarms?region=${instance?.region}&type=${type}&id=${id}`,
       );
       setStorageAlarms((prev) => prev.filter((alarm) => alarm.id !== id));
       setMemoryAlarms((prev) => prev.filter((alarm) => alarm.id !== id));
@@ -63,7 +63,7 @@ export default function AlarmsPage() {
             "x-rabbitmq-username": instance?.user,
             "x-rabbitmq-password": instance?.password,
           },
-        }
+        },
       );
       console.log("Alarm triggered successfully");
     } catch (error) {
@@ -75,7 +75,7 @@ export default function AlarmsPage() {
     try {
       await axios.post(
         `/api/instances/${instance?.name}/alarms/resolve?region=${instance?.region}&&id=${id}`,
-        null
+        null,
       );
       console.log("Alarm resolved successfully");
     } catch (error) {
@@ -90,7 +90,7 @@ export default function AlarmsPage() {
         onClick={(e) => {
           e.preventDefault();
           router.push(
-            `/instances/${instance?.name}/alarms/new?region=${instance?.region}`
+            `/instances/${instance?.name}/alarms/new?region=${instance?.region}`,
           );
         }}
       >
@@ -211,6 +211,17 @@ export default function AlarmsPage() {
               </table>
             </div>
           </div>
+          <button
+            className="px-3 py-1 bg-blue-500 text-white rounded-md mr-2"
+            onClick={(e) => {
+              e.preventDefault();
+              router.push(
+                `/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+              );
+            }}
+          >
+            Setup Slack
+          </button>
         </>
       )}
     </>

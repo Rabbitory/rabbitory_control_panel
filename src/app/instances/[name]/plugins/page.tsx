@@ -4,9 +4,12 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { plugins, Plugin } from "@/types/plugins";
 import { useInstanceContext } from "../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 
 export default function PluginsPage() {
   const { instance } = useInstanceContext();
+  const { formPending, addNotification, notifications } =
+    useNotificationsContext();
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -22,9 +25,8 @@ export default function PluginsPage() {
               "x-rabbitmq-username": instance?.user,
               "x-rabbitmq-password": instance?.password,
             },
-          }
+          },
         );
-        console.log(response.data);
         setEnabledPlugins(response.data);
       } catch (error) {
         console.error("Error fetching plugins:", error);
@@ -38,16 +40,26 @@ export default function PluginsPage() {
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
-    pluginName: string
+    pluginName: string,
   ) => {
     e.preventDefault();
+    if (!instance?.name) return;
+
     const currentlyEnabled = enabledPlugins.includes(pluginName);
     const newValue = !currentlyEnabled;
+
+    addNotification({
+      type: "plugin",
+      status: "pending",
+      instanceName: instance?.name,
+      path: "plugins",
+      message: `${newValue ? "Enabling" : "Disabling"} ${pluginName}`,
+    });
 
     //update the state immediately,
     // we do this so that the toggle button updates immediately.
     setEnabledPlugins((prev) =>
-      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
+      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName),
     );
     setIsSaving(true);
 
@@ -57,7 +69,7 @@ export default function PluginsPage() {
         {
           name: pluginName,
           enabled: newValue,
-        }
+        },
       );
       console.log(`${pluginName} updated successfully to ${newValue}`);
     } catch (error) {
@@ -66,7 +78,7 @@ export default function PluginsPage() {
       setEnabledPlugins((prev) =>
         currentlyEnabled
           ? [...prev, pluginName]
-          : prev.filter((p) => p !== pluginName)
+          : prev.filter((p) => p !== pluginName),
       );
     } finally {
       setIsSaving(false);
@@ -104,6 +116,7 @@ export default function PluginsPage() {
                       // When toggled, the form is immediately submitted.
                       onChange={(e) => e.currentTarget.form?.requestSubmit()}
                       className="sr-only peer"
+                      disabled={formPending()}
                     />
                     <div
                       className="w-11 h-6 bg-gray-200 rounded-full
@@ -122,6 +135,7 @@ export default function PluginsPage() {
           })}
         </div>
       )}
+      {notifications.map((n) => n.message)}
     </div>
   );
 }

@@ -1,21 +1,38 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
-
-interface Notification {
-  status: "error" | "pending" | "success";
-  message: string;
-}
+import React, { createContext, useContext, ReactNode } from "react";
+import { Notification, NotificationStatus } from "@/types/notification";
+import { useNotifications } from "@/utils/useNotifications";
 
 interface NotificationsContextType {
   notifications: Notification[];
-  setNotifications: (notifications: Notification[]) => void;
+  addNotification: (notification: Notification) => void;
+  updateNotification: (
+    type: string,
+    instanceName: string,
+    newStatus: NotificationStatus,
+  ) => void;
+  clearNotifications: () => void;
+  deleteNotification: (type: string, instanceName: string) => void;
+  formPending: () => boolean;
 }
 
 const defaultContextValue: NotificationsContextType = {
   notifications: [],
-  setNotifications: () => {
-    throw new Error("setNotifications called outside of NotificationsProvider");
+  addNotification: () => {
+    throw new Error("addNotification not implemented");
+  },
+  updateNotification: () => {
+    throw new Error("updateNotification not implemented");
+  },
+  clearNotifications: () => {
+    throw new Error("clearNotifications not implemented");
+  },
+  deleteNotification: () => {
+    throw new Error("deleteNotification not implemented");
+  },
+  formPending: () => {
+    throw new Error("formPending not implemented");
   },
 };
 
@@ -33,10 +50,26 @@ interface NotificationsProviderProps {
 export function NotificationsProvider({
   children,
 }: NotificationsProviderProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const {
+    notifications,
+    addNotification,
+    updateNotification,
+    clearNotifications,
+    deleteNotification,
+    formPending,
+  } = useNotifications();
 
   return (
-    <NotificationsContext.Provider value={{ notifications, setNotifications }}>
+    <NotificationsContext.Provider
+      value={{
+        notifications,
+        addNotification,
+        updateNotification,
+        clearNotifications,
+        deleteNotification,
+        formPending,
+      }}
+    >
       {children}
     </NotificationsContext.Provider>
   );

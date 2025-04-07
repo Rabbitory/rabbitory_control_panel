@@ -11,7 +11,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
   return (
     <nav className="w-60 bg-navbar1 p-4 min-h-screen pl-10 pr-10 h-full">
       <button
-        className="text py-2 px-6 bg-btn1 text-white rounded-md hover:bg-btnhover1 focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="text py-2 px-6 bg-gray-500 text-white rounded-sm hover:bg-btnhover1 focus:outline-none focus:ring-2 focus:ring-green-500"
         onClick={(e) => {
           e.preventDefault();
           window.open(`http://${instance?.publicDns}:15672`);

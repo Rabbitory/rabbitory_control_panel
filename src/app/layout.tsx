@@ -52,7 +52,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
       }
       >
       <body className={`bg-mainbg1 text-gray-900`}>
-        <div className="flex justify-between items-center bg-header1 pt-8 pb-8 pl-10 pr-10">
+        <div className="flex justify-between items-center bg-header1 pt-6 pb-6 pl-10 pr-10">
           <Link
             href="/"
             className="font-heading1 font-semibold text-headertext1 text-4xl transition-colors duration-200 hover:text-orange-100 hover:cursor-pointer"

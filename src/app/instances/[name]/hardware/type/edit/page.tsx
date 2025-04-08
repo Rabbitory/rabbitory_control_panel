@@ -1,15 +1,18 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useInstanceContext } from "../../../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function HardwarePage() {
+  const router = useRouter();
   const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
   const { instance } = useInstanceContext();
-  const [saving, setSaving] = useState(false);
+  const { addNotification, formPending } = useNotificationsContext();
   const [loading, setLoading] = useState(true);
   const [selectedInstanceType, setSelectedInstanceType] = useState("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
@@ -36,11 +39,17 @@ export default function HardwarePage() {
   }, [selectedInstanceType, instanceTypes]);
 
   const updateHardware = async () => {
-    if (!selectedInstanceType || !instanceSize) {
+    if (!selectedInstanceType || !instanceSize || !instance) {
       alert("Missing instance type or size");
-      setSaving(false);
       return;
     }
+    await addNotification({
+      type: "instanceType",
+      status: "pending",
+      instanceName: instance.name,
+      path: "instances",
+      message: `Updating type of ${instance.name} to ${selectedInstanceType}`,
+    });
 
     try {
       await axios.put(`/api/instances/${instance?.name}/hardware/type`, {
@@ -50,7 +59,6 @@ export default function HardwarePage() {
       });
       return true;
     } catch (error) {
-      setSaving(false);
       console.error(error);
       alert("Failed to update instance hardware");
       return false;
@@ -64,7 +72,7 @@ export default function HardwarePage() {
       <div>
         <h1>Edit Hardware</h1>
         <p>Current instance hardware: {instance?.type}</p>
-        <fieldset disabled={saving} className="space-y-4">
+        <fieldset disabled={formPending()} className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-4">
               <label
@@ -116,16 +124,14 @@ export default function HardwarePage() {
           <button
             type="submit"
             className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
-            disabled={saving}
+            disabled={formPending()}
             onClick={async (e) => {
               e.preventDefault();
-              setSaving(true);
-              const success = await updateHardware();
-              if (success)
-                window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
+              await updateHardware();
+              router.push("/instances");
             }}
           >
-            {saving ? "Saving..." : "Submit"}
+            {formPending() ? "Saving..." : "Submit"}
           </button>
         </fieldset>
       </div>

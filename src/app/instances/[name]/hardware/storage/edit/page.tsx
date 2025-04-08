@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useInstanceContext } from "../../../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function StorageEditPage() {
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
   const [newVolumeSize, setNewVolumeSize] = useState(0);
-  const [saving, setSaving] = useState(false);
   const { instance } = useInstanceContext();
+  const { addNotification, formPending } = useNotificationsContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -36,25 +37,30 @@ export default function StorageEditPage() {
     size >= 1 && size <= 16000 && size > currentVolumeSize;
 
   const updateStorageSize = async () => {
-    if (!isValidStorageSize(newVolumeSize)) {
+    if (!isValidStorageSize(newVolumeSize) || !instance || !instance.name) {
       alert(
         "Invalid storage size. Must be greater than current size & less than or equal to 16000 GB",
       );
       return;
     }
 
-    setSaving(true);
+    addNotification({
+      type: "storage",
+      status: "pending",
+      instanceName: instance.name,
+      path: "instances",
+      message: `Updating storage size for ${instance.name}`,
+    });
 
     try {
-      await axios.put(`/api/instances/${instance?.name}/hardware/storage`, {
-        instanceId: instance?.id,
-        volumeId: instance?.EBSVolumeId,
-        region: instance?.region,
+      await axios.put(`/api/instances/${instance.name}/hardware/storage`, {
+        instanceId: instance.id,
+        volumeId: instance.EBSVolumeId,
+        region: instance.region,
         size: newVolumeSize,
       });
       return true;
     } catch (error) {
-      setSaving(false);
       console.error(error);
       alert(
         "Failed to update storage size. You might have to wait 6 hours since the last update.",
@@ -70,7 +76,7 @@ export default function StorageEditPage() {
       <div>
         <h1>Hardware</h1>
         <p>Current instance storage size:{` ${currentVolumeSize} GB`}</p>
-        <fieldset disabled={saving} className="space-y-4">
+        <fieldset disabled={formPending()} className="space-y-4">
           <div className="flex items-center gap-4">
             <label
               htmlFor="storageSize"
@@ -89,18 +95,15 @@ export default function StorageEditPage() {
           </div>
           <div className="flex justify-end gap-4">
             <button
-              disabled={saving}
+              disabled={formPending()}
               onClick={async (e) => {
                 e.preventDefault();
                 const success = await updateStorageSize();
-                if (success)
-                  router.push(
-                    `/instances/${instance?.name}/hardware?region=${instance?.region}`,
-                  );
+                if (success) router.push(`/instances`);
               }}
               className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
             >
-              {saving ? "Saving..." : "Submit"}
+              {formPending() ? "Expanding storage size..." : "Expand"}
             </button>
           </div>
         </fieldset>

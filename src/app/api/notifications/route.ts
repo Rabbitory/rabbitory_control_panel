@@ -1,6 +1,6 @@
 import eventEmitter from "@/utils/eventEmitter";
 import { NextResponse } from "next/server";
-import { eventBackups } from "@/utils/eventBackups";
+import eventBackups from "@/utils/eventBackups";
 
 export async function GET(request: Request) {
   const encoder = new TextEncoder();
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json();
   const event = body;
-
+  eventBackups.push(event); // Store the event in the backup array
   // Emit the event with the message
 
   return NextResponse.json({ status: "ok" });

@@ -1,5 +1,6 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
+import eventEmitter from "@/utils/eventEmitter";
 import {
   appendBackupDefinition,
   fetchFromDynamoDB,
@@ -10,14 +11,14 @@ import { NextRequest, NextResponse } from "next/server";
 // Use NextRequest type and properly handle params
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   const { name: instanceName } = await params;
@@ -26,7 +27,7 @@ export async function GET(
   if (!instance || !instance.InstanceId) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   try {
@@ -37,14 +38,14 @@ export async function GET(
     if (!response) {
       return NextResponse.json(
         { message: "Credentials are not ready yet! Try again later!" },
-        { status: 503 }
+        { status: 503 },
       );
     }
     const definitions = response.Item?.backups;
     if (!definitions) {
       return NextResponse.json(
         { message: "No definitions found for this instance" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -53,14 +54,14 @@ export async function GET(
     console.error("Error fetching rabbitmq definitions:", error);
     return NextResponse.json(
       { message: "Error fetching rabbitmq definitions:", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const searchParams = request.nextUrl.searchParams;
   const { name: instanceName } = await params;
@@ -72,13 +73,13 @@ export async function POST(
   if (!username || !password) {
     return NextResponse.json(
       { message: "Username and password are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   const ec2Client = new EC2Client({ region });
@@ -86,13 +87,13 @@ export async function POST(
   if (!instance || !instance.InstanceId) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   if (!instance.PublicDnsName) {
     return NextResponse.json(
       { message: "Instance not ready yet! Try again later!" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -101,25 +102,31 @@ export async function POST(
       instance.PublicDnsName,
       username,
       password,
-      "manual"
+      "manual",
     );
     if (!definitions) {
       return NextResponse.json(
         { message: "No definitions found for this instance" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const response = await appendBackupDefinition(
       instance.InstanceId,
-      definitions
+      definitions,
     );
+    eventEmitter.emit("notifications", {
+      type: "backup",
+      status: "success",
+      instanceName: instanceName,
+      message: "Backup definition added successfully",
+    });
     return NextResponse.json(response.Attributes?.backups);
   } catch (error) {
     console.error("Error fetching rabbitmq definitions:", error);
     return NextResponse.json(
       { message: "Error fetching rabbitmq definitions:", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

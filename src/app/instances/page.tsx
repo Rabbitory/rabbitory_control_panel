@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import axios from "axios";
+import { Trash } from 'lucide-react';
 import { useEffect, useState } from "react";
 
 interface Instance {
@@ -23,20 +24,19 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="mt-15 ml-30 mr-30">
+    <div className="mt-15 ml-20 mr-20">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="font-heading1 text-3xl text-pagetext1">Instances</h1>
+        <h1 className="font-heading1 text-2xl text-pagetext1">Instances</h1>
         <Link href="/instances/newForm">
           <button 
             className="font-heading py-2 px-6 bg-btn1
-             text-mainpage1 rounded-sm hover:bg-btnhover1 
-             focus:outline-none focus:ring-2 focus:ring-green-500 text-lg">
+             text-mainpage1 rounded-sm hover:bg-btnhover1 transition-shadow duration-200
+             text-md">
             + Create New Instance
           </button>
         </Link>
       </div>
 
-      {/* Check if there are instances */}
       {instances.length === 0 ? (
         <p className="text-lg text-gray-600 mb-6">No instances yet.</p>
       ) : (
@@ -44,17 +44,20 @@ export default function Home() {
           {instances.map((instance) => (
             <li
               key={instance.name}
-              className="flex justify-between items-center p-4 border-gray-700 bg-card hover:bg-icywhite text-icywhite hover:text-mainbg1"
+              className="flex justify-between items-center p-4 border-gray-700 bg-card"
             >
-              <Link href={`/instances/${instance.name}?region=${instance.region}`}>
+              <Link 
+                href={`/instances/${instance.name}?region=${instance.region}`}
+                className="text-sm text-gray-400 hover:text-btnhover1"   
+              >
                 {instance.name} | {instance.id} | {instance.region}
               </Link>
-              <Link 
-              href={`/instances/${instance.name}/edit/delete?region=${instance.region}`}
-              className="font-text1 m-3 border border-btn1 rounded-sm p-1"
-
+              <Link
+                href={`/instances/${instance.name}/edit/delete?region=${instance.region}`}
+                className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
+                aria-label="Delete instance"
               >
-                delete
+                <Trash size={20} />
               </Link>
             </li>
           ))}

@@ -31,10 +31,10 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
       className={`${metrophobic.variable} ${montserrat.variable}`}
       >
       <body className={`bg-mainbg1 text-gray-900`}>
-        <div className="flex justify-between items-center bg-header1 pt-6 pb-6 pl-10 pr-10 border-b border-gray-200">
+        <div className="sticky top-0 z-50 flex justify-between items-center bg-mainbg1 pt-6 pb-6 pl-10 pr-10 border-b border-border">
           <Link
             href="/"
-            className="font-heading1 font-semibold text-headertext1 text-4xl transition-colors duration-200 hover:text-orange-100 hover:cursor-pointer"
+            className="font-heading1 font-semibold text-headertext1 text-3xl transition-colors duration-200 hover:text-btnhover1 hover:cursor-pointer"
           >
             Rabbitory
           </Link>

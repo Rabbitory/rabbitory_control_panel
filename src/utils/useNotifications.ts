@@ -7,21 +7,13 @@ import { usePathname } from "next/navigation";
 export const useNotifications = () => {
   const path = usePathname();
 
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      type: "plugin",
-      status: "error",
-      instanceName: "aqua-distinct-heron",
-      path: "plugins",
-      message: `Enabling plugin on aqua-distinct-heron`,
-    },
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const addNotification = (newNotification: Notification) => {
+  const addNotification = async (newNotification: Notification) => {
     setNotifications([...notifications, newNotification]);
   };
 
-  const updateNotification = (newNotification: Notification) => {
+  const updateNotification = async (newNotification: Notification) => {
     setNotifications(
       notifications.map((notification) =>
         notification.type === newNotification.type &&
@@ -32,7 +24,7 @@ export const useNotifications = () => {
     );
   };
 
-  const deleteNotification = (type: string, instanceName: string) => {
+  const deleteNotification = async (type: string, instanceName: string) => {
     setNotifications(
       notifications.filter(
         (notification) =>
@@ -42,7 +34,7 @@ export const useNotifications = () => {
     );
   };
 
-  const clearNotifications = () => {
+  const clearNotifications = async () => {
     setNotifications([]);
   };
 

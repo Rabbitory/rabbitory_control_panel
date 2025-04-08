@@ -47,7 +47,7 @@ export default function PluginsPage() {
     const currentlyEnabled = enabledPlugins.includes(pluginName);
     const newValue = !currentlyEnabled;
 
-    addNotification({
+    await addNotification({
       type: "plugin",
       status: "pending",
       instanceName: instance?.name,

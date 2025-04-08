@@ -3,6 +3,7 @@ import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useInstanceContext } from "../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 import { configItems } from "@/types/configuration";
 import { validateConfiguration } from "@/utils/validateConfig";
 import Link from "next/link";
@@ -13,9 +14,9 @@ interface Configuration {
 
 export default function ConfigurationPage() {
   const { instance } = useInstanceContext();
+  const { addNotification, formPending } = useNotificationsContext();
   const [configuration, setConfiguration] = useState<Configuration>({});
   const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchConfiguration = async () => {
@@ -45,11 +46,19 @@ export default function ConfigurationPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { valid, errors } = validateConfiguration(configuration);
-    if (!valid) {
+    if (!valid || !instance?.name) {
       console.error("Invalid configuration:", errors);
       return;
     }
-    setIsSaving(true);
+
+    await addNotification({
+      type: "configuration",
+      status: "pending",
+      instanceName: instance?.name,
+      path: "configuration",
+      message: `Setting new configuration for ${instance?.name}`,
+    });
+
     try {
       const response = await axios.post(
         `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
@@ -61,8 +70,6 @@ export default function ConfigurationPage() {
       setConfiguration(response.data);
     } catch (error) {
       console.error("Error saving configuration:", error);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -127,10 +134,10 @@ export default function ConfigurationPage() {
             </Link>
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={formPending()}
               className="px-4 py-2 bg-green-400 text-white rounded-md"
             >
-              {isSaving ? "Saving..." : "Save Configuration"}
+              {formPending() ? "Saving..." : "Save Configuration"}
             </button>
           </div>
         </form>

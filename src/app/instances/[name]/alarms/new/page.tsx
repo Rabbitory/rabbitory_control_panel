@@ -11,7 +11,7 @@ export default function AlarmsPage() {
   const [alarmType, setAlarmType] = useState("");
   const [memoryThreshold, setMemoryThreshold] = useState(600);
   const [storageThreshold, setStorageThreshold] = useState(90);
-  const [reminderInterval, setReminderInterval] = useState(0);
+  const [reminderInterval, setReminderInterval] = useState(1);
 
   const createAlarm = async () => {
     try {

@@ -30,7 +30,6 @@ export async function startMetricsMonitoring(
 ): Promise<void> {
   const rabbitmqUrl = `http://${publicDns}:15672/api/nodes`;
   const reminderInterval = alarm.data.reminderInterval;
-  console.log("This is the alarm object:", alarm)
 
   const task = cron.schedule(`*/${reminderInterval} * * * *`, async () => {
     try {

@@ -2,7 +2,7 @@
 import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import styles from "./VersionsPage.module.css";
+// import styles from "./VersionsPage.module.css";
 import { useInstanceContext } from "../InstanceContext";
 
 interface Version {
@@ -14,6 +14,7 @@ export default function VersionsPage() {
   const { instance } = useInstanceContext();
   const [versions, setVersions] = useState<Version | null>(null);
   const [isFetching, setIsFetching] = useState(false);
+
   useEffect(() => {
     const fetchVersions = async () => {
       setIsFetching(true);
@@ -41,33 +42,35 @@ export default function VersionsPage() {
 
     fetchVersions();
   }, [instance?.name, instance?.user, instance?.password, instance?.region]);
+  
   return (
     <>
       {isFetching ? (
         <div>Loading...</div>
       ) : (
-        <>
-          <h2>Versions</h2>
-          <table className={styles.table}>
-            <tbody>
-              <tr>
-                <td className={styles.td}>
-                  Current RabbitMQ version
-                  <br />
-                  Current Erlang version
-                </td>
-                <td className={styles.td}>
-                  {versions?.rabbitmq}
-                  <br />
-                  {versions?.erlang}
-                </td>
-                <td className={styles.td}>
-                  <button>Update</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </>
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-sm shadow-md mt-6 text-pagetext1">
+          <h1 className="font-heading1 text-2xl mb-10">Versions</h1>
+          <div className="max-w-md">
+            <table className="w-full border-collapse">
+              <tbody className="font-text1 text-md">
+                <tr>
+                  <td className="py-2 pr-2 font-semibold whitespace-nowrap">
+                    Current RabbitMQ version
+                  </td>
+                  <td className="py-2 pl-1">{versions?.rabbitmq}</td>
+                </tr>
+                <tr className="border-t border-gray-300">
+                  <td className="py-2 pr-2 font-semibold whitespace-nowrap">
+                    Current Erlang version
+                  </td>
+                  <td className="py-2 pl-1">{versions?.erlang}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+        </div>
       )}
     </>
   );

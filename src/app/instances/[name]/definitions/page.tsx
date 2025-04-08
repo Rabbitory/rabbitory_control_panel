@@ -77,15 +77,15 @@ export default function DefinitionsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">
-        {instance?.name} Definitions
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-6">
+        Definitions
       </h1>
-      <p className="text-gray-700 mb-4 text-center">
+      <p className="font-text1 mb-10">
         Download backups of the cluster definitions. See{" "}
         <a
           href="https://www.rabbitmq.com/docs/definitions"
-          className="text-blue-500 underline"
+          className="underline hover:text-headertext1"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -98,7 +98,7 @@ export default function DefinitionsPage() {
         <button
           onClick={handleManualBackup}
           disabled={isSaving}
-          className="px-4 py-2 bg-green-400 text-white rounded-md"
+          className="font-heading1 px-4 py-2 bg-btn1 text-mainbg1 font-semibold rounded-sm hover:bg-btnhover1"
         >
           {isSaving ? "Creating Backup..." : "Manual backup"}
         </button>
@@ -107,33 +107,33 @@ export default function DefinitionsPage() {
       {isFetching ? (
         <p className="text-gray-600">Loading...</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto text-sm">
           <table className="w-full border-collapse">
-            <thead>
+            <thead className="font-heading1">
               <tr>
-                <th className="p-2 text-left border-b">Date</th>
-                <th className="p-2 text-left border-b">Broker version</th>
-                <th className="p-2 text-left border-b">Trigger</th>
-                <th className="p-2 text-left border-b"></th>
+                <th className="p-2 text-left border-b border-gray-300">Date</th>
+                <th className="p-2 text-left border-b border-gray-300">Broker version</th>
+                <th className="p-2 text-left border-b border-gray-300">Trigger</th>
+                <th className="p-2 text-left border-b border-gray-300"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="font-text1">
               {backups.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-2 text-center text-gray-600">
+                  <td colSpan={4} className="p-2 text-gray-600">
                     No backups found.
                   </td>
                 </tr>
               ) : (
                 backups.map((backup, idx) => (
                   <tr key={idx}>
-                    <td className="p-2 border-b">{backup.timestamp}</td>
-                    <td className="p-2 border-b">{backup.rabbitmq_version}</td>
-                    <td className="p-2 border-b">{backup.trigger}</td>
-                    <td className="p-2 border-b">
+                    <td className="p-2 border-b border-gray-300">{backup.timestamp}</td>
+                    <td className="p-2 border-b border-gray-300">{backup.rabbitmq_version}</td>
+                    <td className="p-2 border-b border-gray-300">{backup.trigger}</td>
+                    <td className="p-2 border-b border-gray-300">
                       <button
                         onClick={() => handleDownload(backup)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded-md mr-2"
+                        className="px-3 py-1 bg-mainbg1 text-white rounded-sm mr-2 hover:bg-mainbghover"
                       >
                         Download
                       </button>

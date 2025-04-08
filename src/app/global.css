@@ -5,23 +5,28 @@
 @import "tailwindcss/utilities"; */
 
 @theme {
-  --color-header1: #F5C19F; /* Manhattan Organe */
+  --color-header1: #202124; /* Manhattan Organe */
   --color-navbar1: #29363A; /* Dark Gray-ish Navy */
-  --color-mainbg1: #E5E5E4; /* Quill Gray */
-  --color-cardbg1: #86563c;
-  --color-btn1: #EC7D2F; /* Medium Orange */
+  --color-mainbg1: #202124; /* NEW: */
+  --color-card: #191919;
+  --color-btn1: #87d9da; /* Icy blue */
   --color-btnhover1: #8AD02B; /* Yellow Green */
   --color-cancelbtn1: #86563c;
-  --color-headertext1: #FFFFFF; /* White */
+  --color-headertext1: #F5FCFB; /* White */
   --color-navbartext1: #E5E5E4;
-  --color-pagetext1: #29363A; /* Dark Gray-ish Navy */
-  --color-othertext1: #86563c;
+  --color-pagetext1: #F5FCFB; /* Icy white */
+  --color-icywhite: #F5FCFB; /* Icy white */
+  --color-icyblue: 
 }
+
+/*
+--color-icyblue1: #87d9da; (brighter)
+--color-icyblue2: #C8ECE7 (more subtle
+
+*/
+
 
 @theme inline {
-  --font-heading1: var(--font-poppins);
+  --font-heading1: var(--font-montserrat);
   --font-text1: var(--font-metrophobic);
-  --font-heading2: var(--font-jetBrains);
-  --font-text2: var(--font-roboto);
 }
-

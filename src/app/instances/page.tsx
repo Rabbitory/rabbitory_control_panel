@@ -3,8 +3,6 @@
 import Link from "next/link";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Dropdown from "../components/Dropdown";
 
 interface Instance {
   name: string;
@@ -13,7 +11,6 @@ interface Instance {
 }
 
 export default function Home() {
-  const router = useRouter();
   const [instances, setInstances] = useState<Instance[]>([]);
 
   useEffect(() => {
@@ -30,7 +27,10 @@ export default function Home() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="font-heading1 text-3xl text-pagetext1">Instances</h1>
         <Link href="/instances/newForm">
-          <button className="font-heading py-2 px-6 bg-btn1 text-white rounded-md hover:bg-btnhover1 focus:outline-none focus:ring-2 focus:ring-green-500 text-xl">
+          <button 
+            className="font-heading py-2 px-6 bg-btn1
+             text-mainpage1 rounded-sm hover:bg-btnhover1 
+             focus:outline-none focus:ring-2 focus:ring-green-500 text-lg">
             + Create New Instance
           </button>
         </Link>
@@ -44,23 +44,18 @@ export default function Home() {
           {instances.map((instance) => (
             <li
               key={instance.name}
-              className="flex justify-between items-center p-4 border-gray-700 rounded-lg bg-white hover:bg-gray-100"
+              className="flex justify-between items-center p-4 border-gray-700 bg-card hover:bg-icywhite text-icywhite hover:text-mainbg1"
             >
-              <Link
-                href={`/instances/${instance.name}?region=${instance.region}`}
-                className="text-pagetext1 hover:underline"
-              >
+              <Link href={`/instances/${instance.name}?region=${instance.region}`}>
                 {instance.name} | {instance.id} | {instance.region}
               </Link>
-              <Dropdown
-                label="edit"
-                options={{
-                  delete: () =>
-                    router.push(
-                      `/instances/${instance.name}/edit/delete?region=${instance.region}`
-                    ),
-                }}
-              />
+              <Link 
+              href={`/instances/${instance.name}/edit/delete?region=${instance.region}`}
+              className="font-text1 m-3 border border-btn1 rounded-sm p-1"
+
+              >
+                delete
+              </Link>
             </li>
           ))}
         </ul>

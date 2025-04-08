@@ -8,7 +8,7 @@ export default function InstancePage() {
   const { instance } = useInstanceContext();
 
   return (
-    <div className="text-pagetext1 flex-1 max-w-7xl mx-auto p-6 bg-white rounded-sm shadow-md m-6">
+    <div className="text-pagetext1 flex-1 max-w-7xl mx-auto p-6 bg-card shadow-md m-6">
       <h1 className="font-heading1 text-2xl pb-6">{instance?.name}</h1>
   
       <h2 className="font-heading1 font-semibold text-md pb-4">Instance Info:</h2>

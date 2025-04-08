@@ -77,15 +77,15 @@ export default function DefinitionsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-sm shadow-md mt-6 text-pagetext1">
-      <h1 className="font-heading1 text-2xl mb-6">
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-6">
         Definitions
       </h1>
       <p className="font-text1 mb-10">
         Download backups of the cluster definitions. See{" "}
         <a
           href="https://www.rabbitmq.com/docs/definitions"
-          className="underline"
+          className="underline hover:text-headertext1"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -98,7 +98,7 @@ export default function DefinitionsPage() {
         <button
           onClick={handleManualBackup}
           disabled={isSaving}
-          className="font-heading1 px-4 py-2 bg-btn1 text-white rounded-md hover:bg-btnhover1"
+          className="font-heading1 px-4 py-2 bg-btn1 text-mainbg1 font-semibold rounded-sm hover:bg-btnhover1"
         >
           {isSaving ? "Creating Backup..." : "Manual backup"}
         </button>
@@ -133,7 +133,7 @@ export default function DefinitionsPage() {
                     <td className="p-2 border-b border-gray-300">
                       <button
                         onClick={() => handleDownload(backup)}
-                        className="px-3 py-1 bg-gray-500 text-white rounded-md mr-2 hover:bg-gray-700"
+                        className="px-3 py-1 bg-mainbg1 text-white rounded-sm mr-2 hover:bg-mainbghover"
                       >
                         Download
                       </button>

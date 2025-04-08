@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useInstanceContext } from "../../../InstanceContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function StorageEditPage() {
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
@@ -66,14 +67,14 @@ export default function StorageEditPage() {
   if (!currentVolumeSize) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-sm shadow-md mt-6 text-pagetext1">
-      <h1 className="font-heading1 text-2xl mb-10">Edit Storage</h1>
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Edit Storage</h1>
       <p className="font-text1 text-md mb-6">Current instance storage size:{` ${currentVolumeSize} GB`}</p>
       <fieldset disabled={saving} className="space-y-4">
         <div className="flex items-center gap-4">
           <label
             htmlFor="storageSize"
-            className="font-text1 text-md text-gray-700 w-1/4"
+            className="font-text1 text-md text-headertext1 w-1/4"
           >
             Storage Size (GB):
           </label>
@@ -87,8 +88,14 @@ export default function StorageEditPage() {
           />
         </div>
         <div className="flex justify-end gap-4">
+          <Link
+              href={`/instances/${instance?.name}/hardware?region=${instance?.region}`}
+              className="px-4 py-2 bg-mainbg1 text-headertext1 rounded-sm text-center hover:bg-mainbghover"
+            >
+              Cancel
+            </Link>
           <button
-                className={`font-heading1 px-4 py-2 text-white rounded-md
+                className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
                   ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "bg-btn1 hover:bg-btnhover1"}
                 `}
                 disabled={saving}

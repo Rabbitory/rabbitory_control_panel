@@ -34,7 +34,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
         <div className="sticky top-0 z-50 flex justify-between items-center bg-mainbg1 pt-6 pb-6 pl-10 pr-10 border-b-[0.5] border-border1">
           <Link
             href="/"
-            className="font-heading1 font-semibold text-headertext1 text-3xl transition-colors duration-200 hover:text-headertext2 hover:cursor-pointer"
+            className="font-heading1 text-headertext1 text-3xl transition-colors duration-200 hover:text-headertext2 hover:cursor-pointer"
           >
             Rabbitory
           </Link>

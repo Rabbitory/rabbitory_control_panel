@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import axios from "axios";
-import { Trash } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useEffect, useState } from "react";
 
 interface Instance {
@@ -57,7 +57,7 @@ export default function Home() {
                 className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
                 aria-label="Delete instance"
               >
-                <Trash size={20} />
+                <Trash2 size={20} />
               </Link>
             </li>
           ))}

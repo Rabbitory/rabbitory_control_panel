@@ -103,7 +103,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
       <h1>
         <Link 
           href={`/instances/${name}?region=${instance?.region}`}
-          className="block w-full px-10 py-2 font-text1 text-xl font-semibold text-headertext1 hover:bg-gray-600 transition-colors"
+          className="block w-full px-10 py-2 font-text1 text-xl font-semibold text-headertext1 hover:bg-mainbghover transition-colors"
         >
           General
         </Link>
@@ -112,7 +112,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className=" mb-2">
           <Link
             href={`/instances/${name}/plugins?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-gray-600 hover:text-headertext1 transition-colors"
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Plugins
           </Link>
@@ -120,7 +120,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-2">
           <Link
             href={`/instances/${name}/versions?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-gray-600 hover:text-headertext1 transition-colors"
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Versions
           </Link>
@@ -128,7 +128,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-2">
           <Link
             href={`/instances/${name}/configuration?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-gray-600 hover:text-headertext1 transition-colors"
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Configuration
           </Link>
@@ -136,7 +136,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-2">
           <Link
             href={`/instances/${name}/hardware?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-gray-600 hover:text-headertext1 transition-colors"
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Hardware
           </Link>
@@ -144,7 +144,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-2">
           <Link
             href={`/instances/${name}/definitions?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-gray-600 hover:text-headertext1 transition-colors"
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Definitions
           </Link>
@@ -152,7 +152,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-2">
           <Link
             href={`/instances/${name}/logs?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-gray-600 hover:text-headertext1 transition-colors"
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Logs
           </Link>
@@ -160,7 +160,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-2">
           <Link 
             href={`/instances/${name}/firewall?region=${instance?.region}`} 
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-gray-600 hover:text-headertext1 transition-colors"
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Firewall
           </Link>

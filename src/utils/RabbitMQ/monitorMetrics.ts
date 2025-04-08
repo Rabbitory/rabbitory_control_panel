@@ -5,10 +5,23 @@ import { fetchFromDynamoDB } from '../dynamoDBUtils';
 import { decrypt } from '../encrypt';
 import { AlarmThresholds, Alarm } from '@/types/alarms';
 import { sendSlackMessage } from '../Slack/webhookUtils';
+import { runSSMCommands } from '../AWS/SSM/runSSMCommands';
+
+const getTotalDiskUsage = async (instanceId: string, region: string) => {
+  try {
+    const result = await runSSMCommands(instanceId, ['df -h / | tail -1 | awk \'{print $5}\' | sed \'s/%//\''], region);
+    return parseFloat(result.trim());
+  } catch (error) {
+    console.error('Error checking disk usage:', error);
+    throw error;
+  }
+}
 
 const monitoringTasks = new Map<string, ScheduledTask>();
 
 export async function startMetricsMonitoring(
+  instanceId: string,
+  region: string,
   publicDns: string,
   username: string,
   password: string,
@@ -19,8 +32,6 @@ export async function startMetricsMonitoring(
   const reminderInterval = alarm.data.reminderInterval;
   console.log("This is the alarm object:", alarm)
 
-  // Stop existing task if there is one
-  stopMetricsMonitoring(alarm.id);
   const task = cron.schedule(`*/${reminderInterval} * * * *`, async () => {
     try {
       const response = await axios.get(rabbitmqUrl, {
@@ -31,23 +42,24 @@ export async function startMetricsMonitoring(
 
       if (type === 'memory') {
         const memUsagePercent = (node.mem_used / node.mem_limit) * 100;
-        // if (memUsagePercent > alarm.data.storageThreshold) {
-        if (memUsagePercent) {
+        if (memUsagePercent > alarm.data.memoryThreshold) {
+          // if (memUsagePercent) {
           await sendNotification({
             alarmId: alarm.id,
             type: 'memory',
             currentValue: memUsagePercent,
-            threshold: alarm.data.storageThreshold,
+            threshold: alarm.data.memoryThreshold,
             instanceDns: publicDns
           });
         }
       } else if (type === 'storage') {
-        const diskFreePercent = (node.disk_free / node.disk_free_limit) * 100;
-        if (diskFreePercent < alarm.data.storageThreshold) {
+        const diskUsagePercent = await getTotalDiskUsage(instanceId, region);
+
+        if (diskUsagePercent > alarm.data.storageThreshold) {
           await sendNotification({
             alarmId: alarm.id,
             type: 'storage',
-            currentValue: diskFreePercent,
+            currentValue: diskUsagePercent,
             threshold: alarm.data.storageThreshold,
             instanceDns: publicDns
           });
@@ -76,35 +88,6 @@ export function stopMetricsMonitoring(alarmId: string): void {
     console.log('Current monitoring tasks:', Array.from(monitoringTasks.keys()));
   } catch (error) {
     console.error('Error stopping metrics monitoring:', error);
-  }
-}
-
-export async function initializeAllMonitoring(): Promise<void> {
-  try {
-    const response = await fetchFromDynamoDB("rabbitory-instances-metadata", {});
-    if (!response.Item) return;
-
-    const instance = response.Item;
-    const alarms = instance.alarms || {};
-
-    const username = decrypt(instance.encryptedUsername);
-    const password = decrypt(instance.encryptedPassword);
-    const alarmEntries: [string, Alarm[]][] = Object.entries(alarms);
-
-    // Start monitoring for each alarm type
-    for (const [alarmType, alarmList] of alarmEntries) {
-      for (const alarm of alarmList) {
-        await startMetricsMonitoring(
-          instance.publicDns,
-          username,
-          password,
-          alarm,
-          alarmType as 'memory' | 'storage'
-        );
-      }
-    }
-  } catch (error) {
-    console.error('Error initializing monitoring:', error);
   }
 }
 

@@ -27,11 +27,6 @@ interface RootLayoutProps {
 
 
 export default async function RootLayout({ children }: Readonly<RootLayoutProps>) {
-  const headersList = await headers();
-  if (headersList.get('x-invoke-path')?.startsWith('/api')) {
-    await initializeAllMonitoring();
-  }
-
   return (
     <html lang="en">
       {/*jetBrainsMono.variable, roboto.variable   ${jetBrainsMono.variable}*/}

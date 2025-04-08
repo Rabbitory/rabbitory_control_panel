@@ -120,9 +120,12 @@ const ensureAlarmsExists = async (instanceId: string) => {
   const params = {
     TableName: "rabbitory-instances-metadata",
     Key: { instanceId },
-    UpdateExpression: "SET alarms = if_not_exists(alarms, :emptyMap)",
+    UpdateExpression: "SET alarms = if_not_exists(alarms, :emptyAlarms)",
     ExpressionAttributeValues: {
-      ":emptyMap": {},
+      ":emptyAlarms": {
+        memory: [],
+        storage: [],
+      },
     },
     ReturnValues: "UPDATED_NEW" as const,
   };

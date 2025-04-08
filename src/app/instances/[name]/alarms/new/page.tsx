@@ -9,7 +9,7 @@ export default function AlarmsPage() {
   // const [isFetching, setIsFetching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [alarmType, setAlarmType] = useState("");
-  const [timeThreshold, setTimeThreshold] = useState(600);
+  const [memoryThreshold, setMemoryThreshold] = useState(600);
   const [storageThreshold, setStorageThreshold] = useState(90);
   const [reminderInterval, setReminderInterval] = useState(0);
 
@@ -19,7 +19,7 @@ export default function AlarmsPage() {
         `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         {
           type: alarmType,
-          data: { timeThreshold, storageThreshold, reminderInterval },
+          data: { memoryThreshold, storageThreshold, reminderInterval },
         }
       );
       return true;
@@ -53,17 +53,17 @@ export default function AlarmsPage() {
           </div>
           <div className="flex items-center gap-4">
             <label
-              htmlFor="timeThreshold"
+              htmlFor="memoryThreshold"
               className="text-xl text-gray-700 w-1/4"
             >
-              Time Threshold
+              Memory Threshold
             </label>
             <input
-              id="timeThreshold"
-              name="timeThreshold"
+              id="memoryThreshold"
+              name="memoryThreshold"
               type="number"
-              value={timeThreshold}
-              onChange={(e) => setTimeThreshold(Number(e.target.value))}
+              value={memoryThreshold}
+              onChange={(e) => setMemoryThreshold(Number(e.target.value))}
               className="w-3/4 p-2 border rounded-md text-xl"
             />
           </div>

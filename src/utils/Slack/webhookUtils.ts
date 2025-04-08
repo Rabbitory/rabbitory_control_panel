@@ -13,9 +13,6 @@ export async function getWebhookUrl(): Promise<string> {
   }
 }
 
-// make sure this checks for the file first,
-// creates file if doesn't exist
-// clears file and rewrites if it does
 export async function saveWebhookUrl(webhookUrl: string): Promise<void> {
   try {
     const appData = { webhookUrl };

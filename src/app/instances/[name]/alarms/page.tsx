@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 interface Alarm {
   id: string;
   data: {
-    timeThreshold: number;
+    memoryThreshold: number;
     storageThreshold: number;
     reminderInterval: number;
   };
@@ -29,7 +29,6 @@ export default function AlarmsPage() {
         const response = await axios.get(
           `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         );
-        console.log("This is the response:", response.data)
         setMemoryAlarms(response.data.memory || []);
         setStorageAlarms(response.data.storage || []);
       } catch (error) {
@@ -116,7 +115,7 @@ export default function AlarmsPage() {
                     <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Time Threshold</th>
+                    <th className="p-2 text-left border-b">Memory Threshold</th>
                     <th className="p-2 text-left border-b">Actions</th>
                   </tr>
                 </thead>
@@ -137,7 +136,7 @@ export default function AlarmsPage() {
                           {alarm.data.reminderInterval}
                         </td>
                         <td className="p-2 border-b">
-                          {alarm.data.timeThreshold}
+                          {alarm.data.memoryThreshold}
                         </td>
                         <td className="p-2 border-b">
                           <Dropdown
@@ -172,7 +171,7 @@ export default function AlarmsPage() {
                     <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Time Threshold</th>
+                    <th className="p-2 text-left border-b">Memory Threshold</th>
                     <th className="p-2 text-left border-b">Actions</th>
                   </tr>
                 </thead>
@@ -193,7 +192,7 @@ export default function AlarmsPage() {
                           {alarm.data.reminderInterval}
                         </td>
                         <td className="p-2 border-b">
-                          {alarm.data.timeThreshold}
+                          {alarm.data.memoryThreshold}
                         </td>
                         <td className="p-2 border-b">
                           <Dropdown

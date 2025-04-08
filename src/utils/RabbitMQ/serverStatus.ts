@@ -63,6 +63,10 @@ export async function pollRabbitMQServerStatus(
               encryptedUsername,
               encryptedPassword,
               backups: [backupDefinitions],
+              alarms: {
+                memory: [],
+                storage: []
+              }
             });
           }
         }

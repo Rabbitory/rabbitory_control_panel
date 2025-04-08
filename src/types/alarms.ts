@@ -1,5 +1,5 @@
 export interface AlarmThresholds {
-  timeThreshold: number;
+  memoryThreshold: number;
   storageThreshold: number;
   reminderInterval: number;
 }

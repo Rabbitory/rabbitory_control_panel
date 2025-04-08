@@ -113,6 +113,8 @@ export async function POST(
     const newAlarm: Alarm = alarms[type]?.slice(-1)[0];
 
     await startMetricsMonitoring(
+      instance.InstanceId,
+      region,
       publicDns,
       username,
       password,

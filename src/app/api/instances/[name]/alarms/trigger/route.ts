@@ -48,7 +48,7 @@ export async function POST(
   // the data is in the format:
   // {    id: string; // probably need this to identify the alarm in cron job??
   //     data: {
-  //          timeThreshold: number;
+  //          memoryThreshold: number;
   //          storageThreshold: number;
   //          reminderInterval: number;
   //          }

@@ -2,7 +2,6 @@ import "@/app/global.css";
 import Link from "next/link";
 import React from "react";
 import { headers } from "next/headers";
-import { initializeAllMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
 // import { Roboto } from 'next/font/google';
 // import { JetBrains_Mono } from 'next/font/google';
 

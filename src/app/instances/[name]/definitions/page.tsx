@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useInstanceContext } from "../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 
 interface DefinitionBackup {
   timestamp: string;
@@ -12,10 +13,9 @@ interface DefinitionBackup {
 
 export default function DefinitionsPage() {
   const { instance } = useInstanceContext();
-
+  const { addNotification, formPending } = useNotificationsContext();
   const [backups, setBackups] = useState<DefinitionBackup[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchDefinitions = async () => {
@@ -23,7 +23,7 @@ export default function DefinitionsPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance.name}/definitions?region=${instance.region}`
+          `/api/instances/${instance.name}/definitions?region=${instance.region}`,
         );
         console.log(response.data);
         setBackups(response.data);
@@ -39,7 +39,13 @@ export default function DefinitionsPage() {
 
   const handleManualBackup = async () => {
     if (!instance?.name) return;
-    setIsSaving(true);
+    await addNotification({
+      type: "backup",
+      status: "pending",
+      instanceName: instance?.name,
+      path: "definitions",
+      message: `Saving backup for ${instance?.name}`,
+    });
     try {
       const response = await axios.post(
         `/api/instances/${instance.name}/definitions?region=${instance.region}`,
@@ -49,13 +55,11 @@ export default function DefinitionsPage() {
             "x-rabbitmq-username": instance.user,
             "x-rabbitmq-password": instance.password,
           },
-        }
+        },
       );
       setBackups(response.data);
     } catch (error) {
       console.error("Error creating manual backup:", error);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -97,10 +101,10 @@ export default function DefinitionsPage() {
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={handleManualBackup}
-          disabled={isSaving}
+          disabled={formPending()}
           className="px-4 py-2 bg-green-400 text-white rounded-md"
         >
-          {isSaving ? "Creating Backup..." : "Manual backup"}
+          {formPending() ? "Creating Backup..." : "Manual backup"}
         </button>
       </div>
 

@@ -1,43 +1,43 @@
-// app/api/socket/route.ts
-
+import eventEmitter from "@/utils/eventEmitter";
 import { NextResponse } from "next/server";
-import { Server as IOServer } from "socket.io";
+import { eventBackups } from "@/utils/eventBackups";
 
-// Force the runtime to Node.js so we can use the built-in server and access raw sockets.
-export const runtime = "nodejs";
+export async function GET(request: Request) {
+  const encoder = new TextEncoder();
 
-export async function GET() {
-  const res = NextResponse.next();
+  const stream = new ReadableStream({
+    start(controller) {
+      console.log("SSE client connected");
+      const onEvent = (payload: any) => {
+        const sseMessage = `data: ${JSON.stringify(payload)}\n\n`;
+        controller.enqueue(encoder.encode(sseMessage));
+      };
 
-  // If the socket is not available, we cannot set up Socket.IO.
-  if (!res.socket) {
-    return new NextResponse("Socket not available", { status: 500 });
-  }
+      eventEmitter.on("notification", onEvent);
 
-  // Check if Socket.IO is already attached
-  if (res.socket.server.io) {
-    console.log("Socket.IO server already running");
-    return new NextResponse("Socket.IO server already running");
-  }
-
-  // Initialize a new Socket.IO instance on the underlying HTTP server.
-  const io = new IOServer(res.socket.server);
-  res.socket.server.io = io;
-
-  io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
-
-    // Example event handling: when a client sends a message, broadcast it.
-    socket.on("message", (msg) => {
-      console.log("Received message:", msg);
-      socket.broadcast.emit("message", msg);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Client disconnected:", socket.id);
-    });
+      // Remove listener when the connection is closed to avoid memory leaks
+      request.signal.addEventListener("abort", () => {
+        eventEmitter.off("notification", onEvent);
+        controller.close();
+      });
+    },
   });
 
-  console.log("Socket.IO server started");
-  return new NextResponse("Socket.IO server started");
+  return new NextResponse(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const event = body;
+
+  // Emit the event with the message
+
+  return NextResponse.json({ status: "ok" });
 }

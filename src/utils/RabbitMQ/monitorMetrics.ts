@@ -1,9 +1,7 @@
 import axios from 'axios';
 import cron from 'node-cron';
 import { ScheduledTask } from 'node-cron';
-import { fetchFromDynamoDB } from '../dynamoDBUtils';
-import { decrypt } from '../encrypt';
-import { AlarmThresholds, Alarm } from '@/types/alarms';
+import { AlarmThresholds } from '@/types/alarms';
 import { sendSlackMessage } from '../Slack/webhookUtils';
 import { runSSMCommands } from '../AWS/SSM/runSSMCommands';
 

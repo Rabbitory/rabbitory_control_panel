@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveWebhookUrl, getWebhookUrl } from "@/utils/Slack/webhookUtils";
-import { promises as fs } from "fs";
-import path from "path";
-
-const appDataPath = path.join(process.cwd(), "src/utils/Slack/appData.json");
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -22,7 +18,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to update webhook URL" },
+      { error: `Failed to update webhook URL: ${error}` },
       { status: 500 }
     );
   }
@@ -34,7 +30,7 @@ export async function GET() {
     return NextResponse.json({ webhookUrl });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to read webhook URL" },
+      { error: `Failed to read webhook URL: ${error}` },
       { status: 500 }
     );
   }

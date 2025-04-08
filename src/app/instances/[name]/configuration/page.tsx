@@ -67,8 +67,8 @@ export default function ConfigurationPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white text-pagetext1 rounded-sm shadow-md mt-6">
-      <h1 className="font-heading1 text-2xl mb-6">
+    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-6">
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Configuration
       </h1>
       {isFetching ? (
@@ -76,7 +76,7 @@ export default function ConfigurationPage() {
       ) : (
         <form onSubmit={handleSubmit}>
           <table className="w-full border-collapse">
-            <thead className="font-heading1 text-sm">
+            <thead className="font-heading1 text-headertext1 text-sm">
               <tr>
                 <th className="p-2 text-left border-b">Setting</th>
                 <th className="p-2 text-left border-b">Description</th>

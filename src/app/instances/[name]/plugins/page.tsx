@@ -74,13 +74,13 @@ export default function PluginsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-sm shadow-md mt-6">
-      <h1 className="font-heading1 text-2xl text-gray-900 mb-10">
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6">
+      <h1 className="font-heading1 text-2xl text-headertext1 mb-10">
         Plugins
       </h1>
-      {isSaving && <p className="text-gray-600">Saving...</p>}
+      {isSaving && <p className="text-white">Saving...</p>}
       {isFetching ? (
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-white">Loading...</p>
       ) : (
         <div className="space-y-4">
           {plugins.map((plugin: Plugin) => {
@@ -92,8 +92,8 @@ export default function PluginsPage() {
                 className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4"
               >
                 <div className="mb-2 md:mb-0">
-                  <h2 className="font-heading1 text-md ">{plugin.name}</h2>
-                  <p className="font-text1 text-sm text-gray-600">{plugin.description}</p>
+                  <h2 className="font-heading1 text-md text-pagetext1">{plugin.name}</h2>
+                  <p className="font-text1 text-sm text-gray-500">{plugin.description}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="relative inline-flex items-center cursor-pointer">

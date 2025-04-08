@@ -42,7 +42,7 @@ export function InstanceContent({
   }
 
   return (
-    <div className="grid grid-cols-[200px_1fr] gap-10 items-start">
+    <div className="grid grid-cols-[200px_1fr] gap-10 items-start mr-15">
       <NavLayout name={name} />
       <section >
         {children}

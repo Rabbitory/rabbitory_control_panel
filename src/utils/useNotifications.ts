@@ -1,27 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Notification, NotificationStatus } from "@/types/notification";
+import { Notification } from "@/types/notification";
 import { usePathname } from "next/navigation";
 
 export const useNotifications = () => {
   const path = usePathname();
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      type: "plugin",
+      status: "error",
+      instanceName: "aqua-distinct-heron",
+      path: "plugins",
+      message: `Enabling plugin on aqua-distinct-heron`,
+    },
+  ]);
 
   const addNotification = (newNotification: Notification) => {
     setNotifications([...notifications, newNotification]);
   };
 
-  const updateNotification = (
-    type: string,
-    instanceName: string,
-    status: NotificationStatus,
-  ) => {
+  const updateNotification = (newNotification: Notification) => {
     setNotifications(
       notifications.map((notification) =>
-        notification.type === type && notification.instanceName === instanceName
-          ? { ...notification, status }
+        notification.type === newNotification.type &&
+        notification.instanceName === newNotification.instanceName
+          ? newNotification
           : notification,
       ),
     );

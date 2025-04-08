@@ -1,17 +1,13 @@
 "use client";
 
 import React, { createContext, useContext, ReactNode } from "react";
-import { Notification, NotificationStatus } from "@/types/notification";
+import { Notification } from "@/types/notification";
 import { useNotifications } from "@/utils/useNotifications";
 
 interface NotificationsContextType {
   notifications: Notification[];
   addNotification: (notification: Notification) => void;
-  updateNotification: (
-    type: string,
-    instanceName: string,
-    newStatus: NotificationStatus,
-  ) => void;
+  updateNotification: (notification: Notification) => void;
   clearNotifications: () => void;
   deleteNotification: (type: string, instanceName: string) => void;
   formPending: () => boolean;

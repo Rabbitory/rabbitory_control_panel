@@ -8,8 +8,7 @@ import { useNotificationsContext } from "@/app/NotificationContext";
 
 export default function PluginsPage() {
   const { instance } = useInstanceContext();
-  const { formPending, addNotification, notifications } =
-    useNotificationsContext();
+  const { formPending, addNotification } = useNotificationsContext();
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -135,7 +134,6 @@ export default function PluginsPage() {
           })}
         </div>
       )}
-      {notifications.map((n) => n.message)}
     </div>
   );
 }

@@ -101,7 +101,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <ExternalLink size={25} className="m-1" />
       </button>
       <h1>
-        <Link 
+        <Link
           href={`/instances/${name}?region=${instance?.region}`}
           className="block w-full px-10 py-2 font-text1 text-xl font-semibold text-headertext1 hover:bg-mainbghover transition-colors"
         >
@@ -158,8 +158,8 @@ export default function NavLayout({ name }: NavLayoutProps) {
           </Link>
         </li>
         <li className="mb-2">
-          <Link 
-            href={`/instances/${name}/firewall?region=${instance?.region}`} 
+          <Link
+            href={`/instances/${name}/firewall?region=${instance?.region}`}
             className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Firewall

@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div className="mt-15 ml-20 mr-20">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="font-heading1 text-2xl text-pagetext1">Instances</h1>
+        <h1 className="font-heading1 text-2xl text-headertext1">Instances</h1>
         <Link href="/instances/newForm">
           <button 
             className="font-heading py-2 px-6 bg-btn1
@@ -48,7 +48,7 @@ export default function Home() {
             >
               <Link 
                 href={`/instances/${instance.name}?region=${instance.region}`}
-                className="text-sm text-gray-400 hover:text-btnhover1"   
+                className="text-sm text-pagetext1 hover:text-btnhover1"   
               >
                 {instance.name} | {instance.id} | {instance.region}
               </Link>

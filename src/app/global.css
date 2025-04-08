@@ -5,16 +5,20 @@
 @import "tailwindcss/utilities"; */
 
 @theme {
-  --color-navbar1: #29363A; /* Dark Gray-ish Navy */
+  --color-navbar1: #232526; /* Dark Gray-ish Navy */
   --color-mainbg1: #202124; /* NEW: */
   --color-card: #191919;
+  --color-card2: #29363A;
   --color-btn1: #87d9da; /* Icy blue */
-  --color-btnhover1: #2AF7AC; /* Yellow Green */
+  --color-btnhover1: #2AF7AC; /* Green */
   --color-cancelbtn1: #86563c;
   --color-headertext1: #F5FCFB; /* Icy white */
-  --color-navbartext1: #E5E5E4;
-  --color-pagetext1: #F5FCFB; /* Icy white */
-  --color-border: #F5FCFB; /* Icy white */
+  --color-headertext2: #2AF7AC; /* Green */
+  --color-navbartext1: #9CA3AF; /* Icy blue */
+  --color-navbartext2: #2AF7AC; /* Green */
+  --color-pagetext1: #9CA3AF; /* Grey 400 */
+  --color-border1: #F5FCFB; /* Icy white */
+  --color-border2: #87d9da;
 
 }
 

@@ -1,20 +1,20 @@
-import { useState } from "react"
+import { useState } from "react";
 interface Options {
-  [key: string]: () => void,
+  [key: string]: () => void;
 }
 
 interface DropdownProps {
-  label: string,
-  options: Options
+  label: string;
+  options: Options;
 }
 
 interface DropdownOptionsProps {
-  options: Options
+  options: Options;
 }
 
 const DropdownOptions = ({ options }: DropdownOptionsProps) => {
   return (
-    <ul className="absolute mt-2 min-w-[150px] bg-white border border-gray-300 rounded-lg shadow-lg right-0" >
+    <ul className="absolute mt-2 min-w-[150px] bg-white border border-gray-300 rounded-lg shadow-lg right-0">
       {Object.keys(options).map((opt, idx) => (
         <li
           key={opt + idx}
@@ -25,8 +25,8 @@ const DropdownOptions = ({ options }: DropdownOptionsProps) => {
         </li>
       ))}
     </ul>
-  )
-}
+  );
+};
 
 export default function Dropdown({ label, options }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,13 +35,10 @@ export default function Dropdown({ label, options }: DropdownProps) {
 
   return (
     <div className="relative">
-      <button
-        className="px-4 bg-gray-200 rounded-lg"
-        onClick={handleClick}
-      >
+      <button className="px-4 bg-gray-200 rounded-lg" onClick={handleClick}>
         {label}
       </button>
       {isOpen && <DropdownOptions options={options} />}
     </div>
-  )
+  );
 }

@@ -23,7 +23,7 @@ export default function ConfigurationPage() {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
+          `/api/instances/${instance?.name}/configuration?region=${instance?.region}`
         );
         console.log(response.data);
         setConfiguration(response.data);
@@ -37,7 +37,7 @@ export default function ConfigurationPage() {
   }, [instance?.name, instance?.region]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setConfiguration((prev) => ({ ...prev, [name]: value }));
@@ -64,7 +64,7 @@ export default function ConfigurationPage() {
         `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
         {
           configuration,
-        },
+        }
       );
       //console.log(response.data);
       setConfiguration(response.data);
@@ -74,8 +74,8 @@ export default function ConfigurationPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">
+    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-6">
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Configuration
       </h1>
       {isFetching ? (
@@ -83,25 +83,25 @@ export default function ConfigurationPage() {
       ) : (
         <form onSubmit={handleSubmit}>
           <table className="w-full border-collapse">
-            <thead>
+            <thead className="font-heading1 text-headertext1 text-sm">
               <tr>
                 <th className="p-2 text-left border-b">Setting</th>
                 <th className="p-2 text-left border-b">Description</th>
                 <th className="p-2 text-left border-b">Value</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="font-text1 text-sm">
               {configItems.map((item) => (
-                <tr key={item.key}>
-                  <td className="p-2 font-semibold border-b">{item.key}</td>
+                <tr key={item.key} className="p-2">
+                  <td className="p-2 border-b">{item.key}</td>
                   <td className="p-2 border-b">{item.description}</td>
-                  <td className="p-2 border-b">
+                  <td className="p-2 border-b w-1/6 text-center">
                     {item.type === "dropdown" && item.options ? (
                       <select
                         name={item.key}
                         value={configuration[item.key] ?? ""}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded-md text-xl"
+                        className="w-full p-1 border rounded-md text-sm"
                       >
                         {item.options.map((option) => (
                           <option key={option} value={option}>
@@ -117,7 +117,7 @@ export default function ConfigurationPage() {
                         readOnly={item.readOnly}
                         value={configuration[item.key] ?? ""}
                         onChange={handleChange}
-                        className="w-full p-2 border rounded-md text-xl"
+                        className="text-sm w-full py-1 pl-2 pr-1 border rounded-md"
                       />
                     )}
                   </td>
@@ -125,17 +125,23 @@ export default function ConfigurationPage() {
               ))}
             </tbody>
           </table>
-          <div className="flex justify-end gap-4 mt-6">
+          <div className="font-heading1 flex justify-end gap-4 mt-6">
             <Link
               href="/"
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md text-center"
+              className="px-4 py-2 bg-mainbg1 text-headertext1 rounded-sm text-center hover:bg-mainbghover"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={formPending()}
-              className="px-4 py-2 bg-green-400 text-white rounded-md"
+              className={`px-4 py-2 text-mainbg1 font-semibold rounded-sm
+                ${
+                  formPending()
+                    ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+                    : "bg-btn1 hover:bg-btnhover1"
+                }
+              `}
             >
               {formPending() ? "Saving..." : "Save Configuration"}
             </button>

@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import axios from "axios";
+import { Trash2 } from 'lucide-react';
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Dropdown from "../components/Dropdown";
 
 interface Instance {
   name: string;
@@ -13,7 +12,6 @@ interface Instance {
 }
 
 export default function Home() {
-  const router = useRouter();
   const [instances, setInstances] = useState<Instance[]>([]);
 
   useEffect(() => {
@@ -26,42 +24,41 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="p-6">
-      {/* Heading and button on the same line */}
+    <div className="mt-15 ml-20 mr-20">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-semibold text-gray-900">Instances</h1>
+        <h1 className="font-heading1 text-2xl text-headertext1">Instances</h1>
         <Link href="/instances/newForm">
-          <button className="py-2 px-6 bg-green-400 text-white rounded-md hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-            Create New Instance
+          <button 
+            className="font-heading py-2 px-6 bg-btn1
+             text-mainpage1 rounded-sm hover:bg-btnhover1 transition-shadow duration-200
+             text-md">
+            + Create New Instance
           </button>
         </Link>
       </div>
 
-      {/* Check if there are instances */}
       {instances.length === 0 ? (
         <p className="text-lg text-gray-600 mb-6">No instances yet.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="font-text1 space-y-4">
           {instances.map((instance) => (
             <li
               key={instance.name}
-              className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50"
+              className="flex justify-between items-center p-4 border-gray-700 bg-card"
             >
-              <Link
+              <Link 
                 href={`/instances/${instance.name}?region=${instance.region}`}
-                className="text-xl text-blue-600 hover:underline"
+                className="text-sm text-pagetext1 hover:text-btnhover1"   
               >
                 {instance.name} | {instance.id} | {instance.region}
               </Link>
-              <Dropdown
-                label="edit"
-                options={{
-                  delete: () =>
-                    router.push(
-                      `/instances/${instance.name}/edit/delete?region=${instance.region}`
-                    ),
-                }}
-              />
+              <Link
+                href={`/instances/${instance.name}/edit/delete?region=${instance.region}`}
+                className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
+                aria-label="Delete instance"
+              >
+                <Trash2 size={20} />
+              </Link>
             </li>
           ))}
         </ul>

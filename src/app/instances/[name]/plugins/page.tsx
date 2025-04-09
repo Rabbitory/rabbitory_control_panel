@@ -85,13 +85,13 @@ export default function PluginsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6 text-center">
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6">
+      <h1 className="font-heading1 text-2xl text-headertext1 mb-10">
         Plugins
       </h1>
-      {isSaving && <p className="text-gray-600">Saving...</p>}
+      {isSaving && <p className="text-white">Saving...</p>}
       {isFetching ? (
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-white">Loading...</p>
       ) : (
         <div className="space-y-4">
           {plugins.map((plugin: Plugin) => {
@@ -100,11 +100,11 @@ export default function PluginsPage() {
               <form
                 key={plugin.name}
                 onSubmit={(e) => handleSubmit(e, plugin.name)}
-                className="flex flex-col md:flex-row items-center justify-between border-b pb-4"
+                className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4"
               >
                 <div className="mb-2 md:mb-0">
-                  <h2 className="text-xl font-semibold">{plugin.name}</h2>
-                  <p className="text-gray-600">{plugin.description}</p>
+                  <h2 className="font-heading1 text-md text-pagetext1">{plugin.name}</h2>
+                  <p className="font-text1 text-sm text-gray-500">{plugin.description}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -118,14 +118,13 @@ export default function PluginsPage() {
                       disabled={formPending()}
                     />
                     <div
-                      className="w-11 h-6 bg-gray-200 rounded-full
+                      className="w-8 h-4 bg-pagetext1/60 rounded-full
              peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
-             dark:bg-gray-700
-             peer-checked:bg-green-500
-             peer-checked:after:translate-x-full peer-checked:after:border-white
+             peer-checked:bg-btnhover1
+             peer-checked:after:translate-x-4 peer-checked:after:border-white
              after:content-[''] after:absolute after:top-0.5 after:left-[2px]
              after:bg-white after:border-gray-300 after:border after:rounded-full
-             after:h-5 after:w-5 after:transition-all"
+             after:h-3 after:w-3 after:transition-all"
                     ></div>
                   </label>
                 </div>

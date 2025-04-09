@@ -14,6 +14,16 @@ interface BackupDefinition {
   definitions: data;
 }
 
+interface AlarmSettings {
+  type: string;
+  data: data;
+}
+
+interface AlarmRecord {
+  id: string;
+  data: data;
+}
+
 export const storeToDynamoDB = async (tableName: string, data: data) => {
   const client = new DynamoDBClient({ region: process.env.REGION });
   const docClient = DynamoDBDocumentClient.from(client);
@@ -82,7 +92,7 @@ export const appendBackupDefinition = async (
   const docClient = DynamoDBDocumentClient.from(client);
 
   const params = {
-    TableName: "RabbitoryInstancesMetadata",
+    TableName: "rabbitory-instances-metadata",
     Key: { instanceId },
     UpdateExpression:
       "SET backups = list_append(:newBackup, if_not_exists(backups, :emptyList))",
@@ -102,4 +112,106 @@ export const appendBackupDefinition = async (
     console.error("Error appending backup:", err);
     throw new Error("Failed to append backup to DynamoDB");
   }
+};
+
+const ensureAlarmsExists = async (instanceId: string) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+  const params = {
+    TableName: "rabbitory-instances-metadata",
+    Key: { instanceId },
+    UpdateExpression: "SET alarms = if_not_exists(alarms, :emptyAlarms)",
+    ExpressionAttributeValues: {
+      ":emptyAlarms": {
+        memory: [],
+        storage: [],
+      },
+    },
+    ReturnValues: "UPDATED_NEW" as const,
+  };
+
+  await docClient.send(new UpdateCommand(params));
+};
+
+export const appendAlarmsSettings = async (
+  instanceId: string,
+  newAlarm: AlarmSettings
+) => {
+  await ensureAlarmsExists(instanceId);
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+  console.log(newAlarm.type, newAlarm.data);
+
+  const newId = crypto.randomUUID();
+  const newAlarmRecord = { id: newId, data: newAlarm.data };
+
+  const params = {
+    TableName: "rabbitory-instances-metadata",
+    Key: { instanceId },
+    UpdateExpression:
+      "SET alarms.#alarmType = list_append(if_not_exists(alarms.#alarmType, :emptyList), :newAlarm)",
+    ExpressionAttributeNames: {
+      "#alarmType": newAlarm.type,
+    },
+    ExpressionAttributeValues: {
+      ":emptyList": [],
+      ":newAlarm": [newAlarmRecord],
+    },
+    ReturnValues: "UPDATED_NEW" as const,
+  };
+
+  try {
+    const command = new UpdateCommand(params);
+    const response = await docClient.send(command);
+    console.log("Alarm appended successfully!");
+    return response;
+  } catch (err) {
+    console.error("Error appending alarm:", err);
+    throw new Error("Failed to append alarm to DynamoDB");
+  }
+};
+
+export const deleteAlarmFromDynamoDB = async (
+  instanceId: string,
+  alarmType: string,
+  alarmId: string
+) => {
+  const client = new DynamoDBClient({ region: process.env.REGION });
+  const docClient = DynamoDBDocumentClient.from(client);
+
+  const getParams = {
+    TableName: "rabbitory-instances-metadata",
+    Key: { instanceId },
+  };
+
+  const getCommand = new GetCommand(getParams);
+  const getResponse = await docClient.send(getCommand);
+
+  if (!getResponse.Item) {
+    throw new Error(`Item with instanceId ${instanceId} not found.`);
+  }
+
+  const alarms: { [key: string]: AlarmRecord[] } =
+    getResponse.Item.alarms || {};
+  const alarmArray: AlarmRecord[] = alarms[alarmType] || [];
+
+  const updatedAlarmArray = alarmArray.filter((alarm) => alarm.id !== alarmId);
+
+  const updateParams = {
+    TableName: "rabbitory-instances-metadata",
+    Key: { instanceId },
+    UpdateExpression: "SET alarms.#alarmType = :updatedList",
+    ExpressionAttributeNames: {
+      "#alarmType": alarmType,
+    },
+    ExpressionAttributeValues: {
+      ":updatedList": updatedAlarmArray,
+    },
+    ReturnValues: "UPDATED_NEW" as const,
+  };
+
+  const updateCommand = new UpdateCommand(updateParams);
+  const updateResponse = await docClient.send(updateCommand);
+  console.log("Alarm deleted successfully!");
+  return updateResponse;
 };

@@ -103,68 +103,78 @@ export default function NavLayout({ name }: NavLayoutProps) {
       <h1>
         <Link
           href={`/instances/${name}?region=${instance?.region}`}
-          className="block w-full px-10 py-2 font-text1 text-xl font-semibold text-headertext1 hover:bg-mainbghover transition-colors"
+          className="block w-full px-10 py-2 text-xl font-heading1 text-headertext1 hover:bg-mainbghover transition-colors"
         >
           General
         </Link>
       </h1>
-      <ul className="mt-8">
-        <li className=" mb-2">
-          <Link
-            href={`/instances/${name}/plugins?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Plugins
-          </Link>
-        </li>
-        <li className="mb-2">
+      <ul className="mt-8 text-sm space-y-2">
+
+        {/* RabbitMQ Section */}
+        <li className="px-10 text-headertext1 tracking-wide">RabbitMQ</li>
+        <li>
           <Link
             href={`/instances/${name}/versions?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Versions
           </Link>
         </li>
-        <li className="mb-2">
+        <li>
           <Link
             href={`/instances/${name}/configuration?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Configuration
           </Link>
         </li>
-        <li className="mb-2">
+        <li>
+          <Link
+            href={`/instances/${name}/plugins?region=${instance?.region}`}
+            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+          >
+            Plugins
+          </Link>
+        </li>
+
+        {/* EC2 Instance Section */}
+        <li className="px-10 mt-4 text-headertext1 tracking-wide">Server Instance</li>
+        <li>
           <Link
             href={`/instances/${name}/hardware?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Hardware
           </Link>
         </li>
-        <li className="mb-2">
+        <li>
           <Link
-            href={`/instances/${name}/definitions?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            href={`/instances/${name}/backups?region=${instance?.region}`}
+            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
-            Definitions
+            Backups
           </Link>
         </li>
-        <li className="mb-2">
-          <Link
-            href={`/instances/${name}/logs?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Logs
-          </Link>
-        </li>
-        <li className="mb-2">
+        <li>
           <Link
             href={`/instances/${name}/firewall?region=${instance?.region}`}
-            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Firewall
           </Link>
         </li>
+
+        {/* Monitoring Section */}
+        <li className="px-10 mt-4 text-headertext1 tracking-wide">Monitoring</li>
+        <li>
+          <Link
+            href={`/instances/${name}/logs?region=${instance?.region}`}
+            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+          >
+            Logs
+          </Link>
+        </li>
+
       </ul>
     </nav>
   );

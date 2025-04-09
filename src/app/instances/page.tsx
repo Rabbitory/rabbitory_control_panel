@@ -50,7 +50,7 @@ export default function Home() {
           <tr className="text-headertext1 font-text1 text-md bg-background">
             <th className="text-left w-[12%] px-4 py-2">Name</th>
             <th className="text-left w-[12%] px-4 py-2">Instance ID</th>
-            <th className="text-left w-[10%] px-4 py-2">Datacenter</th>
+            <th className="text-left w-[10%] px-4 py-2">Data Center</th>
             <th className="text-left w-[10%] px-4 py-2">Status</th>
             <th className="w-[5%]"></th>
           </tr>

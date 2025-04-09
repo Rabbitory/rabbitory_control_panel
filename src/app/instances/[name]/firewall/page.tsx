@@ -259,10 +259,10 @@ export default function FirewallPage() {
           ))}
         </div>
   
-        <div className="flex justify-between mt-4">
+        <div className="font-heading1 text-sm flex justify-between mt-4">
           <button
             onClick={addRule}
-            className="font-heading1 bg-mainbg1 text-headertext1 px-4 py-2 rounded-sm hover:bg-mainbghover cursor-pointer"
+            className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center text-sm hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
           >
             + Add Additional Rule
           </button>

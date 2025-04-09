@@ -98,7 +98,7 @@ export default function DefinitionsPage() {
         <button
           onClick={handleManualBackup}
           disabled={isSaving}
-          className="font-heading1 px-4 py-2 mb-8 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+          className="font-heading1 text-sm px-4 py-2 mb-8 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
         >
           {isSaving ? "Creating Backup..." : "+ Add Manual Backup"}
         </button>
@@ -111,8 +111,8 @@ export default function DefinitionsPage() {
           <table className="w-full border-collapse">
             <thead className="font-heading1">
               <tr>
-                <th className="p-2 text-left border-b border-gray-300">Date</th>
-                <th className="p-2 text-left border-b border-gray-300">Broker version</th>
+                <th className="p-2 text-left border-b border-gray-300">Date Created</th>
+                <th className="p-2 text-left border-b border-gray-300">RabbitMQ Version</th>
                 <th className="p-2 text-left border-b border-gray-300">Trigger</th>
                 <th className="p-2 text-left border-b border-gray-300"></th>
               </tr>
@@ -133,7 +133,7 @@ export default function DefinitionsPage() {
                     <td className="p-2 border-b border-gray-300">
                       <button
                         onClick={() => handleDownload(backup)}
-                        className="px-3 py-1 bg-mainbg1 text-white rounded-sm mr-2 hover:bg-mainbghover"
+                        className="px-3 py-1 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
                       >
                         Download
                       </button>

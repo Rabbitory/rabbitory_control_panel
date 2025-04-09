@@ -87,10 +87,10 @@ export default function StorageEditPage() {
             className="font-text1 w-1/10 p-1 border rounded-md text-sm"
           />
         </div>
-        <div className="flex justify-end gap-4">
+        <div className="font-heading1 text-sm flex justify-end gap-4">
           <Link
               href={`/instances/${instance?.name}/hardware?region=${instance?.region}`}
-              className="px-4 py-2 bg-mainbg1 text-headertext1 rounded-sm text-center hover:bg-mainbghover"
+              className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
             >
               Cancel
             </Link>

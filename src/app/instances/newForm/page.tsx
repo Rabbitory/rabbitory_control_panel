@@ -240,31 +240,27 @@ export default function NewFormPage() {
 
             {/* Button Container */}
 
-            <div className="font-heading1 flex justify-end gap-4 mt-6">
-            <Link
-  href="/"
-  className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
->
-  Cancel
-</Link>
-
-
-
-                <button 
-                  type="submit"
-                  disabled={instantiating}
-                  className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
-                >
-                  {instantiating ? (
-                    <span className="flex items-center">
-                      <div className="animate-spin border-2 border-t-2 border-mainbg1 w-4 h-4 rounded-full mr-2"></div>
-                      Creating...
-                    </span>
-                  ) : (
-                    "Create"
-                  )}
-                </button>
-
+            <div className="font-heading1 text-sm  flex justify-end gap-4 mt-6">
+              <Link
+                href="/"
+                className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
+              >
+                Cancel
+              </Link>
+              <button 
+                type="submit"
+                disabled={instantiating}
+                className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+              >
+                {instantiating ? (
+                  <span className="flex items-center">
+                    <div className="animate-spin border-2 border-t-2 border-mainbg1 w-4 h-4 rounded-full mr-2"></div>
+                    Creating...
+                  </span>
+                ) : (
+                  "Create"
+                )}
+              </button>
             </div>
           </fieldset>
         </Form>

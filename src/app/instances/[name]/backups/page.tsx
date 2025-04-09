@@ -80,7 +80,7 @@ export default function BackupsPage() {
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-6">Backups</h1>
       <p className="font-text1 text-sm mb-4">
-        A “definition” in RabbitMQ is a snapshot of your server’s configuration — including exchanges, queues, users, and permissions. We refer to these as “backups”. Below, you can manually create and download backups for safekeeping or migration. See{" "}
+        A “definition” in RabbitMQ is a snapshot of your server’s configuration — including exchanges, queues, users, and permissions. We refer to these as “backups”. See{" "}
         <a
           href="https://www.rabbitmq.com/docs/definitions"
           className="underline hover:text-headertext1"
@@ -92,7 +92,7 @@ export default function BackupsPage() {
         for more details.
       </p>
       <p className="font-text1 text-sm mb-10">
-        All backups are also securely stored in the cloud using AWS DynamoDB, so they’ll be available anytime you return to this page.
+      Below, you can manually create and download backups for safekeeping or migration. All backups are also securely stored in the cloud, so they’ll be available anytime you return to this page.
       </p>
       <div className="flex justify-between items-center mb-4">
         <button

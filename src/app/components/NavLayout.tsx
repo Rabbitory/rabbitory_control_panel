@@ -150,7 +150,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         </li>
         <li>
           <Link
-            href={`/instances/${name}/backups?region=${instance?.region}`}
+            href={`/instances/${name}/definitions?region=${instance?.region}`}
             className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Backups

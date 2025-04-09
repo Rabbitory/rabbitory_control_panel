@@ -56,6 +56,9 @@ export default function LogsPage() {
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         RabbitMQ Logs
       </h1>
+      <p className="font-text1 text-sm text-pagetext1 mb-6">
+        The following logs are fetched from the RabbitMQ server on your running instance. They are displayed here for convenient debugging. You can also copy your logs as needed.
+      </p>
 
       {isLoading ? (
         <div className="animate-pulse space-y-2">
@@ -85,7 +88,7 @@ export default function LogsPage() {
             ref={scrollContainerRef}
             className="overflow-auto max-h-[400px] scrollbar-thin scrollbar-thumb-btn1 scrollbar-track-gray-100"
           >
-            <pre className="bg-mainbg1 p-4 rounded-lg whitespace-pre-wrap font-text1 text-sm">
+            <pre className="bg-mainbg1 p-4 rounded-lg whitespace-pre-wrap font-text1 text-gray-300 text-sm">
               {logs}
             </pre>
             <div ref={logsEndRef} />

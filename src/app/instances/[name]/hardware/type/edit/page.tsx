@@ -17,7 +17,7 @@ export default function HardwarePage() {
   const [loading, setLoading] = useState(true);
   const [selectedInstanceType, setSelectedInstanceType] = useState("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
-    []
+    [],
   );
   const [instanceSize, setInstanceSize] = useState("");
 
@@ -44,12 +44,13 @@ export default function HardwarePage() {
       alert("Missing instance type or size");
       return;
     }
+
     await addNotification({
       type: "instanceType",
       status: "pending",
       instanceName: instance.name,
       path: "instances",
-      message: `Updating type of ${instance.name} to ${selectedInstanceType}`,
+      message: `Updating type of ${instance.name} to ${instanceSize}`,
     });
 
     try {
@@ -57,6 +58,7 @@ export default function HardwarePage() {
         instanceId: instance?.id,
         instanceType: instanceSize,
         region: instance?.region,
+        instanceName: instance?.name,
       });
       return true;
     } catch (error) {
@@ -144,8 +146,7 @@ export default function HardwarePage() {
               e.preventDefault();
 
               const success = await updateHardware();
-              if (success)
-                window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
+              if (success) router.push("/instances");
             }}
           >
             {formPending() ? "Saving..." : "Submit"}

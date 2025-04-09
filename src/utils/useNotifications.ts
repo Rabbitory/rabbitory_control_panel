@@ -37,9 +37,9 @@ export const useNotifications = () => {
       prevNotifications.map((notification) =>
         notification.type === newNotification.type &&
         notification.instanceName === newNotification.instanceName
-          ? newNotification
-          : notification
-      )
+          ? { notification, ...newNotification }
+          : notification,
+      ),
     );
   };
 
@@ -50,8 +50,8 @@ export const useNotifications = () => {
           !(
             notification.type === type &&
             notification.instanceName === instanceName
-          )
-      )
+          ),
+      ),
     );
   };
 

@@ -55,7 +55,7 @@ export default function NotificationsDropdown() {
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [updateNotification]);
 
   return (
     <div className="relative inline-block">
@@ -75,12 +75,12 @@ export default function NotificationsDropdown() {
                 <li
                   key={index}
                   className={`flex items-center p-2 border-b border-gray-200 last:border-0 ${getTextColor(
-                    notification.status
+                    notification.status,
                   )}`}
                 >
                   <span
                     className={`inline-block w-3 h-3 rounded-full mr-2 ${getBubbleColor(
-                      notification.status
+                      notification.status,
                     )}`}
                   />
                   {notification.message}

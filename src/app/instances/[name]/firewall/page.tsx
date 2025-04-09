@@ -19,7 +19,6 @@ import { useNotificationsContext } from "@/app/NotificationContext";
 export default function FirewallPage() {
   const { instance } = useInstanceContext();
   const { addNotification, formPending } = useNotificationsContext();
-
   const [rules, setRules] = useState<FirewallRule[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -29,7 +28,7 @@ export default function FirewallPage() {
       setIsFetching(true);
       try {
         const { data } = await axios.get(
-          `/api/instances/${instance?.name}/firewall?region=${instance?.region}`
+          `/api/instances/${instance?.name}/firewall?region=${instance?.region}`,
         );
 
         setRules(data);
@@ -45,7 +44,7 @@ export default function FirewallPage() {
 
   const resetError = (errorMessage: string) => {
     setErrors((prevErrors) =>
-      prevErrors.filter((error) => error !== errorMessage)
+      prevErrors.filter((error) => error !== errorMessage),
     );
   };
 
@@ -161,7 +160,7 @@ export default function FirewallPage() {
     try {
       const { data } = await axios.put(
         `/api/instances/${instance?.name}/firewall?region=${instance?.region}`,
-        { rules }
+        { rules },
       );
 
       console.log(data.message);

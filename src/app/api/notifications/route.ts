@@ -1,6 +1,7 @@
 import eventEmitter from "@/utils/eventEmitter";
 import { NextResponse } from "next/server";
 import { addEvent } from "@/utils/eventBackups";
+import { Notification } from "@/types/notification";
 
 export async function GET(request: Request) {
   const encoder = new TextEncoder();
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
   const stream = new ReadableStream({
     start(controller) {
       console.log("SSE client connected");
-      const onEvent = (payload: any) => {
+      const onEvent = (payload: Notification) => {
         console.log(payload);
         const sseMessage = `data: ${JSON.stringify(payload)}\n\n`;
         controller.enqueue(encoder.encode(sseMessage));

@@ -24,12 +24,6 @@
 
 }
 
-/*
---color-icyblue1: #87d9da; (brighter)
---color-icyblue2: #C8ECE7 (more subtle
-
-*/
-
 
 @theme inline {
   --font-heading1: var(--font-montserrat);

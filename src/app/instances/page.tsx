@@ -58,17 +58,45 @@ export default function Home() {
                   key={instance.name}
                   className="bg-card border border-gray-500/30"
                 >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/instances/${instance.name}?region=${instance.region}`}
-                      className="text-pagetext1 hover:text-btnhover1 truncate block"
-                    >
-                      {instance.name}
-                    </Link>
-                  </td>
+<td className="px-4 py-3 relative">
+  {instance.state === "pending" ? (
+    <span 
+      className="text-pagetext1 truncate block group cursor-not-allowed"
+    >
+      {instance.name}
+      <div className="absolute left-1/2 transform -translate-x-1/3 top-full mt-3 p-2 bg-black text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        Your instance is still initializing.
+      </div>
+    </span>
+  ) : (
+    <Link
+      href={`/instances/${instance.name}?region=${instance.region}`}
+      className="text-pagetext1 hover:text-btnhover1 truncate block"
+    >
+      {instance.name}
+    </Link>
+  )}
+</td>
+
+
+
                   <td className="px-4 py-3 text-pagetext1 truncate">{instance.id}</td>
                   <td className="px-4 py-3 text-pagetext1">{instance.region}</td>
-                  <td className="px-4 py-3 text-pagetext1">{instance.state}</td>
+                  <td
+                    className={`px-4 py-3 ${
+                      instance.state === "running"
+                        ? "text-btnhover1"
+                        : instance.state === "pending" || instance.state === "initializing"
+                        ? "text-btn1"
+                        : instance.state === "stopped" || instance.state === "stopping"
+                        ? "text-red-300" 
+                        : instance.state === "shutting-down"
+                        ? "text-pagetext1 italic"
+                        : ""
+                    }`}
+                  >
+                    {instance.state}
+                  </td>
                   <td className="px-4 py-3">
                     <Link
                       href={`/instances/${instance.name}/edit/delete?region=${instance.region}`}

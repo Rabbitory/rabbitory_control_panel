@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useInstanceContext } from "../InstanceContext";
 import axios from "axios";
+import { Copy } from "lucide-react";
 
 export default function LogsPage() {
   const { instance } = useInstanceContext();
   const [logs, setLogs] = useState<string>("");
-  const [isFetching, setIsFetching] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const logsEndRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     const fetchLogs = async () => {
-      setIsFetching(true);
+      setIsLoading(true);
       setError(null);
       try {
         const response = await axios.get(
@@ -23,7 +27,7 @@ export default function LogsPage() {
         console.error("Error fetching logs:", error);
         setError("Failed to fetch logs. Please try again later.");
       } finally {
-        setIsFetching(false);
+        setIsLoading(false);
       }
     };
 
@@ -35,26 +39,57 @@ export default function LogsPage() {
     return () => clearInterval(interval);
   }, [instance?.name, instance?.region]);
 
+  useEffect(() => {
+    if (logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [logs]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(logs);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
+    <div className="max-w-full mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         RabbitMQ Logs
       </h1>
 
-      {isFetching && <p className="font-text1">Fetching logs...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-
-      {logs && (
+      {isLoading ? (
+        <div className="animate-pulse space-y-2">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <div key={index} className="bg-gray-600 h-4 rounded w-7/8"></div>
+          ))}
+        </div>
+      ) : error ? (
+        <p className="text-red-600">{error}</p>
+      ) : (
         <div className="relative">
           <button
-            onClick={() => navigator.clipboard.writeText(logs)}
-            className="font-heading1 absolute top-2 right-2 px-3 py-1 text-xs bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
+            onClick={handleCopy}
+            className="font-heading1 absolute top-2 right-2 p-2 text-xs bg-mainbg1 text-btn1 rounded-sm text-center hover:text-checkmark transition-all duration-200"
           >
-            Copy
+            <Copy size={18} />
           </button>
-          <pre className="bg-mainbg1 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap font-text1 text-sm">
-            {logs}
-          </pre>
+
+          {/* Tooltip for copied state */}
+          {copied && (
+            <div className="absolute top-8 right-2 text-xs bg-gray-800 text-white p-1 rounded-md">
+              Copied logs to clipboard
+            </div>
+          )}
+
+          <div
+            ref={scrollContainerRef}
+            className="overflow-auto max-h-[400px] scrollbar-thin scrollbar-thumb-btn1 scrollbar-track-gray-100"
+          >
+            <pre className="bg-mainbg1 p-4 rounded-lg whitespace-pre-wrap font-text1 text-sm">
+              {logs}
+            </pre>
+            <div ref={logsEndRef} />
+          </div>
         </div>
       )}
     </div>

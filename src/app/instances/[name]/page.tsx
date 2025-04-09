@@ -51,15 +51,15 @@ export default function InstancePage() {
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">Host:</td>
-            <td>{instance?.publicDns}</td>
+            <td className="py-2">{instance?.publicDns}</td>
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">Created at:</td>
-            <td>{instance?.launchTime && formatDate(instance?.launchTime)}</td>
+            <td className="py-2">{instance?.launchTime && formatDate(instance?.launchTime)}</td>
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">Data Center:</td>
-            <td>{instance?.region}</td>
+            <td className="py-2">{instance?.region}</td>
           </tr>
         </tbody>
       </table>
@@ -73,11 +73,11 @@ export default function InstancePage() {
         <tbody className="font-text1">
           <tr>
             <td className="py-2">Port:</td>
-            <td>{instance?.port}</td>
+            <td className="py-2">{instance?.port}</td>
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">User:</td>
-            <td>{instance?.user}</td>
+            <td className="py-2">{instance?.user}</td>
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">Password:</td>
@@ -96,7 +96,7 @@ export default function InstancePage() {
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">RabbitMQ URL:</td>
-            <td className="relative">
+            <td className="py-2 relative">
               <div className="flex items-center gap-2">
                 <span>{instance?.endpointUrl}</span>
                 <div className="relative">

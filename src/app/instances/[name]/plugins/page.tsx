@@ -8,12 +8,12 @@ import { useInstanceContext } from "../InstanceContext";
 export default function PluginsPage() {
   const { instance } = useInstanceContext();
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchPlugins = async () => {
-      setIsFetching(true);
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `/api/instances/${instance?.name}/plugins?region=${instance?.region}`,
@@ -29,7 +29,7 @@ export default function PluginsPage() {
       } catch (error) {
         console.error("Error fetching plugins:", error);
       } finally {
-        setIsFetching(false);
+        setIsLoading(false);
       }
     };
 
@@ -44,8 +44,6 @@ export default function PluginsPage() {
     const currentlyEnabled = enabledPlugins.includes(pluginName);
     const newValue = !currentlyEnabled;
 
-    //update the state immediately,
-    // we do this so that the toggle button updates immediately.
     setEnabledPlugins((prev) =>
       newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
     );
@@ -75,12 +73,38 @@ export default function PluginsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6">
-      <h1 className="font-heading1 text-2xl text-headertext1 mb-10">
-        Plugins
-      </h1>
-      {isSaving && <p className="text-white">Saving...</p>}
-      {isFetching ? (
-        <p className="text-white">Loading...</p>
+      <h1 className="font-heading1 text-2xl text-headertext1 mb-10">Plugins</h1>
+      <p className="font-text1 text-sm text-pagetext1 mb-6">
+        Below is a list of RabbitMQ plugins that you can enable or disable. Toggling a plugin will immediately update its status on this page and within your RabbitMQ instance. For more detailed information on RabbitMQ plugins and their management, refer to the{" "}
+        <a
+          href="https://www.rabbitmq.com/docs/plugins"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline text-pagetext1 hover:text-headertext1"
+        >
+          RabbitMQ Plugins Guide
+        </a>.
+      </p>
+
+      {isSaving && <p className="font-heading1 text-white">Saving...</p>}
+  
+      {isLoading ? (
+        <div className="space-y-4">
+          {[...Array(plugins.length)].map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4 animate-pulse"
+            >
+              <div className="mb-2 md:mb-0">
+                <div className="w-32 h-4 bg-gray-600 rounded-sm"></div>
+                <div className="w-48 h-3 bg-gray-60 rounded-sm mt-2"></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-4 bg-gray-600 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="space-y-4">
           {plugins.map((plugin: Plugin) => {
@@ -92,8 +116,12 @@ export default function PluginsPage() {
                 className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4"
               >
                 <div className="mb-2 md:mb-0">
-                  <h2 className="font-heading1 text-md text-pagetext1">{plugin.name}</h2>
-                  <p className="font-text1 text-sm text-gray-500">{plugin.description}</p>
+                  <h2
+                    className={`font-heading1 text-sm ${isEnabled ? 'text-btnhover1' : 'text-pagetext1'}`}
+                  >
+                    {plugin.name}
+                  </h2>
+                  <p className="font-text1 text-xs text-gray-500">{plugin.description}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -101,18 +129,17 @@ export default function PluginsPage() {
                       type="checkbox"
                       checked={isEnabled}
                       aria-label={plugin.name}
-                      // When toggled, the form is immediately submitted.
                       onChange={(e) => e.currentTarget.form?.requestSubmit()}
                       className="sr-only peer"
                     />
                     <div
                       className="w-8 h-4 bg-pagetext1/60 rounded-full
-             peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
-             peer-checked:bg-btnhover1
-             peer-checked:after:translate-x-4 peer-checked:after:border-white
-             after:content-[''] after:absolute after:top-0.5 after:left-[2px]
-             after:bg-white after:border-gray-300 after:border after:rounded-full
-             after:h-3 after:w-3 after:transition-all"
+               peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
+               peer-checked:bg-btnhover1
+               peer-checked:after:translate-x-4 peer-checked:after:border-white
+               after:content-[''] after:absolute after:top-0.5 after:left-[2px]
+               after:bg-white after:border-gray-300 after:border after:rounded-full
+               after:h-3 after:w-3 after:transition-all"
                     ></div>
                   </label>
                 </div>
@@ -123,4 +150,5 @@ export default function PluginsPage() {
       )}
     </div>
   );
+  
 }

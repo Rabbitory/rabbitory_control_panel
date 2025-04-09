@@ -35,7 +35,6 @@ export const GET = async () => {
 
   const command = new DescribeInstancesCommand(params);
 
-  // Build promises that return a list of Region-annotated instances.
   const instancePromises: Promise<InstanceWithRegion[]>[] = regions.map(
     async (region) => {
       const ec2Client = new EC2Client({ region });
@@ -44,13 +43,12 @@ export const GET = async () => {
           command
         )) as DescribeInstancesCommandOutput;
 
-        // Create a new array with the region attached for each instance.
         const regionInstances: InstanceWithRegion[] =
           response.Reservations?.flatMap(
             (reservation) =>
               reservation.Instances?.map((instance) => ({
                 ...instance,
-                region: region!, // Assert that region is defined.
+                region: region!,
               })) ?? []
           ) ?? [];
 
@@ -62,14 +60,9 @@ export const GET = async () => {
     }
   );
 
-  // Flatten the array of arrays into a single array of instances.
   const instances: InstanceWithRegion[] = (
     await Promise.all(instancePromises)
   ).flat();
-
-  // if (instances.length === 0) {
-  //   return new NextResponse("No instances found", { status: 404 });
-  // }
 
   const formattedInstances = instances
     .map((instance) => {
@@ -82,6 +75,7 @@ export const GET = async () => {
         name,
         id: instance.InstanceId,
         region: instance.region,
+        state: instance.State?.Name,
       };
     })
     .filter(Boolean);

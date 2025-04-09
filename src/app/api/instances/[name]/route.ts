@@ -37,7 +37,7 @@ export async function GET(
         { status: 503 }
       );
     }
-    // Decrypt the credentials
+
     const encryptedUsername = response.Item?.encryptedUsername;
     const encryptedPassword = response.Item?.encryptedPassword;
 
@@ -53,7 +53,7 @@ export async function GET(
     const endpointUrl = `amqp://${username}:${password}@${
       instance.PublicDnsName || instance.PublicIpAddress
     }:5672`;
-    // Format the instance data
+
     const formattedInstance = {
       id: instance.InstanceId,
       name:

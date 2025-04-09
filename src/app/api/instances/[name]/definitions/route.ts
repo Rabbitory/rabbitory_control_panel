@@ -117,7 +117,7 @@ export async function POST(
       definitions
     );
 
-    eventEmitter.emit("notifications", {
+    eventEmitter.emit("notification", {
       type: "backup",
       status: "success",
       instanceName: instanceName,

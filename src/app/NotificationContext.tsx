@@ -6,7 +6,6 @@ import { useNotifications } from "@/utils/useNotifications";
 
 interface NotificationsContextType {
   notifications: Notification[];
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   addNotification: (notification: Notification) => void;
   updateNotification: (notification: Notification) => void;
   clearNotifications: () => void;
@@ -16,9 +15,7 @@ interface NotificationsContextType {
 
 const defaultContextValue: NotificationsContextType = {
   notifications: [],
-  setNotifications: () => {
-    throw new Error("setNotifications not implemented");
-  },
+
   addNotification: () => {
     throw new Error("addNotification not implemented");
   },
@@ -52,7 +49,6 @@ export function NotificationsProvider({
 }: NotificationsProviderProps) {
   const {
     notifications,
-    setNotifications,
     addNotification,
     updateNotification,
     clearNotifications,
@@ -64,7 +60,6 @@ export function NotificationsProvider({
     <NotificationsContext.Provider
       value={{
         notifications,
-        setNotifications,
         addNotification,
         updateNotification,
         clearNotifications,

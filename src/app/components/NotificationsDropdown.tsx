@@ -3,11 +3,9 @@
 import { useState, useEffect } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import { NotificationStatus } from "@/types/notification";
-import axios from "axios";
 
 export default function NotificationsDropdown() {
-  const { notifications, setNotifications, updateNotification } =
-    useNotificationsContext();
+  const { notifications, updateNotification } = useNotificationsContext();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
@@ -45,6 +43,7 @@ export default function NotificationsDropdown() {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
+
       updateNotification(data);
     };
 
@@ -56,18 +55,6 @@ export default function NotificationsDropdown() {
     return () => {
       eventSource.close();
     };
-  }, []);
-
-  useEffect(() => {
-    const fetchNotificationsBackups = async () => {
-      try {
-        const response = await axios.get("/api/notifications/backups");
-        setNotifications(response.data);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      }
-    };
-    fetchNotificationsBackups();
   }, []);
 
   return (

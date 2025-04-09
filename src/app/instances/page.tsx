@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import axios from "axios";
-import { Trash2 } from 'lucide-react';
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Instance {
@@ -28,10 +28,11 @@ export default function Home() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="font-heading1 text-2xl text-headertext1">Instances</h1>
         <Link href="/instances/newForm">
-          <button 
+          <button
             className="font-heading py-2 px-6 bg-btn1
              text-mainpage1 rounded-sm hover:bg-btnhover1 transition-shadow duration-200
-             text-md">
+             text-md"
+          >
             + Create New Instance
           </button>
         </Link>
@@ -46,9 +47,9 @@ export default function Home() {
               key={instance.name}
               className="flex justify-between items-center p-4 border-gray-700 bg-card"
             >
-              <Link 
+              <Link
                 href={`/instances/${instance.name}?region=${instance.region}`}
-                className="text-sm text-pagetext1 hover:text-btnhover1"   
+                className="text-sm text-pagetext1 hover:text-btnhover1"
               >
                 {instance.name} | {instance.id} | {instance.region}
               </Link>

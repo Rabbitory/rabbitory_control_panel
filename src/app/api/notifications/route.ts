@@ -9,6 +9,7 @@ export async function GET(request: Request) {
     start(controller) {
       console.log("SSE client connected");
       const onEvent = (payload: any) => {
+        console.log(payload);
         const sseMessage = `data: ${JSON.stringify(payload)}\n\n`;
         controller.enqueue(encoder.encode(sseMessage));
       };

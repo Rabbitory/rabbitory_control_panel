@@ -9,9 +9,22 @@ export const useNotifications = () => {
   const path = usePathname();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  useEffect(() => {
+    const fetchNotificationsBackups = async () => {
+      try {
+        const response = await axios.get("/api/notifications/backups");
+        setNotifications(response.data);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+    fetchNotificationsBackups();
+  }, []);
 
   const addNotification = async (newNotification: Notification) => {
-    setNotifications([...notifications, newNotification]);
+    setNotifications((prevNotifications) => {
+      return [...prevNotifications, newNotification];
+    });
     try {
       await axios.post("/api/notifications", newNotification);
     } catch (error) {
@@ -20,8 +33,8 @@ export const useNotifications = () => {
   };
 
   const updateNotification = (newNotification: Notification) => {
-    setNotifications(
-      notifications.map((notification) =>
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
         notification.type === newNotification.type &&
         notification.instanceName === newNotification.instanceName
           ? newNotification
@@ -31,11 +44,13 @@ export const useNotifications = () => {
   };
 
   const deleteNotification = (type: string, instanceName: string) => {
-    setNotifications(
-      notifications.filter(
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter(
         (notification) =>
-          notification.instanceName !== instanceName &&
-          notification.type !== type
+          !(
+            notification.type === type &&
+            notification.instanceName === instanceName
+          )
       )
     );
   };

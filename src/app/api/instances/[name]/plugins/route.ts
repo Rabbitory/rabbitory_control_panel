@@ -110,7 +110,7 @@ export async function POST(
   try {
     await runSSMCommands(instanceId!, commands, region!);
 
-    eventEmitter.emit("plugin", {
+    eventEmitter.emit("notification", {
       type: "plugin",
       status: "success",
       instanceName: instanceName,

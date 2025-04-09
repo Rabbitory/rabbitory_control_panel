@@ -165,6 +165,14 @@ export default function NavLayout({ name }: NavLayoutProps) {
             Firewall
           </Link>
         </li>
+        <li className="mb-2">
+          <Link
+            href={`/instances/${name}/alarms?region=${instance?.region}`}
+            className="block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+          >
+            Alarms
+          </Link>
+        </li>
       </ul>
     </nav>
   );

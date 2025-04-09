@@ -4,10 +4,12 @@ import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 
 import axios from "axios";
+import eventEmitter from "@/utils/eventEmitter";
+import { deleteEvent } from "@/utils/eventBackups";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -16,7 +18,7 @@ export async function GET(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -26,7 +28,7 @@ export async function GET(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
   const publicDns = instance.PublicDnsName;
@@ -34,7 +36,7 @@ export async function GET(
   if (!publicDns) {
     return NextResponse.json(
       { message: "Instance not ready yet! Try again later!" },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -60,14 +62,14 @@ export async function GET(
     console.error("Error fetching plugins:", error);
     return NextResponse.json(
       { message: "Error fetching plugins", error: String(error) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -76,7 +78,7 @@ export async function POST(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -91,7 +93,7 @@ export async function POST(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
   const instanceId = instance.InstanceId;
@@ -107,6 +109,16 @@ export async function POST(
 
   try {
     await runSSMCommands(instanceId!, commands, region!);
+
+    eventEmitter.emit("plugin", {
+      type: "plugin",
+      status: "success",
+      instanceName: instanceName,
+      path: "plugins",
+      message: `${enabled ? "Enabled" : "Disabled"} ${name}`,
+    });
+
+    deleteEvent(instanceName, "plugin");
     return NextResponse.json({
       message: "Plugin update successful",
     });
@@ -114,7 +126,7 @@ export async function POST(
     console.error("Error updating plugins:", error);
     return NextResponse.json(
       { message: "Error updating plugins", error: String(error) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

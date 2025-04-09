@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Notification } from "@/types/notification";
 import { usePathname } from "next/navigation";
+import axios from "axios";
 
 export const useNotifications = () => {
   const path = usePathname();
@@ -11,26 +12,31 @@ export const useNotifications = () => {
 
   const addNotification = async (newNotification: Notification) => {
     setNotifications([...notifications, newNotification]);
+    try {
+      await axios.post("/api/notifications", newNotification);
+    } catch (error) {
+      console.error("Error adding notification:", error);
+    }
   };
 
-  const updateNotification = async (newNotification: Notification) => {
+  const updateNotification = (newNotification: Notification) => {
     setNotifications(
       notifications.map((notification) =>
         notification.type === newNotification.type &&
         notification.instanceName === newNotification.instanceName
           ? newNotification
-          : notification,
-      ),
+          : notification
+      )
     );
   };
 
-  const deleteNotification = async (type: string, instanceName: string) => {
+  const deleteNotification = (type: string, instanceName: string) => {
     setNotifications(
       notifications.filter(
         (notification) =>
           notification.instanceName !== instanceName &&
-          notification.type !== type,
-      ),
+          notification.type !== type
+      )
     );
   };
 
@@ -54,6 +60,7 @@ export const useNotifications = () => {
 
   return {
     notifications,
+    setNotifications,
     addNotification,
     updateNotification,
     clearNotifications,

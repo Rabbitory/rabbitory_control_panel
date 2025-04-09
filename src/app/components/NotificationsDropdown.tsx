@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import { NotificationStatus } from "@/types/notification";
+import axios from "axios";
 
 export default function NotificationsDropdown() {
-  const { notifications } = useNotificationsContext();
+  const { notifications, setNotifications, updateNotification } =
+    useNotificationsContext();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
@@ -38,6 +40,36 @@ export default function NotificationsDropdown() {
     }
   };
 
+  useEffect(() => {
+    const eventSource = new EventSource("/api/notifications");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      updateNotification(data);
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("EventSource error:", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchNotificationsBackups = async () => {
+      try {
+        const response = await axios.get("/api/notifications/backups");
+        setNotifications(response.data);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+    fetchNotificationsBackups();
+  }, []);
+
   return (
     <div className="relative inline-block">
       <button
@@ -56,12 +88,12 @@ export default function NotificationsDropdown() {
                 <li
                   key={index}
                   className={`flex items-center p-2 border-b border-gray-200 last:border-0 ${getTextColor(
-                    notification.status,
+                    notification.status
                   )}`}
                 >
                   <span
                     className={`inline-block w-3 h-3 rounded-full mr-2 ${getBubbleColor(
-                      notification.status,
+                      notification.status
                     )}`}
                   />
                   {notification.message}

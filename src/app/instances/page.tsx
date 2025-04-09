@@ -36,7 +36,7 @@ export default function Home() {
               font-heading1 font-semibold py-2 px-6 bg-btn1
               text-mainpage1 rounded-sm hover:bg-btnhover1 transition-all duration-200
               text-md
-              hover:shadow-[0_0_8px_3px_rgba(135,217,218,0.5)] /* Softer glow */
+              hover:shadow-[0_0_8px_3px_rgba(135,217,218,0.5)]
               ${!isLoading && instances.length === 0 ? 'pulse-glow' : ''}
             `}
           >

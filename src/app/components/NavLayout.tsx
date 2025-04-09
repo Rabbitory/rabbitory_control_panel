@@ -91,7 +91,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
   return (
     <nav className="w-50 bg-mainbg1 min-h-screen h-full border-r-[0.5] border-border1">
       <button
-        className="flex m-6 bg-btn1 text-mainbg1 text-sm font-heading1 font-semibold rounded-lg hover:bg-btnhover1"
+        className="m-6 bg-btn1 text-sm font-heading1 px-4 py-2 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
         onClick={(e) => {
           e.preventDefault();
           window.open(`http://${instance?.publicDns}:15672`);

@@ -37,7 +37,7 @@ export default function HardwarePage() {
         <div className="mb-10 text-pagetext1 text-md">
           <h2 className="font-text1 pb-2">Current instance hardware:</h2>
           <p className="font-text1 pb-4">{instance?.type}</p>
-          <Link className="font-heading1 px-4 py-2 bg-btn1 text-mainbg1 text-sm font-semibold rounded-sm hover:bg-btnhover1"
+          <Link className="font-heading1 px-4 py-2 text-sm bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
             href={`/instances/${instance?.name}/hardware/type/edit?region=${instance?.region}`}
           >
             Update instance type
@@ -46,7 +46,7 @@ export default function HardwarePage() {
 
         <h2 className="font-text1 pb-2">Current instance storage size: </h2>
         <p className="font-text1 pb-4">{volumeSize} GB</p>
-        <Link className="font-heading1 px-4 py-2 bg-btn1 text-mainbg1 text-sm font-semibold rounded-sm hover:bg-btnhover1"
+        <Link className="font-heading1 px-4 py-2 text-sm bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
           href={`/instances/${instance?.name}/hardware/storage/edit?region=${instance?.region}`}
         >
           Update storage size

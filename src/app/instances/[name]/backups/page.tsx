@@ -3,38 +3,38 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useInstanceContext } from "../InstanceContext";
 
-interface DefinitionBackup {
+interface Backup {
   timestamp: string;
   rabbitmq_version: string;
   trigger: string;
   definitions: Record<string, unknown>;
 }
 
-export default function DefinitionsPage() {
+export default function BackupsPage() {
   const { instance } = useInstanceContext();
 
-  const [backups, setBackups] = useState<DefinitionBackup[]>([]);
+  const [backups, setBackups] = useState<Backup[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const fetchDefinitions = async () => {
+    const fetchBackups = async () => {
       if (!instance?.name) return;
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance.name}/definitions?region=${instance.region}`
+          `/api/instances/${instance.name}/backups?region=${instance.region}`
         );
         console.log(response.data);
         setBackups(response.data);
       } catch (error) {
-        console.error("Error fetching definitions:", error);
+        console.error("Error fetching backups:", error);
       } finally {
         setIsFetching(false);
       }
     };
 
-    fetchDefinitions();
+    fetchBackups();
   }, [instance?.name, instance?.region, instance?.user, instance?.password]);
 
   const handleManualBackup = async () => {
@@ -59,7 +59,7 @@ export default function DefinitionsPage() {
     }
   };
 
-  const handleDownload = (backup: DefinitionBackup) => {
+  const handleDownload = (backup: Backup) => {
     const jsonString = JSON.stringify(backup.definitions, null, 2);
 
     const blob = new Blob([jsonString], { type: "application/json" });
@@ -79,7 +79,7 @@ export default function DefinitionsPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-6">
-        Definitions
+        Backups
       </h1>
       <p className="font-text1 mb-10">
         Download backups of the cluster definitions. See{" "}

@@ -13,9 +13,10 @@ const updateAndReboot = async (
   instanceName: string,
 ) => {
   try {
-    console.log(instanceName);
     await updateVolumeSize(volumeId, region, size);
     await rebootInstance(instanceId, region);
+
+    console.log(`Updated ${instanceName} storage to ${size} GB`);
 
     eventEmitter.emit("notification", {
       message: `${instanceName} now has ${size} GB of storage.`,
@@ -26,13 +27,16 @@ const updateAndReboot = async (
 
     deleteEvent(instanceName, "storage");
 
+    console.log(
+      `Updated ${instanceName} storage to ${size} GB after notification`,
+    );
     return {
       success: `${instanceName} now has ${size} GB of storage.`,
     };
   } catch (error) {
     console.error("Error updating volume size:", error);
     eventEmitter.emit("notification", {
-      message: `Failed to update ${instanceName} storage.`,
+      message: `Failed to update ${instanceName} storage. You must wait at least 6 hours before attempting to update again.`,
       type: "storage",
       status: "error",
       instanceName,

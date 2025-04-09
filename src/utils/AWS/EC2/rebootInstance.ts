@@ -13,12 +13,15 @@ export async function rebootInstance(instanceId: string, region: string) {
         InstanceIds: [instanceId],
       }),
     );
-    console.log(instanceId);
+
+    console.log("hi");
 
     await waitUntilInstanceRunning(
       { client, maxWaitTime: 500 },
       { InstanceIds: [instanceId] },
     );
+
+    console.log("bye");
 
     return true;
   } catch (error) {

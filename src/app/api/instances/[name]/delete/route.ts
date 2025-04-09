@@ -20,6 +20,8 @@ async function deleteInstance(
       instanceId: { S: instanceId },
     });
 
+    console.log(`Deleted ${instanceName}`);
+
     eventEmitter.emit("notification", {
       message: `${instanceName} has been deleted`,
       type: "deleteInstance",
@@ -28,6 +30,8 @@ async function deleteInstance(
     });
 
     deleteEvent(instanceName, "deleteInstance");
+
+    console.log(`Deleted ${instanceName} after notification`);
   } catch (error) {
     console.error(error);
     eventEmitter.emit("notification", {

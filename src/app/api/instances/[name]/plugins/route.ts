@@ -2,14 +2,14 @@ import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
+import { fetchWithRetry } from "@/utils/fetchWithRetry";
 
-import axios from "axios";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -18,7 +18,7 @@ export async function GET(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -28,7 +28,7 @@ export async function GET(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const publicDns = instance.PublicDnsName;
@@ -36,7 +36,7 @@ export async function GET(
   if (!publicDns) {
     return NextResponse.json(
       { message: "Instance not ready yet! Try again later!" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -45,31 +45,32 @@ export async function GET(
   if (!username || !password) {
     return NextResponse.json(
       { message: "Username and password are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   try {
     const rabbitUrl = `http://${publicDns}:15672/api/nodes`;
-    const response = await axios.get(rabbitUrl, {
+    const response = await fetchWithRetry(rabbitUrl, {
       auth: {
         username,
         password,
       },
     });
-    return NextResponse.json(response.data[0].enabled_plugins);
+
+    return NextResponse.json(response?.data[0].enabled_plugins);
   } catch (error) {
     console.error("Error fetching plugins:", error);
     return NextResponse.json(
       { message: "Error fetching plugins", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -78,7 +79,7 @@ export async function POST(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -93,7 +94,7 @@ export async function POST(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const instanceId = instance.InstanceId;
@@ -114,7 +115,6 @@ export async function POST(
       type: "plugin",
       status: "success",
       instanceName: instanceName,
-      path: "plugins",
       message: `${enabled ? "Enabled" : "Disabled"} ${name}`,
     });
 
@@ -126,7 +126,7 @@ export async function POST(
     console.error("Error updating plugins:", error);
     return NextResponse.json(
       { message: "Error updating plugins", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

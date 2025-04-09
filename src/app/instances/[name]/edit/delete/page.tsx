@@ -29,7 +29,7 @@ export default function DeletePage() {
   };
 
   const handleDelete = async (e: FormEvent<HTMLFormElement>) => {
-    if (!instance || !instance.name) return;
+    if (!instance || !instance.name || !instance.id || !instance.region) return;
 
     e.preventDefault();
     addNotification({
@@ -41,11 +41,17 @@ export default function DeletePage() {
     });
     try {
       await axios.post(
-        `/api/instances/${instance.name}/delete?region=${instance.region}`
+        `/api/instances/${instance.name}/delete?region=${instance.region}`,
+        {
+          instanceId: instance.id,
+          instanceName: instance.name,
+          region: instance.region,
+        },
       );
-      router.push(`/`);
+      return true;
     } catch (err) {
       console.error("Error deleting instance:", err);
+      return false;
     }
   };
 
@@ -61,7 +67,16 @@ export default function DeletePage() {
         </strong>
       </p>
 
-      <form className="mt-6" action="" onSubmit={(e) => handleDelete(e)}>
+      <form
+        className="mt-6"
+        action=""
+        onSubmit={(e) => {
+          const success = handleDelete(e);
+          if (!success) {
+            alert("Failed to delete instance");
+          } else router.push(`/`);
+        }}
+      >
         <label
           className="font-text1 text-headertext1 text-md"
           htmlFor="instance"

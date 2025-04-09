@@ -22,7 +22,7 @@ export default function StorageEditPage() {
       }
 
       const response = await axios.get(
-        `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`
+        `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`,
       );
 
       if (response.data) {
@@ -40,12 +40,12 @@ export default function StorageEditPage() {
   const updateStorageSize = async () => {
     if (!isValidStorageSize(newVolumeSize) || !instance || !instance.name) {
       alert(
-        "Invalid storage size. Must be greater than current size & less than or equal to 16000 GB"
+        "Invalid storage size. Must be greater than current size & less than or equal to 16000 GB",
       );
       return;
     }
 
-    addNotification({
+    await addNotification({
       type: "storage",
       status: "pending",
       instanceName: instance.name,
@@ -59,12 +59,13 @@ export default function StorageEditPage() {
         volumeId: instance.EBSVolumeId,
         region: instance.region,
         size: newVolumeSize,
+        instanceName: instance.name,
       });
       return true;
     } catch (error) {
       console.error(error);
       alert(
-        "Failed to update storage size. You might have to wait 6 hours since the last update."
+        "Failed to update storage size. You might have to wait 6 hours since the last update.",
       );
       return false;
     }
@@ -116,10 +117,7 @@ export default function StorageEditPage() {
             onClick={async (e) => {
               e.preventDefault();
               const success = await updateStorageSize();
-              if (success)
-                router.push(
-                  `/instances/${instance?.name}/hardware?region=${instance?.region}`
-                );
+              if (success) router.push(`/instances`);
             }}
           >
             {formPending() ? "Expanding storage size..." : "Expand"}

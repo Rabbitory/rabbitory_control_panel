@@ -41,7 +41,7 @@ export const GET = async () => {
       const ec2Client = new EC2Client({ region });
       try {
         const response = (await ec2Client.send(
-          command
+          command,
         )) as DescribeInstancesCommandOutput;
 
         // Create a new array with the region attached for each instance.
@@ -51,7 +51,7 @@ export const GET = async () => {
               reservation.Instances?.map((instance) => ({
                 ...instance,
                 region: region!, // Assert that region is defined.
-              })) ?? []
+              })) ?? [],
           ) ?? [];
 
         return regionInstances;
@@ -59,7 +59,7 @@ export const GET = async () => {
         console.error(`Error querying region ${region}:`, error);
         return [];
       }
-    }
+    },
   );
 
   // Flatten the array of arrays into a single array of instances.
@@ -90,14 +90,6 @@ export const GET = async () => {
 };
 
 export const POST = async (request: NextRequest) => {
-  const body = await request.json();
-  if (!body) {
-    return NextResponse.json(
-      { message: "Invalid request body" },
-      { status: 400 }
-    );
-  }
-
   const {
     region,
     instanceName,
@@ -105,7 +97,21 @@ export const POST = async (request: NextRequest) => {
     username,
     password,
     storageSize,
-  } = body;
+  } = await request.json();
+
+  if (
+    !region ||
+    !instanceName ||
+    !instanceType ||
+    !username ||
+    !password ||
+    !storageSize
+  ) {
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 },
+    );
+  }
 
   const createInstanceResult = await createInstance(
     region,
@@ -113,13 +119,13 @@ export const POST = async (request: NextRequest) => {
     instanceType,
     username,
     password,
-    storageSize
+    storageSize,
   );
 
   if (!createInstanceResult) {
     return NextResponse.json(
       { message: "Error creating instance" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -130,10 +136,13 @@ export const POST = async (request: NextRequest) => {
     instanceName,
     username,
     password,
-    region
+    region,
   );
-  return NextResponse.json({
-    name: instanceName,
-    id: instanceId,
-  });
+  return NextResponse.json(
+    {
+      name: instanceName,
+      id: instanceId,
+    },
+    { status: 202 },
+  );
 };

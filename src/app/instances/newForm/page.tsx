@@ -6,11 +6,13 @@ import { useState, useEffect } from "react";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 import Link from "next/link";
+import { useNotificationsContext } from "@/app/NotificationContext";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function NewFormPage() {
   const router = useRouter();
+  const { addNotification } = useNotificationsContext();
   const [loading, setLoading] = useState(false);
   const [instanceName, setInstanceName] = useState("");
   const [availableRegions, setAvailableRegions] = useState([]);
@@ -67,6 +69,14 @@ export default function NewFormPage() {
     }
 
     try {
+      await addNotification({
+        type: "newInstance",
+        status: "pending",
+        instanceName,
+        path: "instances",
+        message: `Creating ${instanceName} instance.`,
+      });
+
       await axios.post("/api/instances", {
         instanceName: formData.get("instanceName"),
         region: formData.get("region"),
@@ -212,7 +222,10 @@ export default function NewFormPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="username" className="text-md text-pagetext1 w-1/4">
+              <label
+                htmlFor="username"
+                className="text-md text-pagetext1 w-1/4"
+              >
                 Username:
               </label>
               <input
@@ -224,7 +237,10 @@ export default function NewFormPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="password" className="text-md text-pagetext1 w-1/4">
+              <label
+                htmlFor="password"
+                className="text-md text-pagetext1 w-1/4"
+              >
                 Password:
               </label>
               <input
@@ -242,25 +258,25 @@ export default function NewFormPage() {
 
             <div className="font-heading1 flex justify-end gap-4 mt-6">
               <Link
-                  href="/"
-                  className="px-4 py-2 bg-mainbg1 text-headertext1 rounded-sm text-center hover:bg-mainbghover"
-                >
-                  Cancel
-                </Link>
-                <button 
-                  type="submit"
-                  disabled={instantiating}
-                  className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center"
-                >
-                  {instantiating ? (
-                    <span className="flex items-center">
-                      <div className="animate-spin border-2 border-t-2 border-mainbg1 w-4 h-4 rounded-full mr-2"></div>
-                      Creating...
-                    </span>
-                  ) : (
-                    "Create"
-                  )}
-                </button>
+                href="/"
+                className="px-4 py-2 bg-mainbg1 text-headertext1 rounded-sm text-center hover:bg-mainbghover"
+              >
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={instantiating}
+                className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center"
+              >
+                {instantiating ? (
+                  <span className="flex items-center">
+                    <div className="animate-spin border-2 border-t-2 border-mainbg1 w-4 h-4 rounded-full mr-2"></div>
+                    Creating...
+                  </span>
+                ) : (
+                  "Create"
+                )}
+              </button>
             </div>
           </fieldset>
         </Form>

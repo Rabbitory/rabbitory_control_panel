@@ -71,18 +71,6 @@ export default function AlarmsPage() {
     }
   };
 
-  const handleResolve = async (id: Alarm["id"]) => {
-    try {
-      await axios.post(
-        `/api/instances/${instance?.name}/alarms/resolve?region=${instance?.region}&&id=${id}`,
-        null,
-      );
-      console.log("Alarm resolved successfully");
-    } catch (error) {
-      console.error("Error resolving alarm:", error);
-    }
-  };
-
   return (
     <>
       <button
@@ -144,7 +132,6 @@ export default function AlarmsPage() {
                             options={{
                               Delete: () => handleDelete("storage", alarm.id),
                               Trigger: () => handleTrigger("storage", alarm),
-                              Resolve: () => handleResolve(alarm.id),
                             }}
                           />
                         </td>
@@ -200,7 +187,6 @@ export default function AlarmsPage() {
                             options={{
                               Delete: () => handleDelete("memory", alarm.id),
                               Trigger: () => handleTrigger("memory", alarm),
-                              Resolve: () => handleResolve(alarm.id),
                             }}
                           />
                         </td>

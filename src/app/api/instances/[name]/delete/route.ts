@@ -5,6 +5,20 @@ import { deleteBroker } from "@/utils/AWS/EC2/deleteBrokerInstance";
 import { deleteFromDynamoDB } from "@/utils/dynamoDBUtils";
 import { deleteSecurityGroup } from "@/utils/AWS/EC2/deleteSecurityGroup";
 
+const getGroupName = async (instance: Instance) => {
+  const id = instance.InstanceId;
+  const securityGroups = instance.SecurityGroups ? instance.SecurityGroups[0] : null;
+  if (!securityGroups) {
+    throw new Error(`No security groups found for instance ${id}`);
+  }
+  const groupId = securityGroups.GroupId;
+  if (!groupId) {
+    throw new Error(`No group ID found for security group of instance ${id}`);
+  }
+
+  return groupId;
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ name: string }> },
@@ -46,27 +60,31 @@ export async function POST(
     );
   }
 
-  await deleteBroker(instanceId, ec2Client);
-  await deleteSecurityGroup(groupName, ec2Client);
-  await deleteFromDynamoDB("rabbitory-instances-metadata", {
-    instanceId: { S: instanceId },
-  });
-  return NextResponse.json(
-    { message: `Successfully deleted instance: ${name}` },
-    { status: 200 },
-  );
-}
+  // Return the response to the client immediately
+  try {
+    // Start the instance termination but don't block the response
+    await deleteBroker(instanceId, ec2Client);
 
-const getGroupName = async (instance: Instance) => {
-  const id = instance.InstanceId;
-  const securityGroups = instance.SecurityGroups ? instance.SecurityGroups[0] : null;
-  if (!securityGroups) {
-    throw new Error(`No security groups found for instance ${id}`);
-  }
-  const groupId = securityGroups.GroupId;
-  if (!groupId) {
-    throw new Error(`No group ID found for security group of instance ${id}`);
-  }
+    // Send immediate response indicating the deletion process has started
+    const response = NextResponse.json(
+      { message: `Deletion of instance ${name} started. It will be shutting down soon.` },
+      { status: 202 }, // 202 Accepted to indicate the request is accepted, but the deletion is ongoing
+    );
 
-  return groupId;
+    // Offload the background tasks to a promise chain that doesn't block the response
+    Promise.resolve().then(() => {
+      // Perform deletion of the security group and DynamoDB record asynchronously
+      deleteSecurityGroup(groupName, ec2Client).catch(console.error);
+      deleteFromDynamoDB("rabbitory-instances-metadata", {
+        instanceId: { S: instanceId },
+      }).catch(console.error);
+    });
+
+    return response;
+  } catch (err) {
+    return NextResponse.json(
+      { message: `Error starting deletion for instance: ${name}, ${err}` },
+      { status: 500 },
+    );
+  }
 }

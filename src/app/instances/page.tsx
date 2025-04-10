@@ -243,7 +243,6 @@ export default function Home() {
   const [inputText, setInputText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch instances
   const fetchInstances = async () => {
     setIsLoading(true);
     try {
@@ -258,7 +257,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchInstances();
-  }, []); // Fetch instances on component mount
+  }, []);
 
   const openDeleteModal = (instance: Instance) => {
     setSelectedInstance(instance);
@@ -275,16 +274,22 @@ export default function Home() {
   const handleDelete = async () => {
     if (!selectedInstance) return;
     setIsDeleting(true);
+    setInstances(prev => prev.map(instance =>
+      instance.name === selectedInstance.name
+        ? { ...instance, state: 'shutting-down' } // Update state locally
+        : instance
+    ));
+    closeDeleteModal();
+  
     try {
       await axios.post(`/api/instances/${selectedInstance.name}/delete?region=${selectedInstance.region}`);
-      closeDeleteModal(); // Close modal immediately after deleting
-      fetchInstances(); // Re-fetch the list of instances
     } catch (err) {
       console.error("Error deleting instance:", err);
     } finally {
       setIsDeleting(false);
     }
   };
+  
 
   return (
     <div className="mt-15 ml-20 mr-20">

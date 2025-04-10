@@ -52,7 +52,7 @@ export default function LogsPage() {
   }
 
   return (
-    <div className="max-w-full mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
+    <div className="max-w-full mx-auto p-6 bg-card rounded-sm shadow-md mt-8 text-pagetext1">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         RabbitMQ Logs
       </h1>

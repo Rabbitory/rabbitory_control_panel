@@ -43,7 +43,7 @@ export default function VersionsPage() {
   }, [instance?.name, instance?.user, instance?.password, instance?.region]);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-6">
+    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Versions</h1>
       <p className="text-pagetext1 text-sm mb-6">
         Currently, this interface does not support upgrading RabbitMQ versions. For detailed instructions on how to manually upgrade RabbitMQ, please refer to the official RabbitMQ upgrade guide:{" "}

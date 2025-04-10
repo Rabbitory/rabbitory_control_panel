@@ -86,6 +86,7 @@ export const SlackModal = ({ onClose }: Props) => {
           Webhook URL:
         </p>
         <input
+          disabled={saving}
           className="w-full p-2 border rounded-sm font-text1 text-btnhover1 border-pagetext1 focus:outline-none"
           id="webhookUrl"
           name="webhookUrl"

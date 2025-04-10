@@ -7,6 +7,22 @@ import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 
+const getGroupName = async (instance: Instance) => {
+  const id = instance.InstanceId;
+  const securityGroups = instance.SecurityGroups
+    ? instance.SecurityGroups[0]
+    : null;
+  if (!securityGroups) {
+    throw new Error(`No security groups found for instance ${id}`);
+  }
+  const groupId = securityGroups.GroupId;
+  if (!groupId) {
+    throw new Error(`No group ID found for security group of instance ${id}`);
+  }
+
+  return groupId;
+};
+
 async function deleteInstance(
   instanceId: string,
   groupName: string,
@@ -75,19 +91,3 @@ export async function POST(request: NextRequest) {
     { status: 202 }
   );
 }
-
-const getGroupName = async (instance: Instance) => {
-  const id = instance.InstanceId;
-  const securityGroups = instance.SecurityGroups
-    ? instance.SecurityGroups[0]
-    : null;
-  if (!securityGroups) {
-    throw new Error(`No security groups found for instance ${id}`);
-  }
-  const groupId = securityGroups.GroupId;
-  if (!groupId) {
-    throw new Error(`No group ID found for security group of instance ${id}`);
-  }
-
-  return groupId;
-};

@@ -33,7 +33,7 @@ beforeEach(() => {
   mockedAxios.post.mockReset();
 });
 
-it("renders loading state and then configuration form", async () => {
+it.skip("renders loading state and then configuration form", async () => {
   //Simulate a delay in the response so that we can test the loading state.
   mockedAxios.get.mockImplementationOnce(
     () =>

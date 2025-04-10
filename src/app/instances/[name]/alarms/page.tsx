@@ -106,8 +106,9 @@ export default function AlarmsPage() {
                     <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Memory Threshold</th>
-                    <th className="p-2 text-left border-b">Actions</th>
+                    <th className="p-2 text-left border-b">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="font-text1 text-sm text-pagetext1">
@@ -125,9 +126,6 @@ export default function AlarmsPage() {
                         </td>
                         <td className="p-2 border-b">
                           {alarm.data.reminderInterval}
-                        </td>
-                        <td className="p-2 border-b">
-                          {alarm.data.memoryThreshold}
                         </td>
                         <td className="p-2 border-b">
                           <Dropdown
@@ -156,13 +154,14 @@ export default function AlarmsPage() {
                 <thead>
                   <tr>
                     <th className="p-2 text-left border-b">
-                      Storage Threshold
-                    </th>
-                    <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Memory Threshold</th>
-                    <th className="p-2 text-left border-b">Actions</th>
+                    <th className="p-2 text-left border-b">
+                      Memory Threshold
+                    </th>
+                    <th className="p-2 text-left border-b">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="font-text1 text-sm text-pagetext1">
@@ -175,9 +174,6 @@ export default function AlarmsPage() {
                   ) : (
                     memoryAlarms.map((alarm) => (
                       <tr key={alarm.id}>
-                        <td className="p-2 border-b">
-                          {alarm.data.storageThreshold}
-                        </td>
                         <td className="p-2 border-b">
                           {alarm.data.reminderInterval}
                         </td>

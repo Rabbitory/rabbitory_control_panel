@@ -1,5 +1,5 @@
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 interface Props {
@@ -9,34 +9,19 @@ interface Props {
 export const NewAlarmModal = ({ onClose }: Props) => {
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [fetching, setFetching] = useState(true);
+  const [alarmType, setAlarmType] = useState("");
+  const [memoryThreshold, setMemoryThreshold] = useState(60);
+  const [storageThreshold, setStorageThreshold] = useState(90);
+  const [reminderInterval, setReminderInterval] = useState(1);
 
-  useEffect(() => {
-    const fetchCurrentWebhookUrl = async () => {
-      try {
-        const response = await axios.get(
-          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
-        );
-
-        setWebhookUrl(response.data.webhookUrl || "");
-      } catch (error) {
-        console.error("Error fetching webhook url:", error);
-      } finally {
-        setFetching(false);
-      }
-    };
-
-    fetchCurrentWebhookUrl();
-  }, [instance?.name, instance?.region]);
-
-  const saveWebhookUrl = async () => {
+  const createAlarm = async () => {
     try {
       await axios.post(
-        `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+        `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         {
-          webhookUrl,
-        },
+          type: alarmType,
+          data: { memoryThreshold, storageThreshold, reminderInterval },
+        }
       );
       return true;
     } catch (error) {
@@ -45,19 +30,9 @@ export const NewAlarmModal = ({ onClose }: Props) => {
     }
   };
 
-  async function testWebhook() {
-    await axios.post(
-      `/api/instances/${instance?.name}/alarms/slack/test?region=${instance?.region}`,
-      { text: "This a test for Rabbitory's alarms" },
-    );
-    alert("Message sent");
-  }
-
-  if (fetching) return <div>Loading...</div>;
-
   return (
     <div className="fixed inset-0 backdrop-blur-xs bg-white/5 flex justify-center items-center z-50">
-      <div className="bg-card text-pagetext1 p-6 rounded-md shadow-lg w-full max-w-md relative">
+      <div className="bg-card text-pagetext1 p-6 rounded-md shadow-lg w-full max-w-xl relative">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-pagetext1 hover:text-btnhover1 transition-colors"
@@ -66,51 +41,93 @@ export const NewAlarmModal = ({ onClose }: Props) => {
           X
         </button>
         <h2 className="font-heading1 text-xl text-headertext1 mb-4">
-          Set Up Slack Endpoint
+          Create New Alarm
         </h2>
-
-        <p className="font-text1 text-pagetext1 text-md mb-6">
-          <a className="underline hover:text-headertext1"
-            href="/slack-alarms-tutorial.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="flex items-center gap-4">
+          <label className="font-heading1 text-md text-headertext1 w-2/3"
+            htmlFor="alarmType">
+            New Alarm:
+          </label>
+          <select className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+            id="alarmType"
+            name="alarmType"
+            value={alarmType}
+            onChange={(e) => setAlarmType(e.target.value)}
           >
-            How to set up Slack
-          </a>
-        </p>
+            <option value="">Instance type</option>
+            <option value="storage">Storage</option>
+            <option value="memory">Memory</option>
+          </select>
+        </div>
 
-        <p className="font-text1 text-sm mb-2">
-          Webhook URL:
-        </p>
-        <input
-          disabled={saving}
-          className="w-full p-2 border rounded-sm font-text1 text-btnhover1 border-pagetext1 focus:outline-none"
-          id="webhookUrl"
-          name="webhookUrl"
-          type="text"
-          value={webhookUrl}
-          onChange={(e) => setWebhookUrl(e.target.value)}
-        />
+        <div className="flex items-center gap-4">
+          <label className="font-heading1 text-md text-headertext1 w-2/3"
+            htmlFor="reminderInterval"
+          >
+            Reminder Interval (minutes)
+          </label>
+          <input className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+            id="reminderInterval"
+            name="reminderInterval"
+            type="number"
+            value={reminderInterval}
+            onChange={(e) => setReminderInterval(Number(e.target.value))}
+          />
+        </div>
+
+        {alarmType === "memory" &&
+          <div className="flex items-center gap-4">
+            <label
+              className="font-heading1 text-md text-headertext1 w-2/3"
+              htmlFor="memoryThreshold"
+            >
+              Memory Threshold (%)
+            </label>
+            <input className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+              id="memoryThreshold"
+              name="memoryThreshold"
+              type="number"
+              value={memoryThreshold}
+              onChange={(e) => setMemoryThreshold(Number(e.target.value))}
+            />
+          </div>
+        }
+        {alarmType === "storage" &&
+          <div className="flex items-center gap-4">
+            <label className="font-heading1 text-md text-headertext1 w-2/3"
+              htmlFor="memo">
+              Storage Threshold (%)
+            </label>
+            <input className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+              id="storageThreshold"
+              name="storageThreshold"
+              type="number"
+              value={storageThreshold}
+              onChange={(e) => setStorageThreshold(Number(e.target.value))}
+            />
+          </div>
+        }
+
         <div className="flex justify-end mt-6 gap-4">
-          <p className="text-sm text-pagetext1">Note: You must save your endpoint before testing it.</p>
           <button
             className="px-4 py-2 bg-card border border-btn1 text-btn1 rounded-sm hover:shadow-[0_0_8px_#87d9da]"
             disabled={saving}
             onClick={async (e) => {
               e.preventDefault();
-              testWebhook();
+              onClose();
             }}
           >
-            Test
+            Cancel
           </button>
           <button
             className="px-4 py-2 bg-btn1 text-mainbg1 font-semibold rounded-sm hover:bg-btnhover1 hover:shadow-[0_0_10px_#87d9da]"
-            disabled={saving}
+            disabled={saving || alarmType === ""}
             onClick={async (e) => {
               e.preventDefault();
               setSaving(true);
-              const success = await saveWebhookUrl();
-              if (success) alert("Webhook URL saved");
+              const success = await createAlarm();
+              if (success) alert("Alarm created successfully!");
+              onClose();
               setSaving(false);
             }}
           >

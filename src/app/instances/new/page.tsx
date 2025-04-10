@@ -7,11 +7,13 @@ import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 import Link from "next/link";
 import { Lightbulb } from "lucide-react";
+import { useNotificationsContext } from "@/app/NotificationContext";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function NewFormPage() {
   const router = useRouter();
+  const { addNotification } = useNotificationsContext();
   const [isLoading, setIsLoading] = useState(false);
   const [instanceName, setInstanceName] = useState("");
   const [availableRegions, setAvailableRegions] = useState([]);
@@ -19,7 +21,7 @@ export default function NewFormPage() {
   const [instantiating, setInstantiating] = useState(false);
   const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
-    [],
+    []
   );
 
   useEffect(() => {
@@ -53,9 +55,27 @@ export default function NewFormPage() {
   }, [selectedInstanceType, instanceTypes]);
 
   const handleSubmit = async (formData: FormData) => {
+    const formInstanceName = formData.get("instanceName");
+    const region = formData.get("region");
+    const instanceType = formData.get("instanceSize");
+    const username = formData.get("username");
+    const password = formData.get("password");
+    const storageSize = formData.get("storageSize");
+    if (
+      !formInstanceName ||
+      !region ||
+      !instanceType ||
+      !username ||
+      !password ||
+      !storageSize
+    ) {
+      alert("All fields are required.");
+      setInstantiating(false);
+      return;
+    }
     if (!isValidName(instanceName)) {
       alert(
-        "Instance name must be 3-64 characters long with valid characters.",
+        "Instance name must be 3-64 characters long with valid characters."
       );
       setInstantiating(false);
       return;
@@ -68,13 +88,20 @@ export default function NewFormPage() {
     }
 
     try {
+      await addNotification({
+        type: "newInstance",
+        status: "pending",
+        instanceName,
+        path: "instances",
+        message: `Creating ${instanceName} instance.`,
+      });
       await axios.post("/api/instances", {
-        instanceName: formData.get("instanceName"),
-        region: formData.get("region"),
-        instanceType: formData.get("instanceSize"),
-        username: formData.get("username"),
-        password: formData.get("password"),
-        storageSize: formData.get("storageSize"),
+        instanceName: formInstanceName,
+        region,
+        instanceType,
+        username,
+        password,
+        storageSize,
       });
       router.push("/");
     } catch (error) {
@@ -97,10 +124,11 @@ export default function NewFormPage() {
         Create Instance
       </h1>
       <p className="font-text1 text-pagetext1 text-sm mb-8 px-4">
-      Provide the following details to launch a new RabbitMQ instance in the cloud.
+        Provide the following details to launch a new RabbitMQ instance in the
+        cloud.
       </p>
       {isLoading ? (
-          <div className="space-y-6 animate-pulse">
+        <div className="space-y-6 animate-pulse">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-4">
               <div className="w-1/4 h-5 bg-gray-600 rounded"></div>
@@ -149,7 +177,10 @@ export default function NewFormPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="region" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="region"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Region:
               </label>
               <select
@@ -167,13 +198,15 @@ export default function NewFormPage() {
             </div>
 
             <details className="py-4 bg-card text-sm text-gray-700">
-            <summary className="cursor-pointer font-text1 text-md text-pagetext1 mb-2 flex items-center gap-2 hover:text-headertext1">
-              <Lightbulb className="w-6 h-6 text-btnhover1" />
-              Want advice on choosing the best instance for your needs? Click here for recommendations
-            </summary>
+              <summary className="cursor-pointer font-text1 text-md text-pagetext1 mb-2 flex items-center gap-2 hover:text-headertext1">
+                <Lightbulb className="w-6 h-6 text-btnhover1" />
+                Want advice on choosing the best instance for your needs? Click
+                here for recommendations
+              </summary>
               <div className="px-8 mt-2 space-y-2">
                 <p className="text-btn1 font-text1 py-6">
-                  Here are some suggested EC2 instance types for running RabbitMQ based on your workload:
+                  Here are some suggested EC2 instance types for running
+                  RabbitMQ based on your workload:
                 </p>
                 <table className="w-full text-left border-pagetext1 text-sm">
                   <thead className="bg-headertext1 font-heading1">
@@ -185,24 +218,48 @@ export default function NewFormPage() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">Testing</td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">t3.micro, t3.small</td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Very low cost, good for dev or trials</td>
+                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">
+                        Testing
+                      </td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
+                        t3.micro, t3.small
+                      </td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
+                        Very low cost, good for dev or trials
+                      </td>
                     </tr>
                     <tr>
-                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">Low Throughput</td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">m8g.medium</td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Balanced performance with Graviton4</td>
+                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">
+                        Low Throughput
+                      </td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
+                        m8g.medium
+                      </td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
+                        Balanced performance with Graviton4
+                      </td>
                     </tr>
                     <tr>
-                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">Medium Throughput</td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">c8g.large</td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Compute-optimized, strong networking</td>
+                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">
+                        Medium Throughput
+                      </td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
+                        c8g.large
+                      </td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
+                        Compute-optimized, strong networking
+                      </td>
                     </tr>
                     <tr>
-                      <td className="font-heading1 text-headertext1 text-xs  px-3 py-2 border-b border-gray-700">High Throughput</td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">c7gn.large, m7gd.large</td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Great for high I/O or network-heavy workloads</td>
+                      <td className="font-heading1 text-headertext1 text-xs  px-3 py-2 border-b border-gray-700">
+                        High Throughput
+                      </td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
+                        c7gn.large, m7gd.large
+                      </td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
+                        Great for high I/O or network-heavy workloads
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -281,11 +338,15 @@ export default function NewFormPage() {
 
             <p className="py-4 bg-card font-text1 text-sm text-p flex items-center gap-2">
               <Lightbulb className="w-6 h-6 text-btnhover1" />
-              The following username and password will be for logging into your RabbitMQ Manger portal.
+              The following username and password will be for logging into your
+              RabbitMQ Manger portal.
             </p>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="username" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="username"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Username:
               </label>
               <input
@@ -297,7 +358,10 @@ export default function NewFormPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="password" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="password"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Password:
               </label>
               <input
@@ -317,7 +381,7 @@ export default function NewFormPage() {
               >
                 Cancel
               </Link>
-              <button 
+              <button
                 type="submit"
                 disabled={instantiating}
                 className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"

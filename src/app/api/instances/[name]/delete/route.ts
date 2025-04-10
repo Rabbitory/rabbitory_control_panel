@@ -56,22 +56,27 @@ async function deleteInstance(
   }
 }
 
-export async function POST(request: NextRequest) {
-  const { instanceId, instanceName, region } = await request.json();
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> }
+) {
+  const { name } = await params;
+  const searchParams = request.nextUrl.searchParams;
+  const region = searchParams.get("region");
 
-  if (!region || !instanceId || !instanceName) {
+  if (!region || !name) {
     return NextResponse.json(
-      { message: "Region parameter is missing" },
+      { message: "Parameter(s) are missing" },
       { status: 400 }
     );
   }
 
   const ec2Client = new EC2Client({ region });
 
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance) {
+  const instance = await fetchInstance(name, ec2Client);
+  if (!instance || !instance.InstanceId) {
     return NextResponse.json(
-      { message: `Instance not found: ${instanceName}` },
+      { message: `Instance not found: ${name}` },
       { status: 404 }
     );
   }
@@ -79,15 +84,15 @@ export async function POST(request: NextRequest) {
   const groupName = await getGroupName(instance);
   if (groupName === undefined) {
     return NextResponse.json(
-      { message: `No security group found for instance: ${instanceName}` },
+      { message: `No security group found for instance: ${name}` },
       { status: 404 }
     );
   }
 
-  deleteInstance(instanceId, groupName, ec2Client, instanceName);
+  deleteInstance(instance.InstanceId, groupName, ec2Client, name);
 
   return NextResponse.json(
-    { message: `Initiated deletion for ${instanceName}` },
+    { message: `Initiated deletion for ${name}` },
     { status: 202 }
   );
 }

@@ -21,7 +21,7 @@ export const useNotifications = () => {
     fetchNotificationsBackups();
   }, []);
 
-  const addNotification = async (newNotification: Notification) => {
+  const addNotification = useCallback(async (newNotification: Notification) => {
     setNotifications((prevNotifications) => {
       return [...prevNotifications, newNotification];
     });
@@ -30,7 +30,7 @@ export const useNotifications = () => {
     } catch (error) {
       console.error("Error adding notification:", error);
     }
-  };
+  }, []);
 
   const updateNotification = useCallback((newNotification: Notification) => {
     setNotifications((prevNotifications) => {
@@ -38,7 +38,7 @@ export const useNotifications = () => {
         (notification) =>
           notification.type === newNotification.type &&
           notification.instanceName === newNotification.instanceName &&
-          notification.status === "pending",
+          notification.status === "pending"
       );
       if (index === -1) {
         return prevNotifications;
@@ -52,30 +52,28 @@ export const useNotifications = () => {
     });
   }, []);
 
-  const deleteNotification = (
-    type: string,
-    instanceName: string,
-    message: string,
-    index: number,
-  ) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.filter(
-        (notification, idx) =>
-          !(
-            notification.type === type &&
-            notification.instanceName === instanceName &&
-            notification.message === message &&
-            idx === index
-          ),
-      ),
-    );
-  };
+  const deleteNotification = useCallback(
+    (type: string, instanceName: string, message: string, index: number) => {
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter(
+          (notification, idx) =>
+            !(
+              notification.type === type &&
+              notification.instanceName === instanceName &&
+              notification.message === message &&
+              idx === index
+            )
+        )
+      );
+    },
+    []
+  );
 
-  const clearNotifications = async () => {
+  const clearNotifications = useCallback(async () => {
     setNotifications([]);
-  };
+  }, []);
 
-  const formPending = () => {
+  const formPending = useCallback(() => {
     return (
       notifications.find((notification) => {
         return (
@@ -85,20 +83,54 @@ export const useNotifications = () => {
         );
       }) !== undefined
     );
-  };
+  }, [notifications, path]);
 
-  const linkPending = (linkedPath: string) => {
-    return (
-      notifications.find((notification) => {
-        return (
-          (new RegExp(notification.path).test(linkedPath) ||
-            linkedPath === "any") &&
-          new RegExp(notification.instanceName).test(path) &&
-          notification.status === "pending"
-        );
-      }) !== undefined
-    );
-  };
+  const linkPending = useCallback(
+    (linkedPath: string) => {
+      return (
+        notifications.find((notification) => {
+          return (
+            (new RegExp(notification.path).test(linkedPath) ||
+              linkedPath === "any") &&
+            new RegExp(notification.instanceName).test(path) &&
+            notification.status === "pending"
+          );
+        }) !== undefined
+      );
+    },
+    [notifications, path]
+  );
+
+  const instancePending = useCallback(
+    (instanceName: string) => {
+      return (
+        notifications.find((notification) => {
+          return (
+            notification.path === "instances" &&
+            notification.instanceName === instanceName &&
+            notification.status === "pending"
+          );
+        }) !== undefined
+      );
+    },
+    [notifications]
+  );
+
+  const instanceTerminated = useCallback(
+    (instanceName: string) => {
+      return (
+        notifications.find((notification) => {
+          return (
+            notification.path === "instances" &&
+            notification.instanceName === instanceName &&
+            notification.status === "success" &&
+            notification.type === "deleteInstance"
+          );
+        }) !== undefined
+      );
+    },
+    [notifications]
+  );
 
   return {
     notifications,
@@ -109,5 +141,7 @@ export const useNotifications = () => {
     deleteNotification,
     formPending,
     linkPending,
+    instancePending,
+    instanceTerminated,
   };
 };

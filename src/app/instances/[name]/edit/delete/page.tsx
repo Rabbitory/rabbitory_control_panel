@@ -46,7 +46,7 @@ export default function DeletePage() {
           instanceId: instance.id,
           instanceName: instance.name,
           region: instance.region,
-        },
+        }
       );
       return true;
     } catch (err) {
@@ -70,8 +70,8 @@ export default function DeletePage() {
       <form
         className="mt-6"
         action=""
-        onSubmit={(e) => {
-          const success = handleDelete(e);
+        onSubmit={async (e) => {
+          const success = await handleDelete(e);
           if (!success) {
             alert("Failed to delete instance");
           } else router.push(`/`);

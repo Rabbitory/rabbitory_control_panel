@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useMemo } from "react";
 import { Notification } from "@/types/notification";
 import { useNotifications } from "@/utils/useNotifications";
 
@@ -13,10 +13,12 @@ interface NotificationsContextType {
     type: string,
     instanceName: string,
     message: string,
-    index: number,
+    index: number
   ) => void;
   formPending: () => boolean;
   linkPending: (pageName: string) => boolean;
+  instancePending: (instanceName: string) => boolean;
+  instanceTerminated: (instanceName: string) => boolean;
 }
 
 const defaultContextValue: NotificationsContextType = {
@@ -39,6 +41,13 @@ const defaultContextValue: NotificationsContextType = {
   },
   linkPending: () => {
     throw new Error("linkPending not implemented");
+  },
+  instancePending: () => {
+    throw new Error("instancePending not implemented");
+  },
+
+  instanceTerminated: () => {
+    throw new Error("instanceTerminated not implemented");
   },
 };
 
@@ -64,20 +73,35 @@ export function NotificationsProvider({
     deleteNotification,
     formPending,
     linkPending,
+    instancePending,
+    instanceTerminated,
   } = useNotifications();
 
+  const value = useMemo(
+    () => ({
+      notifications,
+      linkPending,
+      instancePending,
+      addNotification,
+      updateNotification,
+      clearNotifications,
+      deleteNotification,
+      formPending,
+      instanceTerminated,
+    }),
+    [
+      notifications,
+      addNotification,
+      updateNotification,
+      clearNotifications,
+      deleteNotification,
+      formPending,
+      instanceTerminated,
+    ]
+  );
+
   return (
-    <NotificationsContext.Provider
-      value={{
-        notifications,
-        addNotification,
-        updateNotification,
-        clearNotifications,
-        deleteNotification,
-        formPending,
-        linkPending,
-      }}
-    >
+    <NotificationsContext.Provider value={value}>
       {children}
     </NotificationsContext.Provider>
   );

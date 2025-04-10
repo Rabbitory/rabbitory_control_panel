@@ -3,7 +3,8 @@
 import Link from "next/link";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
+import { useNotificationsContext } from "../NotificationContext";
 
 interface Instance {
   state: string;
@@ -21,6 +22,12 @@ export default function Home() {
   );
   const [inputText, setInputText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const {
+    notifications,
+    addNotification,
+    instancePending,
+    instanceTerminated,
+  } = useNotificationsContext();
 
   const fetchInstances = async () => {
     setIsLoading(true);
@@ -38,6 +45,16 @@ export default function Home() {
     fetchInstances();
   }, []);
 
+  useEffect(() => {
+    setInstances((prev) =>
+      prev.map((instance) =>
+        instanceTerminated(instance.name)
+          ? { ...instance, state: "terminated" }
+          : instance
+      )
+    );
+  }, [notifications, instanceTerminated]);
+
   const openDeleteModal = (instance: Instance) => {
     setSelectedInstance(instance);
     setInputText("");
@@ -52,6 +69,14 @@ export default function Home() {
 
   const handleDelete = async () => {
     if (!selectedInstance) return;
+
+    addNotification({
+      type: "deleteInstance",
+      status: "pending",
+      instanceName: selectedInstance.name,
+      path: "instances",
+      message: `Deleting ${selectedInstance.name}`,
+    });
     setIsDeleting(true);
     setInstances((prev) =>
       prev.map((instance) =>
@@ -134,7 +159,9 @@ export default function Home() {
                 >
                   <td className="px-4 py-3 relative">
                     {instance.state === "pending" ||
-                    instance.state === "shutting-down" ? (
+                    instance.state === "shutting-down" ||
+                    instance.state === "terminated" ||
+                    instancePending(instance.name) ? (
                       <span className="text-pagetext1 truncate block group cursor-not-allowed">
                         {instance.name}
                       </span>
@@ -163,7 +190,8 @@ export default function Home() {
                         : instance.state === "stopped" ||
                           instance.state === "stopping"
                         ? "text-red-300"
-                        : instance.state === "shutting-down"
+                        : instance.state === "shutting-down" ||
+                          instance.state === "terminated"
                         ? "text-pagetext1 italic"
                         : ""
                     }`}

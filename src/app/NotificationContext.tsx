@@ -13,9 +13,10 @@ interface NotificationsContextType {
     type: string,
     instanceName: string,
     message: string,
-    index: number
+    index: number,
   ) => void;
   formPending: () => boolean;
+  linkPending: (pageName: string) => boolean;
 }
 
 const defaultContextValue: NotificationsContextType = {
@@ -35,6 +36,9 @@ const defaultContextValue: NotificationsContextType = {
   },
   formPending: () => {
     throw new Error("formPending not implemented");
+  },
+  linkPending: () => {
+    throw new Error("linkPending not implemented");
   },
 };
 
@@ -59,6 +63,7 @@ export function NotificationsProvider({
     clearNotifications,
     deleteNotification,
     formPending,
+    linkPending,
   } = useNotifications();
 
   return (
@@ -70,6 +75,7 @@ export function NotificationsProvider({
         clearNotifications,
         deleteNotification,
         formPending,
+        linkPending,
       }}
     >
       {children}

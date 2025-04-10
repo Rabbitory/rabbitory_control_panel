@@ -38,7 +38,7 @@ export const useNotifications = () => {
         (notification) =>
           notification.type === newNotification.type &&
           notification.instanceName === newNotification.instanceName &&
-          notification.status === "pending"
+          notification.status === "pending",
       );
       if (index === -1) {
         return prevNotifications;
@@ -56,7 +56,7 @@ export const useNotifications = () => {
     type: string,
     instanceName: string,
     message: string,
-    index: number
+    index: number,
   ) => {
     setNotifications((prevNotifications) =>
       prevNotifications.filter(
@@ -66,8 +66,8 @@ export const useNotifications = () => {
             notification.instanceName === instanceName &&
             notification.message === message &&
             idx === index
-          )
-      )
+          ),
+      ),
     );
   };
 
@@ -87,7 +87,18 @@ export const useNotifications = () => {
     );
   };
 
-  // useEffect(() => {});
+  const linkPending = (linkedPath: string) => {
+    return (
+      notifications.find((notification) => {
+        return (
+          (new RegExp(notification.path).test(linkedPath) ||
+            linkedPath === "any") &&
+          new RegExp(notification.instanceName).test(path) &&
+          notification.status === "pending"
+        );
+      }) !== undefined
+    );
+  };
 
   return {
     notifications,
@@ -97,5 +108,6 @@ export const useNotifications = () => {
     clearNotifications,
     deleteNotification,
     formPending,
+    linkPending,
   };
 };

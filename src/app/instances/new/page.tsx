@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 import Link from "next/link";
+import { Lightbulb } from "lucide-react";
 
 type InstanceTypes = Record<string, string[]>;
 
@@ -95,7 +96,7 @@ export default function NewFormPage() {
       <h1 className="text-2xl font-heading1 text-headertext1 mb-10">
         Create Instance
       </h1>
-      <p className="font-text1 text-pagetext1 text-sm mb-8">
+      <p className="font-text1 text-pagetext1 text-sm mb-8 px-4">
       Provide the following details to launch a new RabbitMQ instance in the cloud.
       </p>
       {isLoading ? (
@@ -135,7 +136,7 @@ export default function NewFormPage() {
                   type="text"
                   value={instanceName}
                   onChange={(e) => setInstanceName(e.target.value)}
-                  className={`w-9/16 p-2 border rounded-md text-sm`}
+                  className={`font-text1 text-btnhover1 w-9/16 p-2 border border-pagetext1 rounded-md text-sm`}
                 />
                 <button
                   type="button"
@@ -155,7 +156,7 @@ export default function NewFormPage() {
                 id="region"
                 name="region"
                 disabled={instantiating}
-                className="w-3/4 p-2 border rounded-md text-sm"
+                className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               >
                 {availableRegions.map((region) => (
                   <option key={region} value={region}>
@@ -165,34 +166,52 @@ export default function NewFormPage() {
               </select>
             </div>
 
-            <details className="border border-gray-300 rounded-md p-4 bg-gray-50 text-sm text-gray-700">
-              <summary className="cursor-pointer font-heading1 text-md text-headertext1 mb-2">
-                💡 Choosing an instance type? Click for recommendations
-              </summary>
-              <div className="mt-2 space-y-2">
-                <p>
+            <details className="py-4 bg-card text-sm text-gray-700">
+            <summary className="cursor-pointer font-text1 text-md text-pagetext1 mb-2 flex items-center gap-2 hover:text-headertext1">
+              <Lightbulb className="w-6 h-6 text-btnhover1" />
+              Want advice on choosing the best instance for your needs? Click here for recommendations
+            </summary>
+              <div className="px-8 mt-2 space-y-2">
+                <p className="text-btn1 font-text1 py-6">
                   Here are some suggested EC2 instance types for running RabbitMQ based on your workload:
                 </p>
-                <ul className="list-disc list-inside">
-                  <li>
-                    <strong>For testing:</strong> <code>t3.micro</code> or <code>t3.small</code> — low cost, minimal throughput.
-                  </li>
-                  <li>
-                    <strong>Low throughput:</strong> <code>m8g.medium</code> — balanced price/performance on Graviton4.
-                  </li>
-                  <li>
-                    <strong>Medium throughput:</strong> <code>c8g.large</code> — compute-optimized with good networking.
-                  </li>
-                  <li>
-                    <strong>High throughput:</strong> <code>c7gn.large</code> or <code>m7gd.large</code> — high network bandwidth or fast NVMe SSDs.
-                  </li>
-                </ul>
-                <p>
+                <table className="w-full text-left border-pagetext1 text-sm">
+                  <thead className="bg-headertext1 font-heading1">
+                    <tr>
+                      <th className="px-3 py-2 border-b">Use Case</th>
+                      <th className="px-3 py-2 border-b">Instance Type</th>
+                      <th className="px-3 py-2 border-b">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">Testing</td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">t3.micro, t3.small</td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Very low cost, good for dev or trials</td>
+                    </tr>
+                    <tr>
+                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">Low Throughput</td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">m8g.medium</td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Balanced performance with Graviton4</td>
+                    </tr>
+                    <tr>
+                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">Medium Throughput</td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">c8g.large</td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Compute-optimized, strong networking</td>
+                    </tr>
+                    <tr>
+                      <td className="font-heading1 text-headertext1 text-xs  px-3 py-2 border-b border-gray-700">High Throughput</td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">c7gn.large, m7gd.large</td>
+                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Great for high I/O or network-heavy workloads</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p className="text-btn1 font-text1 pt-6 pb-2">
                   You can still choose from all available instance types below.
                 </p>
               </div>
             </details>
-
 
             <div className="flex items-center gap-4">
               <label
@@ -206,7 +225,7 @@ export default function NewFormPage() {
                 name="instanceType"
                 value={selectedInstanceType}
                 onChange={(e) => setSelectedInstanceType(e.target.value)}
-                className="w-3/4 p-2 border rounded-md text-sm"
+                className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               >
                 <option value="">Select an instance type</option>
                 {Object.keys(instanceTypes).map((type) => (
@@ -228,7 +247,7 @@ export default function NewFormPage() {
                 id="instanceSize"
                 name="instanceSize"
                 disabled={!selectedInstanceType}
-                className="w-3/4 p-2 border rounded-md text-sm"
+                className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               >
                 <option value="">Select an instance size</option>
                 {filteredInstanceTypes.map((size) => (
@@ -238,6 +257,11 @@ export default function NewFormPage() {
                 ))}
               </select>
             </div>
+
+            <p className="py-4 bg-card font-text1 text-sm text-p flex items-center gap-2">
+              <Lightbulb className="w-6 h-6 text-btnhover1" />
+              Storage details here....
+            </p>
 
             <div className="flex items-center gap-4">
               <label
@@ -251,9 +275,14 @@ export default function NewFormPage() {
                 name="storageSize"
                 type="number"
                 defaultValue={8}
-                className="w-3/4 p-2 border rounded-md text-sm"
+                className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               />
             </div>
+
+            <p className="py-4 bg-card font-text1 text-sm text-p flex items-center gap-2">
+              <Lightbulb className="w-6 h-6 text-btnhover1" />
+              The following username and password will be for logging into your RabbitMQ Manger portal.
+            </p>
 
             <div className="flex items-center gap-4">
               <label htmlFor="username" className="font-heading1 text-md text-headertext1 w-1/4">
@@ -263,7 +292,7 @@ export default function NewFormPage() {
                 id="username"
                 name="username"
                 type="text"
-                className="w-3/4 p-2 border rounded-md text-sm"
+                className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               />
             </div>
 
@@ -275,7 +304,7 @@ export default function NewFormPage() {
                 id="password"
                 name="password"
                 type="password"
-                className="w-3/4 p-2 border rounded-md text-sm"
+                className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               />
             </div>
 

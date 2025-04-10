@@ -6,7 +6,7 @@ interface Props {
   onClose: () => void;
 }
 
-export const SlackModal = ({ onClose }: Props) => {
+export const NewAlarmModal = ({ onClose }: Props) => {
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState("");

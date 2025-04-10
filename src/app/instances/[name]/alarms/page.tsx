@@ -6,6 +6,7 @@ import { SlackModal } from "@/app/components/SlackModal";
 import Dropdown from "@/app/components/Dropdown";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { NewAlarmModal } from "@/app/components/NewAlarmModal";
 
 interface Alarm {
   id: string;
@@ -23,6 +24,7 @@ export default function AlarmsPage() {
   const [storageAlarms, setStorageAlarms] = useState<Alarm[]>([]);
   const [memoryAlarms, setMemoryAlarms] = useState<Alarm[]>([]);
   const [showSlackModal, setShowSlackModal] = useState(false);
+  const [showNewAlarmModal, setShowNewAlarmModal] = useState(false);
 
   useEffect(() => {
     const fetchAlarms = async () => {
@@ -45,6 +47,10 @@ export default function AlarmsPage() {
 
   const handleCloseSlackModal = () => {
     setShowSlackModal(false);
+  }
+
+  const handleCloseNewAlarmModal = () => {
+    setShowNewAlarmModal(false);
   }
 
   const handleDelete = async (type: "storage" | "memory", id: string) => {
@@ -200,9 +206,6 @@ export default function AlarmsPage() {
               className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
               onClick={(e) => {
                 e.preventDefault();
-                // router.push(
-                //   `/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
-                // );
                 setShowSlackModal(true);
               }}
             >
@@ -212,9 +215,10 @@ export default function AlarmsPage() {
               className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
               onClick={(e) => {
                 e.preventDefault();
-                router.push(
-                  `/instances/${instance?.name}/alarms/new?region=${instance?.region}`,
-                );
+                setShowNewAlarmModal(true);
+                // router.push(
+                //   `/instances/${instance?.name}/alarms/new?region=${instance?.region}`,
+                // );
               }}
             >
               Create Alarm
@@ -223,6 +227,7 @@ export default function AlarmsPage() {
         </>
       )}
       {showSlackModal && <SlackModal onClose={handleCloseSlackModal} />}
+      {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
     </div>
   );
 }

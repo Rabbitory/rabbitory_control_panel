@@ -105,6 +105,7 @@ export default function NotificationsDropdown() {
                       )
                     }
                     className="ml-2 text-xs text-red-500 hover:text-red-700"
+                    disabled={notification.status === "pending"}
                   >
                     X
                   </button>

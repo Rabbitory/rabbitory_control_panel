@@ -30,7 +30,7 @@ export default function Home() {
     <div className="mt-15 ml-20 mr-20">
       <div className="flex justify-between items-center mb-6">
         <h1 className="font-heading1 text-2xl text-headertext1">Instances</h1>
-        <Link href="/instances/newForm">
+        <Link href="/instances/new">
           <button
             className={`
               font-heading1 font-semibold py-2 px-6 bg-btn1

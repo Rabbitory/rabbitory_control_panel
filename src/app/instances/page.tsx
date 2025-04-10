@@ -41,13 +41,13 @@ export default function Home() {
     setInputText("");
     setShowModal(true);
   };
-  
+
   const closeDeleteModal = () => {
     setShowModal(false);
     setSelectedInstance(null);
     setInputText("");
   };
-  
+
   const handleDelete = async () => {
     if (!selectedInstance) return;
     setIsDeleting(true);
@@ -57,7 +57,7 @@ export default function Home() {
         : instance
     ));
     closeDeleteModal();
-  
+
     try {
       await axios.post(`/api/instances/${selectedInstance.name}/delete?region=${selectedInstance.region}`);
     } catch (err) {
@@ -66,7 +66,6 @@ export default function Home() {
       setIsDeleting(false);
     }
   };
-  
 
   return (
     <div className="mt-15 ml-20 mr-20">
@@ -139,28 +138,27 @@ export default function Home() {
                 <td className="px-4 py-3 text-pagetext1 truncate">{instance.id}</td>
                 <td className="px-4 py-3 text-pagetext1">{instance.region}</td>
                 <td
-                  className={`px-4 py-3 ${
-                    instance.state === "running"
-                      ? "text-btnhover1"
-                      : instance.state === "pending" || instance.state === "initializing"
+                  className={`px-4 py-3 ${instance.state === "running"
+                    ? "text-btnhover1"
+                    : instance.state === "pending" || instance.state === "initializing"
                       ? "text-btn1 italic"
                       : instance.state === "stopped" || instance.state === "stopping"
-                      ? "text-red-300"
-                      : instance.state === "shutting-down"
-                      ? "text-pagetext1 italic"
-                      : ""
-                  }`}
+                        ? "text-red-300"
+                        : instance.state === "shutting-down"
+                          ? "text-pagetext1 italic"
+                          : ""
+                    }`}
                 >
                   {instance.state}
                 </td>
                 <td className="px-4 py-3 text-right">
-                <button
-                  onClick={() => openDeleteModal(instance)}
-                  className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
-                  aria-label="Delete instance"
-                >
-                  <Trash2 size={20} />
-                </button>
+                  <button
+                    onClick={() => openDeleteModal(instance)}
+                    className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
+                    aria-label="Delete instance"
+                  >
+                    <Trash2 size={20} />
+                  </button>
                 </td>
               </tr>
             ))

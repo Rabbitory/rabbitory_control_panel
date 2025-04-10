@@ -2,6 +2,7 @@
 
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
+import { SlackModal } from "@/app/components/SlackModal";
 import Dropdown from "@/app/components/Dropdown";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,7 @@ export default function AlarmsPage() {
   const [isFetching, setIsFetching] = useState(false);
   const [storageAlarms, setStorageAlarms] = useState<Alarm[]>([]);
   const [memoryAlarms, setMemoryAlarms] = useState<Alarm[]>([]);
+  const [showSlackModal, setShowSlackModal] = useState(false);
 
   useEffect(() => {
     const fetchAlarms = async () => {
@@ -40,6 +42,10 @@ export default function AlarmsPage() {
 
     fetchAlarms();
   }, [instance?.name, instance?.region]);
+
+  const handleCloseSlackModal = () => {
+    setShowSlackModal(false);
+  }
 
   const handleDelete = async (type: "storage" | "memory", id: string) => {
     try {
@@ -74,7 +80,7 @@ export default function AlarmsPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
- 
+
       {isFetching ? (
         <div>Loading...</div>
       ) : (
@@ -188,15 +194,16 @@ export default function AlarmsPage() {
               </table>
             </div>
           </div>
-          
+
           <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
             <button
               className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
               onClick={(e) => {
                 e.preventDefault();
-                router.push(
-                  `/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
-                );
+                // router.push(
+                //   `/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+                // );
+                setShowSlackModal(true);
               }}
             >
               Setup Slack
@@ -215,6 +222,7 @@ export default function AlarmsPage() {
           </div>
         </>
       )}
+      {showSlackModal && <SlackModal onClose={handleCloseSlackModal} />}
     </div>
   );
 }

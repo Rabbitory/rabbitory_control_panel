@@ -188,6 +188,7 @@ export default function AlarmsPage() {
               </table>
             </div>
           </div>
+          
           <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
             <button
               className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"

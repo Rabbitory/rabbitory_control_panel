@@ -95,6 +95,9 @@ export default function NewFormPage() {
       <h1 className="text-2xl font-heading1 text-headertext1 mb-10">
         Create Instance
       </h1>
+      <p className="font-text1 text-pagetext1 text-sm mb-8">
+      Provide the following details to launch a new RabbitMQ instance in the cloud.
+      </p>
       {isLoading ? (
           <div className="space-y-6 animate-pulse">
           {[...Array(6)].map((_, i) => (
@@ -121,7 +124,7 @@ export default function NewFormPage() {
             <div className="flex items-center gap-4">
               <label
                 htmlFor="instanceName"
-                className="text-md text-pagetext1 w-1/4"
+                className="font-heading1 text-md text-headertext1 w-1/4"
               >
                 Instance Name:
               </label>
@@ -137,7 +140,7 @@ export default function NewFormPage() {
                 <button
                   type="button"
                   onClick={handleGenerate}
-                  className="px-4 py-2 bg-mainbg1 text-headertext1 rounded-sm hover:bg-mainbghover text-sm"
+                  className="font-heading1 text-xs ml-2 px-6 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
                 >
                   Generate random name
                 </button>
@@ -145,7 +148,7 @@ export default function NewFormPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="region" className="text-md text-pagetext1 w-1/4">
+              <label htmlFor="region" className="font-heading1 text-md text-headertext1 w-1/4">
                 Region:
               </label>
               <select
@@ -165,7 +168,7 @@ export default function NewFormPage() {
             <div className="flex items-center gap-4">
               <label
                 htmlFor="instanceType"
-                className="text-md text-pagetext1 w-1/4"
+                className="font-heading1 text-md text-headertext1 w-1/4"
               >
                 Instance Type:
               </label>
@@ -188,7 +191,7 @@ export default function NewFormPage() {
             <div className="flex items-center gap-4">
               <label
                 htmlFor="instanceSize"
-                className="text-md text-pagetext1  w-1/4"
+                className="font-heading1 text-md text-headertext1  w-1/4"
               >
                 Instance Size:
               </label>
@@ -210,7 +213,7 @@ export default function NewFormPage() {
             <div className="flex items-center gap-4">
               <label
                 htmlFor="storageSize"
-                className="text-md text-pagetext1  w-1/4"
+                className="font-heading1 text-md text-headertext1  w-1/4"
               >
                 Storage Size (GB):
               </label>
@@ -224,7 +227,7 @@ export default function NewFormPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="username" className="text-md text-pagetext1 w-1/4">
+              <label htmlFor="username" className="font-heading1 text-md text-headertext1 w-1/4">
                 Username:
               </label>
               <input
@@ -236,7 +239,7 @@ export default function NewFormPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label htmlFor="password" className="text-md text-pagetext1 w-1/4">
+              <label htmlFor="password" className="font-heading1 text-md text-headertext1 w-1/4">
                 Password:
               </label>
               <input
@@ -247,10 +250,7 @@ export default function NewFormPage() {
               />
             </div>
 
-            {/* Dividing Line */}
-            <div className="border-t border-gray-300 my-6"></div>
-
-            {/* Button Container */}
+            <div className="border-t border-headertext1 my-6"></div>
 
             <div className="font-heading1 text-sm  flex justify-end gap-4 mt-6">
               <Link

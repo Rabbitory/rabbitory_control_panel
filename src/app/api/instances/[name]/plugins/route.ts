@@ -58,7 +58,11 @@ export async function GET(
       },
     });
 
-    return NextResponse.json(response?.data[0].enabled_plugins);
+    if (!response) {
+      throw new Error("No response from RabbitMQ API");
+    }
+
+    return NextResponse.json(response.data[0].enabled_plugins);
   } catch (error) {
     console.error("Error fetching plugins:", error);
     return NextResponse.json(

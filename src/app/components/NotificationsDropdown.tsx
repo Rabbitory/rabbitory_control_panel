@@ -74,32 +74,36 @@ export default function NotificationsDropdown() {
         )}
       </button>
       {showDropdown && (
-        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 shadow-md z-50 w-40">
-          {notifications.length === 0 ? (
-            <div className="p-2 text-gray-800 text-xs">No notifications</div>
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 shadow-md z-50 w-40 p-2">
+          {notificationCount === 0 ? (
+            <div className="text-gray-800 text-xs">No notifications</div>
           ) : (
             <ul className="list-none m-0 p-0 text-xs">
               {notifications.map((notification, index) => (
                 <li
                   key={index}
-                  className={`flex items-center p-2 border-b border-gray-200 last:border-0 ${getTextColor(
+                  className={`flex items-start p-2 border-b border-gray-200 last:border-0 ${getTextColor(
                     notification.status
                   )}`}
                 >
                   <span
-                    className={`inline-block w-3 h-3 rounded-full mr-2 ${getBubbleColor(
+                    className={`inline-block w-3 h-3 rounded-full mr-2 mt-1 ${getBubbleColor(
                       notification.status
                     )}`}
                   />
-                  <span className="flex-1">{notification.message}</span>
+                  {/* Use break-all for especially long words or single unbroken strings */}
+                  <span className="flex-1 whitespace-normal break-all">
+                    {notification.message}
+                  </span>
                   <button
                     onClick={() =>
                       deleteNotification(
                         notification.type,
-                        notification.instanceName
+                        notification.instanceName,
+                        notification.message
                       )
                     }
-                    className="ml-2 text-sm text-red-500 hover:text-red-700"
+                    className="ml-2 text-xs text-red-500 hover:text-red-700"
                   >
                     X
                   </button>

@@ -43,13 +43,18 @@ export const useNotifications = () => {
     );
   }, []);
 
-  const deleteNotification = (type: string, instanceName: string) => {
+  const deleteNotification = (
+    type: string,
+    instanceName: string,
+    message: string
+  ) => {
     setNotifications((prevNotifications) =>
       prevNotifications.filter(
         (notification) =>
           !(
             notification.type === type &&
-            notification.instanceName === instanceName
+            notification.instanceName === instanceName &&
+            notification.message === message
           )
       )
     );

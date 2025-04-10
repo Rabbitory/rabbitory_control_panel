@@ -9,7 +9,11 @@ interface NotificationsContextType {
   addNotification: (notification: Notification) => void;
   updateNotification: (notification: Notification) => void;
   clearNotifications: () => void;
-  deleteNotification: (type: string, instanceName: string) => void;
+  deleteNotification: (
+    type: string,
+    instanceName: string,
+    message: string
+  ) => void;
   formPending: () => boolean;
 }
 

@@ -8,8 +8,8 @@ interface Options {
 export async function fetchWithRetry(
   url: string,
   options: Options,
-  retries = 3,
-  delay = 2000,
+  retries = 5,
+  delay = 2000
 ) {
   for (let i = 0; i < retries; i++) {
     try {

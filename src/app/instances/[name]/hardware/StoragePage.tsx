@@ -5,6 +5,8 @@ import { useInstanceContext } from "../InstanceContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import React from "react";
+import { StorageDetails } from "@/app/components/StorageDetails";
 
 export function StoragePage() {
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
@@ -16,17 +18,21 @@ export function StoragePage() {
   useEffect(() => {
     async function fetchVolumeSize() {
       if (!instance?.EBSVolumeId || !instance?.region) {
-        alert("Missing EBSVolumeId or region");
+        console.error("Missing EBSVolumeId or region");
         return;
       }
 
-      const response = await axios.get(
-        `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`,
-      );
+      try {
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`,
+        );
 
-      if (response.data) {
-        setCurrentVolumeSize(response.data.size);
-        setNewVolumeSize(response.data.size);
+        if (response.data) {
+          setCurrentVolumeSize(response.data.size);
+          setNewVolumeSize(response.data.size);
+        }
+      } catch (error) {
+        console.error("Failed to fetch volume size:", error);
       }
     }
 
@@ -41,7 +47,7 @@ export function StoragePage() {
       alert(
         "Invalid storage size. Must be greater than current size & less than or equal to 16000 GB",
       );
-      return;
+      return false;
     }
 
     setSaving(true);
@@ -56,7 +62,7 @@ export function StoragePage() {
       return true;
     } catch (error) {
       setSaving(false);
-      console.error(error);
+      console.error("Failed to update storage size:", error);
       alert(
         "Failed to update storage size. You might have to wait 6 hours since the last update.",
       );
@@ -75,6 +81,7 @@ export function StoragePage() {
         The amount of storage the broker has access to. 8gb minimum. System
         files take about 4gb.
       </p>
+      <StorageDetails />
       <p className="font-text1 text-md mb-6">
         Current instance storage size:{` ${currentVolumeSize} GB`}
       </p>
@@ -93,6 +100,8 @@ export function StoragePage() {
             value={newVolumeSize}
             onChange={(e) => setNewVolumeSize(Number(e.target.value))}
             className="font-text1 w-1/10 p-1 border rounded-md text-sm"
+            min={currentVolumeSize + 1}
+            max={16000}
           />
         </div>
         <div className="font-heading1 text-sm flex justify-end gap-4">
@@ -106,14 +115,15 @@ export function StoragePage() {
             className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
                   ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
                 `}
-            disabled={saving}
+            disabled={saving || !isValidStorageSize(newVolumeSize)}
             onClick={async (e) => {
               e.preventDefault();
               const success = await updateStorageSize();
-              if (success)
+              if (success) {
                 router.push(
                   `/instances/${instance?.name}/hardware?region=${instance?.region}`,
                 );
+              }
             }}
           >
             {saving ? "Saving..." : "Save"}

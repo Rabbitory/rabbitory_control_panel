@@ -156,11 +156,16 @@ export default function Home() {
                 <td className="px-4 py-3 text-right">
                 <button
                   onClick={() => openDeleteModal(instance)}
-                  className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
+                  className={`
+                    text-gray-400 
+                    ${instance.state === "pending" || instance.state === "shutting-down" ? 'cursor-not-allowed' : 'hover:text-btnhover1 hover:shadow-btnhover1'}
+                  `}
                   aria-label="Delete instance"
+                  disabled={instance.state === "pending" || instance.state === "shutting-down"}
                 >
                   <Trash2 size={20} />
                 </button>
+
                 </td>
               </tr>
             ))

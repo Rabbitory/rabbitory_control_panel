@@ -84,14 +84,6 @@ export const GET = async () => {
 };
 
 export const POST = async (request: NextRequest) => {
-  const body = await request.json();
-  if (!body) {
-    return NextResponse.json(
-      { message: "Invalid request body" },
-      { status: 400 }
-    );
-  }
-
   const {
     region,
     instanceName,
@@ -99,7 +91,21 @@ export const POST = async (request: NextRequest) => {
     username,
     password,
     storageSize,
-  } = body;
+  } = await request.json();
+
+  if (
+    !region ||
+    !instanceName ||
+    !instanceType ||
+    !username ||
+    !password ||
+    !storageSize
+  ) {
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 }
+    );
+  }
 
   const createInstanceResult = await createInstance(
     region,
@@ -126,8 +132,11 @@ export const POST = async (request: NextRequest) => {
     password,
     region
   );
-  return NextResponse.json({
-    name: instanceName,
-    id: instanceId,
-  });
+  return NextResponse.json(
+    {
+      name: instanceName,
+      id: instanceId,
+    },
+    { status: 202 }
+  );
 };

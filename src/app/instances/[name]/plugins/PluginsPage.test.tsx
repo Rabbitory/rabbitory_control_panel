@@ -5,6 +5,7 @@ import { InstanceContext } from "../InstanceContext";
 import PluginsPage from "./page";
 import axios from "axios";
 import { Instance } from "@/types/instance";
+import { NotificationsContext } from "@/app/NotificationContext";
 
 jest.mock("axios");
 
@@ -25,6 +26,19 @@ const fakeInstance: Instance = {
   state: "running",
   EBSVolumeId: "vol-123456",
 };
+
+const mockedNotificationsContextValue = {
+  notifications: [],
+  setNotifications: jest.fn(),
+  addNotification: jest.fn(),
+  updateNotification: jest.fn(),
+  clearNotifications: jest.fn(),
+  deleteNotification: jest.fn(),
+  formPending: () => false, // Provide a dummy implementation
+  linkPending: () => false,
+  instancePending: () => false,
+  instanceTerminated: () => false,
+};
 beforeEach(() => {
   mockedAxios.get.mockReset();
   mockedAxios.post.mockReset();
@@ -39,14 +53,16 @@ it.skip("renders loading state and then plugins form", async () => {
   );
 
   render(
-    <InstanceContext.Provider
-      value={{
-        instance: fakeInstance,
-        setInstance: jest.fn(),
-      }}
-    >
-      <PluginsPage />
-    </InstanceContext.Provider>
+    <NotificationsContext.Provider value={mockedNotificationsContextValue}>
+      <InstanceContext.Provider
+        value={{
+          instance: fakeInstance,
+          setInstance: jest.fn(),
+        }}
+      >
+        <PluginsPage />
+      </InstanceContext.Provider>
+    </NotificationsContext.Provider>
   );
 
   expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -77,14 +93,16 @@ it("handles form submission and updates plugins", async () => {
   mockedAxios.post.mockResolvedValueOnce({});
 
   render(
-    <InstanceContext.Provider
-      value={{
-        instance: fakeInstance,
-        setInstance: jest.fn(),
-      }}
-    >
-      <PluginsPage />
-    </InstanceContext.Provider>
+    <NotificationsContext.Provider value={mockedNotificationsContextValue}>
+      <InstanceContext.Provider
+        value={{
+          instance: fakeInstance,
+          setInstance: jest.fn(),
+        }}
+      >
+        <PluginsPage />
+      </InstanceContext.Provider>
+    </NotificationsContext.Provider>
   );
 
   await waitFor(() => expect(mockedAxios.get).toHaveBeenCalledTimes(1));

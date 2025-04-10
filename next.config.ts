@@ -1,22 +1,23 @@
-import type { NextConfig } from 'next'
- 
+import type { NextConfig } from "next";
+
 const nextConfig: NextConfig = {
   async redirects() {
     return [
       // Basic redirect
       {
-        source: '/',
-        destination: '/instances',
+        source: "/",
+        destination: "/instances",
         permanent: true,
       },
       // Wildcard path matching
       {
-        source: '/blog/:slug',
-        destination: '/news/:slug',
+        source: "/blog/:slug",
+        destination: "/news/:slug",
         permanent: true,
       },
-    ]
+    ];
   },
-}
- 
-export default nextConfig
+  allowedDevOrigins: ["*"],
+};
+
+export default nextConfig;

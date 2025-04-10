@@ -1,13 +1,17 @@
-import { Instance, EC2Client, } from "@aws-sdk/client-ec2";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
+import { Instance, EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { deleteBroker } from "@/utils/AWS/EC2/deleteBrokerInstance";
 import { deleteFromDynamoDB } from "@/utils/dynamoDBUtils";
 import { deleteSecurityGroup } from "@/utils/AWS/EC2/deleteSecurityGroup";
+import eventEmitter from "@/utils/eventEmitter";
+import { deleteEvent } from "@/utils/eventBackups";
+import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 
 const getGroupName = async (instance: Instance) => {
   const id = instance.InstanceId;
-  const securityGroups = instance.SecurityGroups ? instance.SecurityGroups[0] : null;
+  const securityGroups = instance.SecurityGroups
+    ? instance.SecurityGroups[0]
+    : null;
   if (!securityGroups) {
     throw new Error(`No security groups found for instance ${id}`);
   }
@@ -17,38 +21,63 @@ const getGroupName = async (instance: Instance) => {
   }
 
   return groupId;
+};
+
+async function deleteInstance(
+  instanceId: string,
+  groupName: string,
+  ec2Client: EC2Client,
+  instanceName: string
+) {
+  try {
+    await deleteBroker(instanceId, ec2Client);
+    await deleteSecurityGroup(groupName, ec2Client);
+    await deleteFromDynamoDB("rabbitory-instances-metadata", {
+      instanceId: { S: instanceId },
+    });
+
+    eventEmitter.emit("notification", {
+      message: `${instanceName} has been deleted`,
+      type: "deleteInstance",
+      status: "success",
+      instanceName,
+    });
+
+    deleteEvent(instanceName, "deleteInstance");
+  } catch (error) {
+    console.error(error);
+    eventEmitter.emit("notification", {
+      message: `${instanceName} could not be deleted`,
+      type: "deleteInstance",
+      status: "error",
+      instanceName,
+    });
+    deleteEvent(instanceName, "deleteInstance");
+  }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const { name } = await params;
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
 
-  if (!region) {
+  if (!region || !name) {
     return NextResponse.json(
-      { message: "Region parameter is missing" },
-      { status: 400 },
+      { message: "Parameter(s) are missing" },
+      { status: 400 }
     );
   }
 
   const ec2Client = new EC2Client({ region });
 
   const instance = await fetchInstance(name, ec2Client);
-  if (!instance) {
+  if (!instance || !instance.InstanceId) {
     return NextResponse.json(
-      { message: `No instance found with name: ${name}` },
-      { status: 404 },
-    );
-  }
-
-  const instanceId = instance?.InstanceId;
-  if (instanceId === undefined) {
-    return NextResponse.json(
-      { message: `Error getting instance ID for instance: ${name}` },
-      { status: 404 },
+      { message: `Instance not found: ${name}` },
+      { status: 404 }
     );
   }
 
@@ -56,31 +85,14 @@ export async function POST(
   if (groupName === undefined) {
     return NextResponse.json(
       { message: `No security group found for instance: ${name}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
-  try {
-    await deleteBroker(instanceId, ec2Client);
+  deleteInstance(instance.InstanceId, groupName, ec2Client, name);
 
-    const response = NextResponse.json(
-      { message: `Deletion of instance ${name} started. It will be shutting down soon.` },
-      { status: 202 }, // 202 Accepted to indicate the request is accepted, but the deletion is ongoing
-    );
-
-    Promise.resolve().then(() => {
-      // Perform deletion of the security group and DynamoDB record asynchronously
-      deleteSecurityGroup(groupName, ec2Client).catch(console.error);
-      deleteFromDynamoDB("rabbitory-instances-metadata", {
-        instanceId: { S: instanceId },
-      }).catch(console.error);
-    });
-
-    return response;
-  } catch (err) {
-    return NextResponse.json(
-      { message: `Error starting deletion for instance: ${name}, ${err}` },
-      { status: 500 },
-    );
-  }
+  return NextResponse.json(
+    { message: `Initiated deletion for ${name}` },
+    { status: 202 }
+  );
 }

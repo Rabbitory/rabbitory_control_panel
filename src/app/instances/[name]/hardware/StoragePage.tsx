@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useInstanceContext } from "../../../InstanceContext";
+import { useInstanceContext } from "../InstanceContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function StorageEditPage() {
+export function StoragePage() {
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
   const [newVolumeSize, setNewVolumeSize] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -68,8 +68,12 @@ export default function StorageEditPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
-      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Edit Storage</h1>
-      <p className="font-text1 text-md mb-6">Current instance storage size:{` ${currentVolumeSize} GB`}</p>
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
+        Edit storage
+      </h1>
+      <p className="font-text1 text-md mb-6">
+        Current instance storage size:{` ${currentVolumeSize} GB`}
+      </p>
       <fieldset disabled={saving} className="space-y-4">
         <div className="flex items-center gap-4">
           <label
@@ -89,26 +93,26 @@ export default function StorageEditPage() {
         </div>
         <div className="font-heading1 text-sm flex justify-end gap-4">
           <Link
-              href={`/instances/${instance?.name}/hardware?region=${instance?.region}`}
-              className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
-            >
-              Cancel
-            </Link>
+            href={`/instances/${instance?.name}/hardware?region=${instance?.region}`}
+            className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
+          >
+            Cancel
+          </Link>
           <button
-                className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
+            className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
                   ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
                 `}
-                disabled={saving}
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const success = await updateStorageSize();
-                  if (success)
-                    router.push(
-                      `/instances/${instance?.name}/hardware?region=${instance?.region}`,
-                    );
-                }}
-              >
-                {saving ? "Saving..." : "Save"}
+            disabled={saving}
+            onClick={async (e) => {
+              e.preventDefault();
+              const success = await updateStorageSize();
+              if (success)
+                router.push(
+                  `/instances/${instance?.name}/hardware?region=${instance?.region}`,
+                );
+            }}
+          >
+            {saving ? "Saving..." : "Save"}
           </button>
         </div>
       </fieldset>

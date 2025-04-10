@@ -61,10 +61,15 @@ export function InstanceTypePage() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card rounded-md shadow-md mt-6 text-pagetext1">
+    <>
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Edit instance type
       </h1>
+      <p className="font-text1 text-sm text-pagetext1 mb-6">
+        This is the hardware of your instance. You can change the hardware to
+        better suit the need of the broker, or expand the size to have more
+        cores and memory.
+      </p>
       <p className="font-text1 text-md mb-6">
         Current instance type: {instance?.type}
       </p>
@@ -140,6 +145,6 @@ export function InstanceTypePage() {
           </button>
         </div>
       </fieldset>
-    </div>
+    </>
   );
 }

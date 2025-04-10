@@ -165,6 +165,35 @@ export default function NewFormPage() {
               </select>
             </div>
 
+            <details className="border border-gray-300 rounded-md p-4 bg-gray-50 text-sm text-gray-700">
+              <summary className="cursor-pointer font-heading1 text-md text-headertext1 mb-2">
+                💡 Choosing an instance type? Click for recommendations
+              </summary>
+              <div className="mt-2 space-y-2">
+                <p>
+                  Here are some suggested EC2 instance types for running RabbitMQ based on your workload:
+                </p>
+                <ul className="list-disc list-inside">
+                  <li>
+                    <strong>For testing:</strong> <code>t3.micro</code> or <code>t3.small</code> — low cost, minimal throughput.
+                  </li>
+                  <li>
+                    <strong>Low throughput:</strong> <code>m8g.medium</code> — balanced price/performance on Graviton4.
+                  </li>
+                  <li>
+                    <strong>Medium throughput:</strong> <code>c8g.large</code> — compute-optimized with good networking.
+                  </li>
+                  <li>
+                    <strong>High throughput:</strong> <code>c7gn.large</code> or <code>m7gd.large</code> — high network bandwidth or fast NVMe SSDs.
+                  </li>
+                </ul>
+                <p>
+                  You can still choose from all available instance types below.
+                </p>
+              </div>
+            </details>
+
+
             <div className="flex items-center gap-4">
               <label
                 htmlFor="instanceType"

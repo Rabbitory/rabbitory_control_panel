@@ -16,7 +16,7 @@ export const NewAlarmModal = ({ onClose }: Props) => {
 
   const createAlarm = async () => {
     try {
-      let data = alarmType === "memory" ? { memoryThreshold, reminderInterval } : { storageThreshold, reminderInterval };
+      const data = alarmType === "memory" ? { memoryThreshold, reminderInterval } : { storageThreshold, reminderInterval };
       await axios.post(
         `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         {

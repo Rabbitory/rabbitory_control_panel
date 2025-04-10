@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { SlackModal } from "@/app/components/SlackModal";
 import Dropdown from "@/app/components/Dropdown";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { NewAlarmModal } from "@/app/components/NewAlarmModal";
 
 interface Alarm {
@@ -19,7 +18,6 @@ interface Alarm {
 
 export default function AlarmsPage() {
   const { instance } = useInstanceContext();
-  const router = useRouter();
   const [isFetching, setIsFetching] = useState(false);
   const [storageAlarms, setStorageAlarms] = useState<Alarm[]>([]);
   const [memoryAlarms, setMemoryAlarms] = useState<Alarm[]>([]);
@@ -212,9 +210,6 @@ export default function AlarmsPage() {
               onClick={(e) => {
                 e.preventDefault();
                 setShowNewAlarmModal(true);
-                // router.push(
-                //   `/instances/${instance?.name}/alarms/new?region=${instance?.region}`,
-                // );
               }}
             >
               Create Alarm

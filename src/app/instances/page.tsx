@@ -165,7 +165,6 @@ export default function Home() {
                 >
                   <Trash2 size={20} />
                 </button>
-
                 </td>
               </tr>
             ))

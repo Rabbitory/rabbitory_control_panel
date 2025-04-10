@@ -81,12 +81,9 @@ export default function Home() {
             instances.map((instance) => (
               <tr key={instance.name} className="bg-card border border-gray-500/30">
                 <td className="px-4 py-3 relative">
-                  {instance.state === "pending" ? (
+                  {instance.state === "pending" || instance.state === "shutting-down" ? (
                     <span className="text-pagetext1 truncate block group cursor-not-allowed">
                       {instance.name}
-                      <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 p-2 bg-black text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 whitespace-nowrap">
-                        Your instance is still initializing.
-                      </div>
                     </span>
                   ) : (
                     <Link
@@ -104,7 +101,7 @@ export default function Home() {
                     instance.state === "running"
                       ? "text-btnhover1"
                       : instance.state === "pending" || instance.state === "initializing"
-                      ? "text-btn1"
+                      ? "text-btn1 italic"
                       : instance.state === "stopped" || instance.state === "stopping"
                       ? "text-red-300"
                       : instance.state === "shutting-down"

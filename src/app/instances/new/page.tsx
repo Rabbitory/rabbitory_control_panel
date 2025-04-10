@@ -186,7 +186,7 @@ export default function NewFormPage() {
                   <tbody>
                     <tr>
                       <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">Testing</td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">t3.micro, t3.small</td>
+                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">t2.micro, t2.small</td>
                       <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">Very low cost, good for dev or trials</td>
                     </tr>
                     <tr>

@@ -10,7 +10,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
   const { instance } = useInstanceContext();
 
   return (
-    <nav className="w-full sticky top-0 h-full bg-mainbg1 border-r-[0.5px] z-10">
+    <nav className="w-full bg-mainbg1 border-r-[0.5px] z-10">
 
       <button
         className="m-6 bg-btn1 text-sm font-heading1 px-4 py-2 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
@@ -33,11 +33,11 @@ export default function NavLayout({ name }: NavLayoutProps) {
       <ul className="mt-8 text-sm space-y-2">
 
         {/* RabbitMQ Section */}
-        <li className="px-10 text-headertext1 tracking-wide">RabbitMQ</li>
+        <li className="font-heading1 px-10 text-headertext1 tracking-wide">RabbitMQ</li>
         <li>
           <Link
             href={`/instances/${name}/versions?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Versions
           </Link>
@@ -45,7 +45,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li>
           <Link
             href={`/instances/${name}/configuration?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Configuration
           </Link>
@@ -53,18 +53,18 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li>
           <Link
             href={`/instances/${name}/plugins?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Plugins
           </Link>
         </li>
 
         {/* EC2 Instance Section */}
-        <li className="px-10 mt-4 text-headertext1 tracking-wide">Server Instance</li>
+        <li className="font-heading1 px-10 mt-4 text-headertext1 tracking-wide">Server Instance</li>
         <li>
           <Link
             href={`/instances/${name}/hardware?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Hardware
           </Link>
@@ -72,7 +72,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li>
           <Link
             href={`/instances/${name}/backups?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Backups
           </Link>
@@ -80,18 +80,18 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li>
           <Link
             href={`/instances/${name}/firewall?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Firewall
           </Link>
         </li>
 
         {/* Monitoring Section */}
-        <li className="px-10 mt-4 text-headertext1 tracking-wide">Monitoring</li>
+        <li className="font-heading1 px-10 mt-4 text-headertext1 tracking-wide">Monitoring</li>
         <li>
           <Link
             href={`/instances/${name}/logs?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Logs
           </Link>
@@ -99,7 +99,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li className="mb-2">
           <Link
             href={`/instances/${name}/alarms?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
+            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
           >
             Alarms
           </Link>

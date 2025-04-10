@@ -3,7 +3,7 @@
 import Link from "next/link";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 
 interface Instance {

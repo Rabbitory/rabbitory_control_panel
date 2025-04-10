@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { Suspense } from "react";
 import StorageEditPage from "./page";
+import { NotificationsContext } from "@/app/NotificationContext";
 
 import axios from "axios";
 
@@ -24,22 +25,37 @@ jest.mock("../../../InstanceContext", () => ({
   }),
 }));
 
+const mockedNotificationsContextValue = {
+  notifications: [],
+  setNotifications: jest.fn(),
+  addNotification: jest.fn(),
+  updateNotification: jest.fn(),
+  clearNotifications: jest.fn(),
+  deleteNotification: jest.fn(),
+  formPending: () => false, // Provide a dummy implementation
+  linkPending: () => false,
+  instancePending: () => false,
+  instanceTerminated: () => false,
+};
+
 it("Fetches storage size", async () => {
   mockedAxios.get.mockImplementationOnce(
     () =>
       new Promise((resolve) =>
-        setTimeout(() => resolve({ data: { size: 8 } }), 50),
-      ),
+        setTimeout(() => resolve({ data: { size: 8 } }), 50)
+      )
   );
 
   render(
-    <Suspense fallback={<div>Suspense Fallback</div>}>
-      <StorageEditPage />
-    </Suspense>,
+    <NotificationsContext.Provider value={mockedNotificationsContextValue}>
+      <Suspense fallback={<div>Suspense Fallback</div>}>
+        <StorageEditPage />
+      </Suspense>
+    </NotificationsContext.Provider>
   );
 
   await waitFor(() =>
-    expect(screen.queryByText(/Suspense Fallback/i)).not.toBeInTheDocument(),
+    expect(screen.queryByText(/Suspense Fallback/i)).not.toBeInTheDocument()
   );
 
   expect(await screen.findByText(/8 GB/i)).toBeInTheDocument();

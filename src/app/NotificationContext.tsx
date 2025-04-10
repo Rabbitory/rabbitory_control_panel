@@ -91,6 +91,8 @@ export function NotificationsProvider({
     }),
     [
       notifications,
+      linkPending,
+      instancePending,
       addNotification,
       updateNotification,
       clearNotifications,

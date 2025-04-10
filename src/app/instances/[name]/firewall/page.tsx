@@ -21,7 +21,7 @@ export default function FirewallPage() {
   const { addNotification, formPending } = useNotificationsContext();
   const [rules, setRules] = useState<FirewallRule[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {

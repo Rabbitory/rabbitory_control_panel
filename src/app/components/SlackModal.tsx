@@ -57,7 +57,14 @@ export const SlackModal = ({ onClose }: Props) => {
 
   return (
     <div className="fixed inset-0 backdrop-blur-xs bg-white/5 flex justify-center items-center z-50">
-      <div className="bg-card text-pagetext1 p-6 rounded-md shadow-lg w-full max-w-md">
+      <div className="bg-card text-pagetext1 p-6 rounded-md shadow-lg w-full max-w-md relative">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-pagetext1 hover:text-btnhover1 transition-colors"
+          aria-label="Close modal"
+        >
+          X
+        </button>
         <h2 className="font-heading1 text-xl text-headertext1 mb-4">
           Set Up Slack Endpoint
         </h2>
@@ -87,11 +94,16 @@ export const SlackModal = ({ onClose }: Props) => {
           onChange={(e) => setWebhookUrl(e.target.value)}
         />
         <div className="flex justify-end mt-6 gap-4">
+          <p className="text-sm text-pagetext1">Note: You must save your endpoint before testing it.</p>
           <button
             className="px-4 py-2 bg-card border border-btn1 text-btn1 rounded-sm hover:shadow-[0_0_8px_#87d9da]"
-          // onClick={closeDeleteModal}
+            disabled={saving}
+            onClick={async (e) => {
+              e.preventDefault();
+              testWebhook();
+            }}
           >
-            Cancel
+            Test
           </button>
           <button
             className="px-4 py-2 bg-btn1 text-mainbg1 font-semibold rounded-sm hover:bg-btnhover1 hover:shadow-[0_0_10px_#87d9da]"
@@ -101,7 +113,6 @@ export const SlackModal = ({ onClose }: Props) => {
               setSaving(true);
               const success = await saveWebhookUrl();
               if (success) alert("Webhook URL saved");
-              onClose();
               setSaving(false);
             }}
           >

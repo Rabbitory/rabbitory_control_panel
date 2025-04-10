@@ -45,7 +45,7 @@ export default function BackupsPage() {
       type: "backup",
       status: "pending",
       instanceName: instance?.name,
-      path: "definitions",
+      path: "backups",
       message: `Saving backup for ${instance?.name}`,
     });
     try {

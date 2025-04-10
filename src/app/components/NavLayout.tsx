@@ -68,7 +68,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <PageLink pageName="versions" disabledOn="any" />
         <PageLink pageName="configuration" disabledOn="any" />
         <PageLink pageName="hardware" disabledOn="any" />
-        <PageLink pageName="definitions" disabledOn="any" />
+        <PageLink pageName="backups" disabledOn="any" />
         <PageLink pageName="logs" disabledOn="any" />
         <PageLink pageName="firewall" disabledOn="any" />
         <PageLink pageName="alarms" disabledOn="any" />

@@ -77,7 +77,7 @@ export default function BackupsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-6 text-pagetext1">
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-8 text-pagetext1">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-6">Backups</h1>
       <p className="font-text1 text-sm mb-4">
         A “definition” in RabbitMQ is a snapshot of your server’s configuration — including exchanges, queues, users, and permissions. We refer to these as “backups”. See{" "}

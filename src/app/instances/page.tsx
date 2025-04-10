@@ -15,22 +15,64 @@ interface Instance {
 export default function Home() {
   const [instances, setInstances] = useState<Instance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedInstance, setSelectedInstance] = useState<Instance | null>(null);
+  const [inputText, setInputText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    const fetchInstances = async () => {
+  const fetchInstances = async () => {
+    setIsLoading(true);
+    try {
       const fetchedInstances = await axios.get("/api/instances");
       setInstances(fetchedInstances.data);
+    } catch (err) {
+      console.error("Failed to fetch instances:", err);
+    } finally {
       setIsLoading(false);
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchInstances();
   }, []);
+
+  const openDeleteModal = (instance: Instance) => {
+    setSelectedInstance(instance);
+    setInputText("");
+    setShowModal(true);
+  };
+  
+  const closeDeleteModal = () => {
+    setShowModal(false);
+    setSelectedInstance(null);
+    setInputText("");
+  };
+  
+  const handleDelete = async () => {
+    if (!selectedInstance) return;
+    setIsDeleting(true);
+    setInstances(prev => prev.map(instance =>
+      instance.name === selectedInstance.name
+        ? { ...instance, state: 'shutting-down' }
+        : instance
+    ));
+    closeDeleteModal();
+  
+    try {
+      await axios.post(`/api/instances/${selectedInstance.name}/delete?region=${selectedInstance.region}`);
+    } catch (err) {
+      console.error("Error deleting instance:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+  
 
   return (
     <div className="mt-15 ml-20 mr-20">
       <div className="flex justify-between items-center mb-6">
         <h1 className="font-heading1 text-2xl text-headertext1">Instances</h1>
-        <Link href="/instances/newForm">
+        <Link href="/instances/new">
           <button
             className={`
               font-heading1 font-semibold py-2 px-6 bg-btn1
@@ -81,12 +123,9 @@ export default function Home() {
             instances.map((instance) => (
               <tr key={instance.name} className="bg-card border border-gray-500/30">
                 <td className="px-4 py-3 relative">
-                  {instance.state === "pending" ? (
+                  {instance.state === "pending" || instance.state === "shutting-down" ? (
                     <span className="text-pagetext1 truncate block group cursor-not-allowed">
                       {instance.name}
-                      <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 p-2 bg-black text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 whitespace-nowrap">
-                        Your instance is still initializing.
-                      </div>
                     </span>
                   ) : (
                     <Link
@@ -104,7 +143,7 @@ export default function Home() {
                     instance.state === "running"
                       ? "text-btnhover1"
                       : instance.state === "pending" || instance.state === "initializing"
-                      ? "text-btn1"
+                      ? "text-btn1 italic"
                       : instance.state === "stopped" || instance.state === "stopping"
                       ? "text-red-300"
                       : instance.state === "shutting-down"
@@ -115,13 +154,13 @@ export default function Home() {
                   {instance.state}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/instances/${instance.name}/edit/delete?region=${instance.region}`}
-                    className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
-                    aria-label="Delete instance"
-                  >
-                    <Trash2 size={20} />
-                  </Link>
+                <button
+                  onClick={() => openDeleteModal(instance)}
+                  className="text-gray-400 hover:text-btnhover1 hover:shadow-btnhover1"
+                  aria-label="Delete instance"
+                >
+                  <Trash2 size={20} />
+                </button>
                 </td>
               </tr>
             ))
@@ -133,6 +172,44 @@ export default function Home() {
           No instances yet. Let’s spin one up!
         </p>
       )}
+
+      {showModal && selectedInstance && (
+        <div className="fixed inset-0 backdrop-blur-xs bg-white/5 flex justify-center items-center z-50">
+          <div className="bg-card text-pagetext1 p-6 rounded-md shadow-lg w-full max-w-md">
+            <h2 className="font-heading1 text-xl text-headertext1 mb-4">
+              Delete {selectedInstance.name}?
+            </h2>
+            <p className="font-text1 text-sm text-red-300 mb-6">
+              Deleting this instance is permanent and will result in the loss of all data stored on it. This action cannot be undone.
+            </p>
+            <p className="font-text1 text-sm mb-2">
+              Type <strong>{selectedInstance.name}</strong> to confirm deletion.
+            </p>
+            <input
+              className="w-full p-2 border rounded-sm font-text1 text-btnhover1 border-pagetext1 focus:outline-none"
+              type="text"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+            />
+            <div className="flex justify-end mt-6 gap-4">
+              <button
+                className="px-4 py-2 bg-card border border-btn1 text-btn1 rounded-sm hover:shadow-[0_0_8px_#87d9da]"
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-btn1 text-mainbg1 font-semibold rounded-sm hover:bg-btnhover1 hover:shadow-[0_0_10px_#87d9da]"
+                onClick={handleDelete}
+                disabled={inputText !== selectedInstance.name || isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         @keyframes pulse-glow {
           0%, 100% {
@@ -150,8 +227,5 @@ export default function Home() {
         }
       `}</style>
     </div>
-    
   );
 }
-
-

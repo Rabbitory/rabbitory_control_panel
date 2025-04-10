@@ -54,61 +54,60 @@ export default function AlarmsPage() {
   if (fetching) return <div>Loading...</div>;
 
   return (
-    <>
-      <div>
-        <h1>Slack Information</h1>
-        <fieldset disabled={saving} className="space-y-4">
-          <div className="flex items-center gap-4">
-            <label htmlFor="webhookUrl" className="text-xl text-gray-700 w-1/4">
-              Webhook URL
-            </label>
-            <input
-              id="webhookUrl"
-              name="webhookUrl"
-              type="text"
-              value={webhookUrl}
-              onChange={(e) => setWebhookUrl(e.target.value)}
-              className="w-3/4 p-2 border rounded-md text-xl"
-            />
-          </div>
-          <div className="flex justify-end gap-4">
-            <button
-              disabled={saving}
-              onClick={async (e) => {
-                e.preventDefault();
-                setSaving(true);
-                const success = await saveWebhookUrl();
-                if (success) alert("Webhook URL saved");
-                setSaving(false);
-              }}
-              className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </fieldset>
-        <div className="flex justify-end gap-4">
+    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Slack Information</h1>
+
+      <p className="font-text1 text-pagetext1 text-md mb-6">
+        <a className="underline hover:text-headertext1"
+          href="/slack-alarms-tutorial.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          How to set up Slack
+        </a>
+      </p>
+
+      <fieldset disabled={saving} className="space-y-4">
+        <div className="flex items-center">
+          <label className="font-heading1 text-md text-headertext1 w-1/5"
+            htmlFor="webhookUrl" >
+            Webhook URL
+          </label>
+          <input className="font-text1 w-4/5 p-2 border rounded-md text-sm"
+            id="webhookUrl"
+            name="webhookUrl"
+            type="text"
+            value={webhookUrl}
+            onChange={(e) => setWebhookUrl(e.target.value)}
+
+          />
+        </div>
+        <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
           <button
+            className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
             disabled={saving}
             onClick={async (e) => {
               e.preventDefault();
               testWebhook();
             }}
-            className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
           >
             Test Webhook
           </button>
-        </div>
-        <div className="flex justify-end gap-4">
-          <a
-            href="/slack-alarms-tutorial.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+            disabled={saving}
+            onClick={async (e) => {
+              e.preventDefault();
+              setSaving(true);
+              const success = await saveWebhookUrl();
+              if (success) alert("Webhook URL saved");
+              setSaving(false);
+            }}
           >
-            How to set up Slack
-          </a>
+            {saving ? "Saving..." : "Save"}
+          </button>
         </div>
-      </div>
-    </>
+      </fieldset>
+    </div>
   );
 }

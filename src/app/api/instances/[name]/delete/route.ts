@@ -60,18 +60,14 @@ export async function POST(
     );
   }
 
-  // Return the response to the client immediately
   try {
-    // Start the instance termination but don't block the response
     await deleteBroker(instanceId, ec2Client);
 
-    // Send immediate response indicating the deletion process has started
     const response = NextResponse.json(
       { message: `Deletion of instance ${name} started. It will be shutting down soon.` },
       { status: 202 }, // 202 Accepted to indicate the request is accepted, but the deletion is ongoing
     );
 
-    // Offload the background tasks to a promise chain that doesn't block the response
     Promise.resolve().then(() => {
       // Perform deletion of the security group and DynamoDB record asynchronously
       deleteSecurityGroup(groupName, ec2Client).catch(console.error);

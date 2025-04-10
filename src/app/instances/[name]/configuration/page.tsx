@@ -14,7 +14,7 @@ interface Configuration {
 export default function ConfigurationPage() {
   const { instance } = useInstanceContext();
   const [configuration, setConfiguration] = useState<Configuration>({});
-  const [isLoading, setIsLoading] = useState<boolean>(true);  // Set to true for loading state initially
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   useEffect(() => {

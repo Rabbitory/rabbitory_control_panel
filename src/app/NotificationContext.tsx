@@ -12,7 +12,8 @@ interface NotificationsContextType {
   deleteNotification: (
     type: string,
     instanceName: string,
-    message: string
+    message: string,
+    index: number
   ) => void;
   formPending: () => boolean;
 }

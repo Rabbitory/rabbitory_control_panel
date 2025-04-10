@@ -33,28 +33,39 @@ export const useNotifications = () => {
   };
 
   const updateNotification = useCallback((newNotification: Notification) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.type === newNotification.type &&
-        notification.instanceName === newNotification.instanceName
-          ? { ...notification, ...newNotification }
-          : notification
-      )
-    );
+    setNotifications((prevNotifications) => {
+      const index = prevNotifications.findIndex(
+        (notification) =>
+          notification.type === newNotification.type &&
+          notification.instanceName === newNotification.instanceName &&
+          notification.status === "pending"
+      );
+      if (index === -1) {
+        return prevNotifications;
+      }
+      const updatedNotifications = [...prevNotifications];
+      updatedNotifications[index] = {
+        ...updatedNotifications[index],
+        ...newNotification,
+      };
+      return updatedNotifications;
+    });
   }, []);
 
   const deleteNotification = (
     type: string,
     instanceName: string,
-    message: string
+    message: string,
+    index: number
   ) => {
     setNotifications((prevNotifications) =>
       prevNotifications.filter(
-        (notification) =>
+        (notification, idx) =>
           !(
             notification.type === type &&
             notification.instanceName === instanceName &&
-            notification.message === message
+            notification.message === message &&
+            idx === index
           )
       )
     );

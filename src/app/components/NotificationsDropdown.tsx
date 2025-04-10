@@ -100,7 +100,8 @@ export default function NotificationsDropdown() {
                       deleteNotification(
                         notification.type,
                         notification.instanceName,
-                        notification.message
+                        notification.message,
+                        index
                       )
                     }
                     className="ml-2 text-xs text-red-500 hover:text-red-700"

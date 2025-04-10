@@ -8,6 +8,7 @@ export async function GET(request: Request) {
 
   const stream = new ReadableStream({
     start(controller) {
+      controller.enqueue(encoder.encode(`: initial ping\n\n`));
       console.log("SSE client connected");
       const onEvent = (payload: Notification) => {
         console.log(payload);

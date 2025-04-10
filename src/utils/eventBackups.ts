@@ -10,13 +10,13 @@ export function deleteEvent(
   name: Notification["instanceName"],
   type: Notification["type"]
 ): void {
-  for (let i = eventBackups.length - 1; i >= 0; i--) {
+  for (let i = 0; i < eventBackups.length; i++) {
     if (
       eventBackups[i].instanceName === name &&
       eventBackups[i].type === type
     ) {
       eventBackups.splice(i, 1);
-      console.log(eventBackups);
+      console.log("deteled event:", name, type);
       return;
     }
   }

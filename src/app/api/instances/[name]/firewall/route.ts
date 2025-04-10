@@ -13,7 +13,7 @@ import { deleteEvent } from "@/utils/eventBackups";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -22,7 +22,7 @@ export async function GET(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -30,7 +30,7 @@ export async function GET(
     // update all these functions to take a region parameter
     const currentSGRules = await getCurrentSecurityGroupRules(
       instanceName,
-      region,
+      region
     );
     const uiFirewallRules = convertToUIFirewallRules(currentSGRules);
     return NextResponse.json(uiFirewallRules);
@@ -38,14 +38,14 @@ export async function GET(
     console.error("Error fetching firewall rules:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -55,30 +55,30 @@ export async function PUT(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
   try {
     const currentSGRules = await getCurrentSecurityGroupRules(
       instanceName,
-      region,
+      region
     );
     const newSGRules = convertToSecurityGroupRules(rules);
     const { rulesToAdd, rulesToRemove } = getSGRulesToAddAndRemove(
       currentSGRules,
-      newSGRules,
+      newSGRules
     );
     await updateInstanceSGRules(
       instanceName,
       region,
       rulesToAdd,
-      rulesToRemove,
+      rulesToRemove
     );
 
     const { portsToAdd, portsToRemove } = getRabbitmqPortsToAddAndRemove(
       rulesToAdd,
-      rulesToRemove,
+      rulesToRemove
     );
     await updateRabbitmqPorts(instanceName, region, portsToAdd, portsToRemove);
 
@@ -86,7 +86,7 @@ export async function PUT(
     // convert these fetched rules to sg rules and send to in NextResponse
     const updatedSGRules = await getCurrentSecurityGroupRules(
       instanceName,
-      region,
+      region
     );
     const updatedUiFirewallRules = convertToUIFirewallRules(updatedSGRules);
 
@@ -101,10 +101,18 @@ export async function PUT(
 
     return NextResponse.json(updatedUiFirewallRules);
   } catch (error) {
+    eventEmitter.emit("notification", {
+      type: "firewall",
+      status: "error",
+      instanceName,
+      message: `Firewall updated failed!`,
+    });
+
+    deleteEvent(instanceName, "firewall");
     console.error("Error updating ports:", error);
     return NextResponse.json(
       { error: `Failed to update security group and RabbitMQ ports: ${error}` },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

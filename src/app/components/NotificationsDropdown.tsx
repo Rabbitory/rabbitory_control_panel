@@ -5,7 +5,8 @@ import { useNotificationsContext } from "../NotificationContext";
 import { NotificationStatus } from "@/types/notification";
 
 export default function NotificationsDropdown() {
-  const { notifications, updateNotification } = useNotificationsContext();
+  const { notifications, updateNotification, deleteNotification } =
+    useNotificationsContext();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const toggleDropdown = () => {
@@ -57,6 +58,8 @@ export default function NotificationsDropdown() {
     };
   }, [updateNotification]);
 
+  const notificationCount = notifications.length;
+
   return (
     <div className="relative inline-block">
       <button
@@ -64,26 +67,42 @@ export default function NotificationsDropdown() {
         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
       >
         Notifications
+        {notificationCount > 0 && (
+          <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full text-xs px-2 py-1">
+            {notificationCount}
+          </span>
+        )}
       </button>
       {showDropdown && (
-        <div className="absolute top-full right-0 bg-white border border-gray-300 shadow-md z-50 w-[200px]">
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 shadow-md z-50 w-40">
           {notifications.length === 0 ? (
-            <div className="p-2 text-gray-800">No notifications</div>
+            <div className="p-2 text-gray-800 text-xs">No notifications</div>
           ) : (
-            <ul className="list-none m-0 p-0">
+            <ul className="list-none m-0 p-0 text-xs">
               {notifications.map((notification, index) => (
                 <li
                   key={index}
                   className={`flex items-center p-2 border-b border-gray-200 last:border-0 ${getTextColor(
-                    notification.status,
+                    notification.status
                   )}`}
                 >
                   <span
                     className={`inline-block w-3 h-3 rounded-full mr-2 ${getBubbleColor(
-                      notification.status,
+                      notification.status
                     )}`}
                   />
-                  {notification.message}
+                  <span className="flex-1">{notification.message}</span>
+                  <button
+                    onClick={() =>
+                      deleteNotification(
+                        notification.type,
+                        notification.instanceName
+                      )
+                    }
+                    className="ml-2 text-sm text-red-500 hover:text-red-700"
+                  >
+                    X
+                  </button>
                 </li>
               ))}
             </ul>

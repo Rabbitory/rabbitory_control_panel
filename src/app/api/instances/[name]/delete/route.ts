@@ -11,7 +11,7 @@ async function deleteInstance(
   instanceId: string,
   groupName: string,
   ec2Client: EC2Client,
-  instanceName: string,
+  instanceName: string
 ) {
   try {
     await deleteBroker(instanceId, ec2Client);
@@ -19,8 +19,6 @@ async function deleteInstance(
     await deleteFromDynamoDB("rabbitory-instances-metadata", {
       instanceId: { S: instanceId },
     });
-
-    console.log(`Deleted ${instanceName}`);
 
     eventEmitter.emit("notification", {
       message: `${instanceName} has been deleted`,
@@ -30,8 +28,6 @@ async function deleteInstance(
     });
 
     deleteEvent(instanceName, "deleteInstance");
-
-    console.log(`Deleted ${instanceName} after notification`);
   } catch (error) {
     console.error(error);
     eventEmitter.emit("notification", {
@@ -50,7 +46,7 @@ export async function POST(request: NextRequest) {
   if (!region || !instanceId || !instanceName) {
     return NextResponse.json(
       { message: "Region parameter is missing" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -60,7 +56,7 @@ export async function POST(request: NextRequest) {
   if (!instance) {
     return NextResponse.json(
       { message: `Instance not found: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -68,7 +64,7 @@ export async function POST(request: NextRequest) {
   if (groupName === undefined) {
     return NextResponse.json(
       { message: `No security group found for instance: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -76,7 +72,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json(
     { message: `Initiated deletion for ${instanceName}` },
-    { status: 202 },
+    { status: 202 }
   );
 }
 

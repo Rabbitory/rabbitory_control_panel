@@ -112,7 +112,7 @@ export async function POST(
       type: "configuration",
       status: "success",
       instanceName: instanceName,
-      path: "configuration",
+
       message: "Configuration updated successfully",
     });
     deleteEvent(instanceName, "configuration");
@@ -124,6 +124,14 @@ export async function POST(
 
     return NextResponse.json(config);
   } catch (error) {
+    eventEmitter.emit("notification", {
+      type: "configuration",
+      status: "error",
+      instanceName: instanceName,
+
+      message: "Failed to update configuration",
+    });
+    deleteEvent(instanceName, "configuration");
     console.error("Error updating configuration:", error);
     return NextResponse.json(
       { message: "Error updating configuration", error: String(error) },

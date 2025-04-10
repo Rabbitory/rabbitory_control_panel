@@ -17,9 +17,15 @@ export async function GET(request: Request) {
 
       eventEmitter.on("notification", onEvent);
 
-      // Remove listener when the connection is closed to avoid memory leaks
+      const heartbeatInterval = setInterval(() => {
+        const pingMessage = `: ping\n\n`;
+        controller.enqueue(encoder.encode(pingMessage));
+      }, 30000); // every 30 seconds
+
+      // When the connection is closed, clean up.
       request.signal.addEventListener("abort", () => {
-        eventEmitter.off("notification", onEvent);
+        clearInterval(heartbeatInterval); // clear the heartbeat interval
+        eventEmitter.off("notification", onEvent); // remove the event listener
         controller.close();
       });
     },

@@ -6,7 +6,7 @@ import axios from "axios";
 
 export default function AlarmsPage() {
   const { instance } = useInstanceContext();
-  // const [isFetching, setIsFetching] = useState(false);
+
   const [saving, setSaving] = useState(false);
   const [alarmType, setAlarmType] = useState("");
   const [memoryThreshold, setMemoryThreshold] = useState(600);

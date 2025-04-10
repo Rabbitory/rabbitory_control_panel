@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Notification } from "@/types/notification";
 import { usePathname } from "next/navigation";
 import axios from "axios";
@@ -32,16 +32,16 @@ export const useNotifications = () => {
     }
   };
 
-  const updateNotification = (newNotification: Notification) => {
+  const updateNotification = useCallback((newNotification: Notification) => {
     setNotifications((prevNotifications) =>
       prevNotifications.map((notification) =>
         notification.type === newNotification.type &&
         notification.instanceName === newNotification.instanceName
-          ? { notification, ...newNotification }
-          : notification,
-      ),
+          ? { ...notification, ...newNotification }
+          : notification
+      )
     );
-  };
+  }, []);
 
   const deleteNotification = (type: string, instanceName: string) => {
     setNotifications((prevNotifications) =>
@@ -50,8 +50,8 @@ export const useNotifications = () => {
           !(
             notification.type === type &&
             notification.instanceName === instanceName
-          ),
-      ),
+          )
+      )
     );
   };
 
@@ -71,7 +71,7 @@ export const useNotifications = () => {
     );
   };
 
-  useEffect(() => {});
+  // useEffect(() => {});
 
   return {
     notifications,

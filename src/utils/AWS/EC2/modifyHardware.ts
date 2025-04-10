@@ -41,7 +41,7 @@ export async function modifyHardware(
     );
 
     eventEmitter.emit("notification", {
-      message: `Instance ${instanceId} successfully updated to ${instanceType}.`,
+      message: `Instance ${instanceName} successfully updated to ${instanceType}.`,
       type: "instanceType",
       status: "success",
       instanceName,
@@ -50,12 +50,20 @@ export async function modifyHardware(
     deleteEvent(instanceName, "instanceType");
 
     return {
-      success: `Instance ${instanceId} successfully updated to ${instanceType}.`,
+      success: `Instance ${instanceName} successfully updated to ${instanceType}.`,
     };
   } catch (error) {
     console.error(error);
+    eventEmitter.emit("notification", {
+      message: `Error in updating instance ${instanceName} to ${instanceType}.`,
+      type: "instanceType",
+      status: "error",
+      instanceName,
+    });
+
+    deleteEvent(instanceName, "instanceType");
     return {
-      error: `Failed to update instance ${instanceId} to ${instanceType}.`,
+      error: `Failed to update instance ${instanceName} to ${instanceType}.`,
     };
   }
 }

@@ -7,7 +7,7 @@ import {
 import getUbuntuAmiId from "../AMI/AMI";
 import getInstanceProfileByName from "../IAM/getprofileId";
 
-import { createInstanceSG } from '../Security-Groups/createInstanceSG';
+import { createInstanceSG } from "../Security-Groups/createInstanceSG";
 
 export default async function createInstance(
   region: string,
@@ -131,7 +131,7 @@ rabbitmqadmin declare queue name=logstream durable=true arguments='{"x-max-lengt
 rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" destination_type="queue" routing_key="#"
 `;
   const ec2Client = new EC2Client({ region });
-  const amiId = await getUbuntuAmiId(region);
+  const amiId = await getUbuntuAmiId(instanceType, region);
   const IPN = await getInstanceProfileByName(
     "rabbitory-broker-instance-profile",
     region,

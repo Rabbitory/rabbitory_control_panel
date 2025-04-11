@@ -1,7 +1,10 @@
 import "@/app/global.css";
-import Link from "next/link";
+// import Link from "next/link";
 import React from "react";
 import { Metrophobic, Montserrat } from 'next/font/google';
+import RabbitoryLogoLink from "./components/RabbitoryLogoLink";
+// import Image from 'next/image'
+
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -30,13 +33,9 @@ export default async function RootLayout({ children }: Readonly<RootLayoutProps>
     >
       <body className={`bg-mainbg1 text-gray-900 mb-15`}>
       <div className="sticky top-0 z-50 flex justify-between items-center bg-mainbg1 pt-6 pb-6 pl-10 pr-10 border-b-[0.5] border-border1">
-          <Link
-            href="/"
-            className="font-heading1 text-headertext1 text-3xl transition-colors duration-200 hover:text-headertext2 hover:cursor-pointer"
-          >
-            Rabbitory
-          </Link>
-        </div>
+        <RabbitoryLogoLink />
+      </div>
+
   
         <main className="">{children}</main>
       </body>

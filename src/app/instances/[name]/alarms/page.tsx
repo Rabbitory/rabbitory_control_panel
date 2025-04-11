@@ -2,10 +2,10 @@
 
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
+import { NewAlarmModal } from "@/app/components/NewAlarmModal";
 import { SlackModal } from "@/app/components/SlackModal";
 import Dropdown from "@/app/components/Dropdown";
 import axios from "axios";
-import { NewAlarmModal } from "@/app/components/NewAlarmModal";
 
 interface Alarm {
   id: string;
@@ -23,6 +23,24 @@ export default function AlarmsPage() {
   const [memoryAlarms, setMemoryAlarms] = useState<Alarm[]>([]);
   const [showSlackModal, setShowSlackModal] = useState(false);
   const [showNewAlarmModal, setShowNewAlarmModal] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState("");
+
+  useEffect(() => {
+    const fetchCurrentWebhookUrl = async () => {
+      try {
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+        );
+
+        setWebhookUrl(response.data.webhookUrl || "");
+      } catch (error) {
+        console.error("Error fetching webhook url:", error);
+      }
+    };
+
+    fetchCurrentWebhookUrl();
+  }, [instance?.name, instance?.region]);
+
 
   useEffect(() => {
     const fetchAlarms = async () => {
@@ -84,7 +102,9 @@ export default function AlarmsPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
-
+      <p className="font-text1 text-sm mb-6">
+        Alarms are triggered when the storage or memory usage of your RabbitMQ instance exceeds the specified thresholds. You can set up alarms to receive notifications via Slack when these thresholds are reached.
+      </p>
       {isFetching ? (
         <div>Loading...</div>
       ) : (
@@ -206,6 +226,7 @@ export default function AlarmsPage() {
               Setup Slack
             </button>
             <button
+              disabled={!webhookUrl}
               className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
               onClick={(e) => {
                 e.preventDefault();
@@ -217,7 +238,7 @@ export default function AlarmsPage() {
           </div>
         </>
       )}
-      {showSlackModal && <SlackModal onClose={handleCloseSlackModal} />}
+      {showSlackModal && <SlackModal url={webhookUrl} onSave={(url) => setWebhookUrl(url)} onClose={handleCloseSlackModal} />}
       {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
     </div>
   );

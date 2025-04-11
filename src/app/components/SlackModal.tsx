@@ -1,34 +1,17 @@
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 interface Props {
+  url: string;
+  onSave: (url: string) => void;
   onClose: () => void;
 }
 
-export const SlackModal = ({ onClose }: Props) => {
+export const SlackModal = ({ url, onSave, onClose }: Props) => {
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [fetching, setFetching] = useState(true);
-
-  useEffect(() => {
-    const fetchCurrentWebhookUrl = async () => {
-      try {
-        const response = await axios.get(
-          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
-        );
-
-        setWebhookUrl(response.data.webhookUrl || "");
-      } catch (error) {
-        console.error("Error fetching webhook url:", error);
-      } finally {
-        setFetching(false);
-      }
-    };
-
-    fetchCurrentWebhookUrl();
-  }, [instance?.name, instance?.region]);
+  const [webhookUrl, setWebhookUrl] = useState(url);
 
   const saveWebhookUrl = async () => {
     try {
@@ -38,6 +21,7 @@ export const SlackModal = ({ onClose }: Props) => {
           webhookUrl,
         },
       );
+      onSave(webhookUrl);
       return true;
     } catch (error) {
       console.error(error);
@@ -52,8 +36,6 @@ export const SlackModal = ({ onClose }: Props) => {
     );
     alert("Message sent");
   }
-
-  if (fetching) return <div>Loading...</div>;
 
   return (
     <div className="fixed inset-0 backdrop-blur-xs bg-white/5 flex justify-center items-center z-50">
@@ -95,7 +77,7 @@ export const SlackModal = ({ onClose }: Props) => {
           <p className="text-sm text-pagetext1">Note: You must save your endpoint before testing it.</p>
           <button
             className="px-4 py-2 bg-card border border-btn1 text-btn1 rounded-sm hover:shadow-[0_0_8px_#87d9da]"
-            disabled={saving}
+            disabled={saving || !webhookUrl}
             onClick={async (e) => {
               e.preventDefault();
               testWebhook();

@@ -1,10 +1,12 @@
-"use client";
-
-import { useInstanceContext } from "../../InstanceContext";
+import { useInstanceContext } from "../instances/[name]/InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function AlarmsPage() {
+interface Props {
+  onClose: () => void;
+}
+
+export const SlackModal = ({ onClose }: Props) => {
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -54,47 +56,55 @@ export default function AlarmsPage() {
   if (fetching) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
-      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Slack Information</h1>
-
-      <p className="font-text1 text-pagetext1 text-md mb-6">
-        <a className="underline hover:text-headertext1"
-          href="/slack-alarms-tutorial.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="fixed inset-0 backdrop-blur-xs bg-white/5 flex justify-center items-center z-50">
+      <div className="bg-card text-pagetext1 p-6 rounded-md shadow-lg w-full max-w-md relative">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-pagetext1 hover:text-btnhover1 transition-colors"
+          aria-label="Close modal"
         >
-          How to set up Slack
-        </a>
-      </p>
+          X
+        </button>
+        <h2 className="font-heading1 text-xl text-headertext1 mb-4">
+          Set Up Slack Endpoint
+        </h2>
 
-      <fieldset disabled={saving} className="space-y-4">
-        <div className="flex items-center">
-          <label className="font-heading1 text-md text-headertext1 w-1/5"
-            htmlFor="webhookUrl" >
-            Webhook URL
-          </label>
-          <input className="font-text1 w-4/5 p-2 border rounded-md text-sm"
-            id="webhookUrl"
-            name="webhookUrl"
-            type="text"
-            value={webhookUrl}
-            onChange={(e) => setWebhookUrl(e.target.value)}
+        <p className="font-text1 text-pagetext1 text-md mb-6">
+          <a className="underline hover:text-headertext1"
+            href="/slack-alarms-tutorial.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            How to set up Slack
+          </a>
+        </p>
 
-          />
-        </div>
-        <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
+        <p className="font-text1 text-sm mb-2">
+          Webhook URL:
+        </p>
+        <input
+          disabled={saving}
+          className="w-full p-2 border rounded-sm font-text1 text-btnhover1 border-pagetext1 focus:outline-none"
+          id="webhookUrl"
+          name="webhookUrl"
+          type="text"
+          value={webhookUrl}
+          onChange={(e) => setWebhookUrl(e.target.value)}
+        />
+        <div className="flex justify-end mt-6 gap-4">
+          <p className="text-sm text-pagetext1">Note: You must save your endpoint before testing it.</p>
           <button
-            className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
+            className="px-4 py-2 bg-card border border-btn1 text-btn1 rounded-sm hover:shadow-[0_0_8px_#87d9da]"
             disabled={saving}
             onClick={async (e) => {
               e.preventDefault();
               testWebhook();
             }}
           >
-            Test Webhook
+            Test
           </button>
           <button
-            className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+            className="px-4 py-2 bg-btn1 text-mainbg1 font-semibold rounded-sm hover:bg-btnhover1 hover:shadow-[0_0_10px_#87d9da]"
             disabled={saving}
             onClick={async (e) => {
               e.preventDefault();
@@ -107,7 +117,7 @@ export default function AlarmsPage() {
             {saving ? "Saving..." : "Save"}
           </button>
         </div>
-      </fieldset>
+      </div>
     </div>
-  );
+  )
 }

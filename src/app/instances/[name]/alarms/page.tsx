@@ -2,9 +2,10 @@
 
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
+import { SlackModal } from "@/app/components/SlackModal";
 import Dropdown from "@/app/components/Dropdown";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { NewAlarmModal } from "@/app/components/NewAlarmModal";
 
 interface Alarm {
   id: string;
@@ -17,10 +18,11 @@ interface Alarm {
 
 export default function AlarmsPage() {
   const { instance } = useInstanceContext();
-  const router = useRouter();
   const [isFetching, setIsFetching] = useState(false);
   const [storageAlarms, setStorageAlarms] = useState<Alarm[]>([]);
   const [memoryAlarms, setMemoryAlarms] = useState<Alarm[]>([]);
+  const [showSlackModal, setShowSlackModal] = useState(false);
+  const [showNewAlarmModal, setShowNewAlarmModal] = useState(false);
 
   useEffect(() => {
     const fetchAlarms = async () => {
@@ -40,6 +42,14 @@ export default function AlarmsPage() {
 
     fetchAlarms();
   }, [instance?.name, instance?.region]);
+
+  const handleCloseSlackModal = () => {
+    setShowSlackModal(false);
+  }
+
+  const handleCloseNewAlarmModal = () => {
+    setShowNewAlarmModal(false);
+  }
 
   const handleDelete = async (type: "storage" | "memory", id: string) => {
     try {
@@ -74,7 +84,7 @@ export default function AlarmsPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
- 
+
       {isFetching ? (
         <div>Loading...</div>
       ) : (
@@ -94,8 +104,9 @@ export default function AlarmsPage() {
                     <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Memory Threshold</th>
-                    <th className="p-2 text-left border-b">Actions</th>
+                    <th className="p-2 text-left border-b">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="font-text1 text-sm text-pagetext1">
@@ -113,9 +124,6 @@ export default function AlarmsPage() {
                         </td>
                         <td className="p-2 border-b">
                           {alarm.data.reminderInterval}
-                        </td>
-                        <td className="p-2 border-b">
-                          {alarm.data.memoryThreshold}
                         </td>
                         <td className="p-2 border-b">
                           <Dropdown
@@ -144,13 +152,14 @@ export default function AlarmsPage() {
                 <thead>
                   <tr>
                     <th className="p-2 text-left border-b">
-                      Storage Threshold
-                    </th>
-                    <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Memory Threshold</th>
-                    <th className="p-2 text-left border-b">Actions</th>
+                    <th className="p-2 text-left border-b">
+                      Memory Threshold
+                    </th>
+                    <th className="p-2 text-left border-b">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="font-text1 text-sm text-pagetext1">
@@ -163,9 +172,6 @@ export default function AlarmsPage() {
                   ) : (
                     memoryAlarms.map((alarm) => (
                       <tr key={alarm.id}>
-                        <td className="p-2 border-b">
-                          {alarm.data.storageThreshold}
-                        </td>
                         <td className="p-2 border-b">
                           {alarm.data.reminderInterval}
                         </td>
@@ -188,15 +194,13 @@ export default function AlarmsPage() {
               </table>
             </div>
           </div>
-          
+
           <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
             <button
               className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
               onClick={(e) => {
                 e.preventDefault();
-                router.push(
-                  `/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
-                );
+                setShowSlackModal(true);
               }}
             >
               Setup Slack
@@ -205,9 +209,7 @@ export default function AlarmsPage() {
               className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
               onClick={(e) => {
                 e.preventDefault();
-                router.push(
-                  `/instances/${instance?.name}/alarms/new?region=${instance?.region}`,
-                );
+                setShowNewAlarmModal(true);
               }}
             >
               Create Alarm
@@ -215,6 +217,8 @@ export default function AlarmsPage() {
           </div>
         </>
       )}
+      {showSlackModal && <SlackModal onClose={handleCloseSlackModal} />}
+      {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
     </div>
   );
 }

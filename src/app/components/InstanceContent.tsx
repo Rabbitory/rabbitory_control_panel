@@ -41,32 +41,17 @@ export function InstanceContent({
     return <div>Loading...</div>;
   }
 
-  // return (
-  //   <div className="h-screen flex overflow-hidden">
-  //     {/* Sticky sidebar (Nav) */}
-  //     <div className="w-[200px] sticky top-0 h-full bg-mainbg1 border-r-[0.5px] border-border1 z-10">
-  //       <NavLayout name={name} />
-  //     </div>
-
-  //     {/* Main content (scrollable) */}
-  //     <div className="flex-1 overflow-y-auto">
-  //       <section className="p-4 h-full">
-  //         {children}
-  //       </section>
-  //     </div>
-  //   </div>
-  // );
 
   return (
-    <div className="flex overflow-hidden">
+    <div className="flex">
       {/* Sidebar Nav */}
-      <div className="w-[200px] sticky top-[88px] self-start bg-mainbg1 border-r-[0.5px] border-border1 z-10">
+      <div className="w-[200px] h-[calc(100vh-88px)] sticky top-[88px] bg-mainbg1 border-r-[0.5px] border-border1">
         <NavLayout name={name} />
       </div>
   
       {/* Scrollable Main Content */}
       <div className="flex-1 h-[calc(100vh-88px)] overflow-y-auto">
-        <section className="p-4">
+        <section className="p-4 mb-15">
           {children}
         </section>
       </div>

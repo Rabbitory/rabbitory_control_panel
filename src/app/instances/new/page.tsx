@@ -8,14 +8,17 @@ import axios from "axios";
 import Link from "next/link";
 import { Lightbulb } from "lucide-react";
 import { StorageDetails } from "@/app/components/StorageDetails";
+import ErrorBanner from "@/app/components/ErrorBanner";
+
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function NewFormPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [instanceName, setInstanceName] = useState("");
-  const [availableRegions, setAvailableRegions] = useState([]);
+  const [availableRegions, setAvailableRegions] = useState<string[]>([]);
   const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
   const [instantiating, setInstantiating] = useState(false);
   const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
@@ -53,44 +56,135 @@ export default function NewFormPage() {
     setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
   }, [selectedInstanceType, instanceTypes]);
 
-  const handleSubmit = async (formData: FormData) => {
-    if (!isValidName(instanceName)) {
-      alert(
-        "Instance name must be 3-64 characters long with valid characters.",
-      );
-      setInstantiating(false);
-      return;
-    }
+  const getFormData = (formData: FormData) => {
+    return {
+      name: formData.get("instanceName")?.toString().trim() ?? "",
+      region: formData.get("region")?.toString() ?? "",
+      type: formData.get("instanceType")?.toString() ?? "",
+      size: formData.get("instanceSize")?.toString() ?? "",
+      username: formData.get("username")?.toString().trim() ?? "",
+      password: formData.get("password")?.toString() ?? "",
+      storageSize: Number(formData.get("storageSize")),
+    };
+  };
 
-    if (!isValidStorageSize(Number(formData.get("storageSize")))) {
-      alert("Storage size must be between 1 & 16000.");
+  const validateName = (name: string) => {
+    const errors: string[] = [];
+    if (!/^[a-z0-9-_]{3,64}$/i.test(name)) {
+      errors.push("Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.");
+    }
+    return errors;
+  };
+
+  const validateRegion = (region: string) => {
+    const errors: string[] = [];
+    if (!region) {
+      errors.push("Please select a region.");
+    } else if (!availableRegions.includes(region)) {
+      errors.push("Selected region is not valid.");
+    }
+    return errors;
+  };
+
+  const validateInstanceType = (type: string) => {
+    const errors: string[] = [];
+    if (!type) {
+      errors.push("Please select an instance type.");
+    } else if (!(type in instanceTypes)) {
+      errors.push("Selected instance type is not valid.");
+    }
+    return errors;
+  };
+
+const validateSize = (size: string) => {
+  const errors: string[] = [];
+  if (!size) {
+    errors.push("Please select an instance size.");
+  } else if (!filteredInstanceTypes.includes(size)) {
+    errors.push("Selected instance size is not valid.");
+  }
+  return errors;
+};
+
+const validateUsername = (username: string) => {
+  const errors: string[] = [];
+  if (!username) {
+    errors.push("Username is required.");
+  } else if (username.length < 6) {
+    errors.push("Username must be at least 6 characters long.");
+  }
+  return errors;
+};
+
+const validatePassword = (password: string) => {
+  const errors: string[] = [];
+  if (!password) {
+    errors.push("Password is required.");
+  } else if (
+    password.length < 8 ||
+    !/[a-zA-Z]/.test(password) ||
+    !/[0-9]/.test(password) ||
+    !/[!@#$%^&*]/.test(password)
+  ) {
+    errors.push("Password must be at least 8 characters long and include a letter, a number, and a special character.");
+  }
+  return errors;
+};
+
+  const validateStorageSize = (storageSize: number) => {
+    const errors: string[] = [];
+    if (isNaN(storageSize) || storageSize < 8 || storageSize > 16000) {
+      errors.push("Storage size must be between 8 and 16000 GB.");
+    }
+    return errors;
+  };
+
+  const handleSubmit = async (formData: FormData) => {
+    const errors: string[] = [];
+    const data = getFormData(formData);
+
+    errors.push(...validateName(data.name));
+    errors.push(...validateRegion(data.region));
+    errors.push(...validateInstanceType(data.type));
+    errors.push(...validateSize(data.size));
+    errors.push(...validateUsername(data.username));
+    errors.push(...validatePassword(data.password));
+    errors.push(...validateStorageSize(data.storageSize));
+
+    if (errors.length > 0) {
+      setErrorMessages(errors);
       setInstantiating(false);
       return;
     }
 
     try {
       await axios.post("/api/instances", {
-        instanceName: formData.get("instanceName"),
-        region: formData.get("region"),
-        instanceType: formData.get("instanceSize"),
-        username: formData.get("username"),
-        password: formData.get("password"),
-        storageSize: formData.get("storageSize"),
+        instanceName: data.name,
+        region: data.region,
+        instanceType: data.size,
+        username: data.username,
+        password: data.password,
+        storageSize: data.storageSize,
       });
       router.push("/");
     } catch (error) {
+      setErrorMessages([
+        "Something went wrong while creating the instance. Please try again.",
+      ]);
       setInstantiating(false);
       console.error("Error creating instance:", error);
     }
+  };
+
+
+  const dismissError = (indexToRemove: number) => {
+    setErrorMessages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const handleGenerate = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setInstanceName(generateName());
   };
-
-  const isValidName = (name: string) => /^[a-z0-9-_]{3,64}$/i.test(name);
-  const isValidStorageSize = (size: number) => size >= 1 && size <= 16000;
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 shadow-md mt-6">
@@ -101,6 +195,18 @@ export default function NewFormPage() {
         Provide the following details to launch a new RabbitMQ instance in the
         cloud.
       </p>
+
+      {errorMessages.length > 0 && (
+        <div className="space-y-2 mb-4">
+          {errorMessages.map((msg, idx) => (
+            <ErrorBanner
+              key={idx}
+              message={msg}
+              onClose={() => dismissError(idx)}
+            />
+          ))}
+        </div>
+      )}
       {isLoading ? (
         <div className="space-y-6 animate-pulse">
           {[...Array(6)].map((_, i) => (
@@ -124,6 +230,8 @@ export default function NewFormPage() {
           className="space-y-4 m-5"
         >
           <fieldset disabled={instantiating} className="space-y-4">
+
+            {/* Instance Name */}
             <div className="flex items-center gap-4">
               <label
                 htmlFor="instanceName"
@@ -150,6 +258,7 @@ export default function NewFormPage() {
               </div>
             </div>
 
+            {/* Region */}
             <div className="flex items-center gap-4">
               <label
                 htmlFor="region"
@@ -238,6 +347,7 @@ export default function NewFormPage() {
               </div>
             </details>
 
+            {/* Instance Type */}
             <div className="flex items-center gap-4">
               <label
                 htmlFor="instanceType"
@@ -261,6 +371,7 @@ export default function NewFormPage() {
               </select>
             </div>
 
+            {/* Instance Size */}
             <div className="flex items-center gap-4">
               <label
                 htmlFor="instanceSize"
@@ -285,6 +396,7 @@ export default function NewFormPage() {
 
             <StorageDetails />
 
+            {/* Storage Size */}
             <div className="flex items-center gap-4">
               <label
                 htmlFor="storageSize"
@@ -298,8 +410,6 @@ export default function NewFormPage() {
                 type="number"
                 defaultValue={8}
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
-                min={8}
-                max={16000}
               />
             </div>
 
@@ -309,6 +419,7 @@ export default function NewFormPage() {
               RabbitMQ Manger portal.
             </p>
 
+            {/* Username */}
             <div className="flex items-center gap-4">
               <label
                 htmlFor="username"
@@ -323,7 +434,8 @@ export default function NewFormPage() {
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               />
             </div>
-
+            
+            {/* Password */}
             <div className="flex items-center gap-4">
               <label
                 htmlFor="password"
@@ -341,6 +453,7 @@ export default function NewFormPage() {
 
             <div className="border-t border-headertext1 my-6"></div>
 
+            {/* Buttons */}
             <div className="font-heading1 text-sm  flex justify-end gap-4 mt-6">
               <Link
                 href="/"

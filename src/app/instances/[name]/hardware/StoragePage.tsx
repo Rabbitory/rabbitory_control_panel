@@ -11,7 +11,7 @@ import Link from "next/link";
 import React from "react";
 import { StorageDetails } from "@/app/components/StorageDetails";
 
-export default function StoragePage() {
+export function StoragePage() {
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
   const [newVolumeSize, setNewVolumeSize] = useState(0);
   const { instance } = useInstanceContext();

@@ -7,6 +7,7 @@ import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 import Link from "next/link";
 import { Lightbulb } from "lucide-react";
+import { StorageDetails } from "@/app/components/StorageDetails";
 import { useNotificationsContext } from "@/app/NotificationContext";
 
 type InstanceTypes = Record<string, string[]>;
@@ -82,7 +83,7 @@ export default function NewFormPage() {
     }
 
     if (!isValidStorageSize(Number(formData.get("storageSize")))) {
-      alert("Storage size must be between 1 & 10000.");
+      alert("Storage size must be between 1 & 16000.");
       setInstantiating(false);
       return;
     }
@@ -315,10 +316,7 @@ export default function NewFormPage() {
               </select>
             </div>
 
-            <p className="py-4 bg-card font-text1 text-sm text-p flex items-center gap-2">
-              <Lightbulb className="w-6 h-6 text-btnhover1" />
-              Storage details here....
-            </p>
+            <StorageDetails />
 
             <div className="flex items-center gap-4">
               <label
@@ -333,6 +331,8 @@ export default function NewFormPage() {
                 type="number"
                 defaultValue={8}
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
+                min={8}
+                max={16000}
               />
             </div>
 

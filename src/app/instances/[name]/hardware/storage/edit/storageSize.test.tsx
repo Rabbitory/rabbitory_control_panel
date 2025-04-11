@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { Suspense } from "react";
-import StorageEditPage from "./page";
+import StoragePage from "../../StoragePage";
 import { NotificationsContext } from "@/app/NotificationContext";
 
 import axios from "axios";
@@ -49,7 +49,7 @@ it("Fetches storage size", async () => {
   render(
     <NotificationsContext.Provider value={mockedNotificationsContextValue}>
       <Suspense fallback={<div>Suspense Fallback</div>}>
-        <StorageEditPage />
+        <StoragePage />
       </Suspense>
     </NotificationsContext.Provider>
   );

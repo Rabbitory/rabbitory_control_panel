@@ -13,7 +13,7 @@ import ErrorBanner from "@/app/components/ErrorBanner";
 
 type InstanceTypes = Record<string, string[]>;
 
-export default function NewFormPage() {
+export default function NewInstancePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
@@ -175,7 +175,6 @@ const validatePassword = (password: string) => {
       console.error("Error creating instance:", error);
     }
   };
-
 
   const dismissError = (indexToRemove: number) => {
     setErrorMessages((prev) => prev.filter((_, index) => index !== indexToRemove));

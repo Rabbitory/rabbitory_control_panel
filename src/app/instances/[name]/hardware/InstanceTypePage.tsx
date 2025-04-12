@@ -65,20 +65,34 @@ export function InstanceTypePage() {
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Instance Type
       </h1>
-      <p className="font-text1 text-md mb-6">
-        Current instance type and size: {instance?.type}
-      </p>
+      <div className="flex items-center gap-2 mb-6">
+        <p className="font-text1 text-md">
+          Current instance type and size:
+        </p>
+        <p className="font-text1 text-btnhover1 text-sm">
+          {instance?.type}
+        </p>
+      </div>
+  
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         This is the hardware of your instance. You can change the hardware to
         better suit the need of the broker, or expand the size to have more
-        cores and memory.
+        cores and memory {" "}.
+        <a
+          href="https://aws.amazon.com/ec2/instance-types/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline text-pagetext1 hover:text-headertext1"
+        >
+          AWS EC2 Instance Types
+        </a>.
       </p>
 
       <fieldset disabled={saving} className="space-y-4">
         <div className="flex items-center gap-4">
           <label
             htmlFor="instanceType"
-            className="font-text1 text-headertext1 text-md w-1/4"
+            className="font-text1 text-headertext1 text-md w-1/3"
           >
             Change Instance Type:
           </label>
@@ -101,7 +115,7 @@ export function InstanceTypePage() {
         <div className="flex items-center gap-4">
           <label
             htmlFor="instanceSize"
-            className="font-text1 text-headertext1 text-md w-1/4"
+            className="font-text1 text-headertext1 text-md w-1/3"
           >
             Change Instance Size:
           </label>

@@ -77,9 +77,14 @@ export function StoragePage() {
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Instance Storage
       </h1>
-      <p className="font-text1 text-md mb-6">
-        Current instance storage size:{` ${currentVolumeSize} GB`}
-      </p>
+      <div className="flex items-center gap-2 mb-6">
+        <p className="font-text1 text-md">
+        Current instance storage size:
+        </p>
+        <p className="font-text1 text-btnhover1 text-sm">
+        {` ${currentVolumeSize} GB`}
+        </p>
+      </div>
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         The amount of storage the broker has access to. 8gb minimum. System
         files take about 4gb.

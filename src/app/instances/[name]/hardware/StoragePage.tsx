@@ -7,13 +7,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import React from "react";
 import { StorageDetails } from "@/app/components/StorageDetails";
+import ErrorBanner from "@/app/components/ErrorBanner";
 
 export function StoragePage() {
+  const router = useRouter();
+  const { instance } = useInstanceContext();
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
   const [newVolumeSize, setNewVolumeSize] = useState(0);
   const [saving, setSaving] = useState(false);
-  const { instance } = useInstanceContext();
-  const router = useRouter();
+  const [errors, setErrors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchVolumeSize() {
@@ -31,6 +34,8 @@ export function StoragePage() {
           setCurrentVolumeSize(response.data.size);
           setNewVolumeSize(response.data.size);
         }
+
+        setIsLoading(false);
       } catch (error) {
         console.error("Failed to fetch volume size:", error);
       }
@@ -39,15 +44,24 @@ export function StoragePage() {
     fetchVolumeSize();
   }, [instance?.EBSVolumeId, instance?.region, instance?.id, instance?.name]);
 
-  const isValidStorageSize = (size: number) => {
-    return size > currentVolumeSize && size <= 16000;
-  }
+  const validateStorageSize = (): boolean => {
+    const errorMessages: string[] = [];
+
+    if (!newVolumeSize || newVolumeSize <= currentVolumeSize) {
+      errorMessages.push(
+        `Storage size must be greater than current size (${currentVolumeSize} GB).`
+      );
+    }
+    if (newVolumeSize > 16000) {
+      errorMessages.push("Storage size cannot exceed 16000 GB.");
+    }
+
+    setErrors(errorMessages);
+    return errorMessages.length === 0;
+  };
 
   const updateStorageSize = async () => {
-    if (!isValidStorageSize(newVolumeSize)) {
-      alert(
-        "Invalid storage size. Must be greater than current size & less than or equal to 16000 GB",
-      );
+    if (!validateStorageSize()) {
       return false;
     }
 
@@ -71,46 +85,73 @@ export function StoragePage() {
     }
   };
 
-  if (!currentVolumeSize) return <div>Loading...</div>;
-
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-lg shadow-md mt-8 text-pagetext1">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Instance Storage
       </h1>
-      <div className="flex items-center gap-2 mb-6">
-        <p className="font-text1 text-md">
-        Current instance storage size:
-        </p>
-        <p className="font-text1 text-btnhover1 text-sm">
-        {` ${currentVolumeSize} GB`}
-        </p>
-      </div>
+
+      {isLoading ? (
+        <div className="animate-pulse">
+          <div className="space-y-4 mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-1/3 h-6 bg-gray-600 rounded-sm"></div>
+            </div>
+          </div>
+        </div>
+        ) :
+        <div className="flex items-center gap-2 mb-6">
+          <p className="font-text1 text-md">
+          Current instance storage size:
+          </p>
+          <p className="font-text1 text-btnhover1 text-sm">
+          {` ${currentVolumeSize} GB`}
+          </p>
+        </div>
+      }
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         The amount of storage the broker has access to. 8gb minimum. System
         files take about 4gb.
       </p>
       <StorageDetails />
 
+      {errors.length > 0 && (
+              <div className="mb-4">
+                {errors.map((error, index) => (
+                  <ErrorBanner key={index} message={error} onClose={() => setErrors([])} />
+                ))}
+              </div>
+            )}
+
+
       <fieldset disabled={saving} className="space-y-4">
-        <div className="flex items-center gap-4">
-          <label
-            htmlFor="storageSize"
-            className="font-text1 text-md text-headertext1 w-1/4"
-          >
-            Storage Size (GB):
-          </label>
-          <input
-            id="storageSize"
-            name="storageSize"
-            type="number"
-            value={newVolumeSize}
-            onChange={(e) => setNewVolumeSize(Number(e.target.value))}
-            className="font-text1 w-1/10 p-1 border rounded-md text-sm"
-            min={currentVolumeSize + 1}
-            max={16000}
-          />
-        </div>
+        {isLoading ? (
+          <div className="animate-pulse">
+            <div className="space-y-4 mb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-1/3 h-6 bg-gray-600 rounded-sm"></div>
+              </div>
+            </div>
+          </div>
+          ) :
+          <div className="flex items-center gap-4">
+            <label
+              htmlFor="storageSize"
+              className="font-text1 text-md text-headertext1 w-1/4"
+            >
+              Storage Size (GB):
+            </label>
+            <input
+              id="storageSize"
+              name="storageSize"
+              type="number"
+              value={newVolumeSize}
+              onChange={(e) => setNewVolumeSize(Number(e.target.value))}
+              className="font-text1 w-1/10 p-1 border rounded-md text-sm"
+            />
+          </div>
+        }
+
         <div className="font-heading1 text-sm flex justify-end gap-4">
           <Link
             href={`/instances/${instance?.name}/hardware?region=${instance?.region}`}
@@ -122,7 +163,7 @@ export function StoragePage() {
             className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
                   ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
                 `}
-            disabled={saving || !isValidStorageSize(newVolumeSize)}
+            disabled={saving}
             onClick={async (e) => {
               e.preventDefault();
               const success = await updateStorageSize();

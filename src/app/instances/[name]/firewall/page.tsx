@@ -10,6 +10,7 @@ import { isValidDescription, isValidSourceIp, isInRangeCustomPort } from "@/util
 import { COMMON_PORTS } from "@/utils/firewallConstants";
 import { Info } from "lucide-react";
 import { Trash2 } from "lucide-react";
+import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
 
 export default function FirewallPage() {
@@ -264,8 +265,6 @@ export default function FirewallPage() {
           ))}
         </div>
       )}
-
-
   
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="space-y-4">
@@ -392,9 +391,9 @@ export default function FirewallPage() {
               className="font-heading1 bg-btn1 text-mainbg1 font-semibold px-4 py-2 rounded-sm hover:bg-btnhover1 cursor-pointer flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
             >
               {isSaving ? (
-                <span className="flex items-center justify-center">
-                  <div className="animate-spin border-2 border-t-2 border-white w-4 h-4 rounded-full mr-2"></div>
-                  Saving...
+                <span className="flex items-center gap-2">
+                  <SubmissionSpinner />
+                  Saving ...
                 </span>
               ) : (
                 'Save'

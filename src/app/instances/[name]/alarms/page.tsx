@@ -18,7 +18,7 @@ interface Alarm {
 
 export default function AlarmsPage() {
   const { instance } = useInstanceContext();
-  const [isFetching, setIsFetching] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [storageAlarms, setStorageAlarms] = useState<Alarm[]>([]);
   const [memoryAlarms, setMemoryAlarms] = useState<Alarm[]>([]);
   const [showSlackModal, setShowSlackModal] = useState(false);
@@ -44,7 +44,7 @@ export default function AlarmsPage() {
 
   useEffect(() => {
     const fetchAlarms = async () => {
-      setIsFetching(true);
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
@@ -54,7 +54,7 @@ export default function AlarmsPage() {
       } catch (error) {
         console.error("Error fetching alarms:", error);
       } finally {
-        setIsFetching(false);
+        setIsLoading(false);
       }
     };
 
@@ -101,6 +101,7 @@ export default function AlarmsPage() {
 
   return (
     <>
+      {/* Slack Endpoint Card */}
       <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
         <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Slack Endpoint</h1>
         <p className="font-text1 text-sm mb-6">To create an alarm, setup slack first.</p>
@@ -116,17 +117,26 @@ export default function AlarmsPage() {
             </button>
           </div>
       </div>
+
+      {/* Alarms Card */}
       <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
         <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
-
-
         <p className="font-text1 text-sm mb-6">
           Alarms are triggered when the storage or memory usage of your RabbitMQ instance exceeds the specified thresholds.
           You can set up alarms to receive notifications via Slack using the button below.
         </p>
-        {isFetching ? (
-          <div>Loading...</div>
-        ) : (
+        {isLoading ? (
+        <div className="animate-pulse">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
+            </div>
+          </div>
+        </div>
+      ) : (
           <>
             {/* Storage Alarms Section */}
             <div className="mb-15">

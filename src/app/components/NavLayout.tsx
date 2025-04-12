@@ -30,7 +30,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
           General
         </Link>
       </h1>
-      <ul className="mt-8 text-sm space-y-2">
+      <ul className="mt-5 text-sm space-y-2">
 
         {/* RabbitMQ Section */}
         <li className="font-heading1 px-10 text-headertext1 tracking-wide">RabbitMQ</li>

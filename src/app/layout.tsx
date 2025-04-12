@@ -1,9 +1,7 @@
 import "@/app/global.css";
-// import Link from "next/link";
 import React from "react";
 import { Metrophobic, Montserrat } from 'next/font/google';
 import RabbitoryLogoLink from "./components/RabbitoryLogoLink";
-// import Image from 'next/image'
 
 
 interface RootLayoutProps {

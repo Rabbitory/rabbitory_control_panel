@@ -11,6 +11,7 @@ export default function RabbitoryLogoLink() {
       className="flex items-center gap-3 hover:cursor-pointer"
     >
       <Image 
+        className="w-auto h-auto"
         src={rabbitoryLogo}
         alt="Image of Rabbitory Logo"
         width={50}

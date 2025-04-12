@@ -18,6 +18,7 @@ export default function ConfigurationPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const configSectionRef = React.useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchConfiguration = async () => {
@@ -43,38 +44,16 @@ export default function ConfigurationPage() {
     setConfiguration((prev) => ({ ...prev, [name]: value }));
   };
 
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   const { valid, errors } = validateConfiguration(configuration);
-  //   if (!valid) {
-  //     console.error("Invalid configuration:", errors);
-  //     return;
-  //   }
-  //   setIsSaving(true);
-  //   try {
-  //     const response = await axios.post(
-  //       `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
-  //       {
-  //         configuration,
-  //       },
-  //     );
-  //     setConfiguration(response.data);
-  //   } catch (error) {
-  //     console.error("Error saving configuration:", error);
-  //   } finally {
-  //     setIsSaving(false);
-  //   }
-  // };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validateConfiguration(configuration);
     setErrors(validationErrors);
-
+  
     if (validationErrors.length > 0) {
+      configSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
-
+  
     setIsSaving(true);
     try {
       const response = await axios.post(
@@ -88,13 +67,17 @@ export default function ConfigurationPage() {
       setIsSaving(false);
     }
   };
+  
 
   const resetError = (msg: string) => {
     setErrors((prev) => prev.filter((e) => e !== msg));
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
+    <div 
+      className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8"
+      ref={configSectionRef}
+    >
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Configuration</h1>
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         Below are the RabbitMQ server configurations. For detailed explanations of each setting, refer to the{" "}

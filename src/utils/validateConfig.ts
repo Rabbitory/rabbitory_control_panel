@@ -10,7 +10,7 @@ export function validateLogExchange(value: string | undefined): string | null {
 export function validateHeartbeat(value: string | undefined): string | null {
   const num = Number(value);
   if (value !== undefined && (isNaN(num) || !Number.isInteger(num) || num <= 0)) {
-    return "Heartbeat must be a positive integer (in seconds).";
+    return "Heartbeat must be a positive integer greater than 0 (in seconds).";
   }
   return null;
 }

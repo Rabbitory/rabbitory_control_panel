@@ -14,7 +14,7 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-jest.mock("../../../InstanceContext", () => ({
+jest.mock("../InstanceContext", () => ({
   useInstanceContext: () => ({
     instance: {
       id: "i-1234567890",

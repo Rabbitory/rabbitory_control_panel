@@ -187,7 +187,7 @@ const validatePassword = (password: string) => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 shadow-md mt-6 mb-6">
+    <div className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 shadow-md mt-6">
       <h1 className="text-2xl font-heading1 text-headertext1 mb-10">
         Create Instance
       </h1>

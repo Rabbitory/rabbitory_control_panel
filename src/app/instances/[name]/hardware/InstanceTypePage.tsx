@@ -61,32 +61,33 @@ export function InstanceTypePage() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <>
+    <div className="max-w-4xl mx-auto p-6 bg-card rounded-lg shadow-md mt-8 text-pagetext1">
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
-        Edit instance type
+        Instance Type
       </h1>
+      <p className="font-text1 text-md mb-6">
+        Current instance type and size: {instance?.type}
+      </p>
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         This is the hardware of your instance. You can change the hardware to
         better suit the need of the broker, or expand the size to have more
         cores and memory.
       </p>
-      <p className="font-text1 text-md mb-6">
-        Current instance type: {instance?.type}
-      </p>
+
       <fieldset disabled={saving} className="space-y-4">
         <div className="flex items-center gap-4">
           <label
             htmlFor="instanceType"
             className="font-text1 text-headertext1 text-md w-1/4"
           >
-            New Instance Type:
+            Change Instance Type:
           </label>
           <select
             id="instanceType"
             name="instanceType"
             value={selectedInstanceType}
             onChange={(e) => setSelectedInstanceType(e.target.value)}
-            className="font-text1 w-1/4 p-2 border rounded-md text-sm"
+            className="font-text1 w-1/3 p-2 border rounded-md text-sm"
           >
             <option value="">Select an instance type</option>
             {Object.keys(instanceTypes).map((type) => (
@@ -102,13 +103,13 @@ export function InstanceTypePage() {
             htmlFor="instanceSize"
             className="font-text1 text-headertext1 text-md w-1/4"
           >
-            New Instance Size:
+            Change Instance Size:
           </label>
           <select
             id="instanceSize"
             name="instanceSize"
             disabled={!selectedInstanceType}
-            className="font-text1 w-1/4 p-2 border rounded-md text-sm"
+            className="font-text1 w-1/3 p-2 border rounded-md text-sm"
             value={instanceSize}
             onChange={(e) => setInstanceSize(e.target.value)}
           >
@@ -145,6 +146,6 @@ export function InstanceTypePage() {
           </button>
         </div>
       </fieldset>
-    </>
+    </div>
   );
 }

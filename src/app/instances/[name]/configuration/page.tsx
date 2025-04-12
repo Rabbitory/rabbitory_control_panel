@@ -7,6 +7,7 @@ import { configItems } from "@/types/configuration";
 import { validateConfiguration } from "@/utils/validateConfig";
 import ErrorBanner from "@/app/components/ErrorBanner";
 import Link from "next/link";
+import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
 interface Configuration {
   [key: string]: string;
@@ -56,6 +57,8 @@ export default function ConfigurationPage() {
   
     setIsSaving(true);
     try {
+      console.log("Submitting configuration:", configuration);
+
       const response = await axios.post(
         `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
         { configuration },
@@ -174,7 +177,12 @@ export default function ConfigurationPage() {
                 : "bg-btn1 hover:bg-btnhover1 flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
             }`}
           >
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? 
+              <span className="flex items-center gap-2">
+                  <SubmissionSpinner />
+                  Saving ...
+              </span>
+              : "Save"}
           </button>
         </div>
       </form>

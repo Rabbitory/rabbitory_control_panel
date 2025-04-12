@@ -4,6 +4,7 @@ import Link from "next/link";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import SubmissionSpinner from "../components/SubmissionSpinner";
 
 interface Instance {
   state: string;
@@ -205,7 +206,12 @@ export default function Home() {
                 onClick={handleDelete}
                 disabled={inputText !== selectedInstance.name || isDeleting}
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ?
+                  <span className="flex items-center gap-2">
+                    <SubmissionSpinner />
+                    Deleting ...
+                  </span>
+                : "Delete"}
               </button>
             </div>
           </div>

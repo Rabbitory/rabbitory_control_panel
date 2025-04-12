@@ -1,107 +1,117 @@
-export interface ValidationResult {
-  valid: boolean;
-  errors: { [key: string]: string };
+export type ValidationFunction = (value: string | undefined) => string | null;
+
+export function validateLogExchange(value: string | undefined): string | null {
+  if (value !== undefined && value !== "true") {
+    return "Log Exchange must always be set to true.";
+  }
+  return null;
 }
 
-export function validateConfiguration(
-  config: Record<string, string>,
-): ValidationResult {
-  const errors: Record<string, string> = {};
-  if (config["log.exchange"] !== undefined) {
-    if (config["log.exchange"].trim() !== "true") {
-      errors["log.exchange"] = "Log Exchange must always be 'true'.";
+export function validateHeartbeat(value: string | undefined): string | null {
+  const num = Number(value);
+  if (value !== undefined && (isNaN(num) || !Number.isInteger(num) || num <= 0)) {
+    return "Heartbeat must be a positive integer (in seconds).";
+  }
+  return null;
+}
+
+export function validateChannelMax(value: string | undefined): string | null {
+  const num = Number(value);
+  if (value !== undefined && (isNaN(num) || !Number.isInteger(num) || num < 0)) {
+    return "Channel Max must be an integer greater than or equal to 0.";
+  }
+  return null;
+}
+
+export function validateConnectionMax(value: string | undefined): string | null {
+  const num = Number(value);
+  if (value !== undefined && (isNaN(num) || !Number.isInteger(num) || num < 0)) {
+    return "Connection Max must be an integer greater than or equal to 0.";
+  }
+  return null;
+}
+
+export function validateConsumerTimeout(value: string | undefined): string | null {
+  const num = Number(value);
+  if (value !== undefined && (isNaN(num) || !Number.isInteger(num) || num < 0)) {
+    return "Consumer Timeout must be an integer greater than or equal to 0.";
+  }
+  return null;
+}
+
+export function validateFrameMax(value: string | undefined): string | null {
+  const num = Number(value);
+  if (
+    value !== undefined &&
+    (isNaN(num) || !Number.isInteger(num) || num < 4096 || num > 131072)
+  ) {
+    return "Frame Max must be an integer between 4096 and 131072.";
+  }
+  return null;
+}
+
+export function validatePrefetchCount(value: string | undefined): string | null {
+  const num = Number(value);
+  if (
+    value !== undefined &&
+    (isNaN(num) || !Number.isInteger(num) || num <= 0 || num > 1000)
+  ) {
+    return "Prefetch Count must be an integer between 1 and 1000.";
+  }
+  return null;
+}
+
+export function validateDiskFreeLimit(value: string | undefined): string | null {
+  const num = Number(value);
+  if (value !== undefined && (isNaN(num) || num < 50000)) {
+    return "Disk Free Limit must be a number greater than or equal to 50000.";
+  }
+  return null;
+}
+
+export function validateVMHighWatermark(value: string | undefined): string | null {
+  const num = Number(value);
+  if (value !== undefined && (isNaN(num) || num < 0.1 || num > 0.9)) {
+    return "VM Memory High Watermark must be a number between 0.1 and 0.9.";
+  }
+  return null;
+}
+
+export function validateQueueIndexEmbedMsgsBelow(value: string | undefined): string | null {
+  const num = Number(value);
+  if (
+    value !== undefined &&
+    (isNaN(num) || !Number.isInteger(num) || num < 0 || num > 10000)
+  ) {
+    return "Queue Index Embed Msgs Below must be an integer between 0 and 10000.";
+  }
+  return null;
+}
+
+export function validateConfiguration(config: Record<string, string>): string[] {
+  const validators: Record<string, ValidationFunction> = {
+    "log.exchange": validateLogExchange,
+    heartbeat: validateHeartbeat,
+    channel_max: validateChannelMax,
+    connection_max: validateConnectionMax,
+    consumer_timeout: validateConsumerTimeout,
+    frame_max: validateFrameMax,
+    prefetch_count: validatePrefetchCount,
+    disk_free_limit: validateDiskFreeLimit,
+    vm_memory_high_watermark: validateVMHighWatermark,
+    queue_index_embed_msgs_below: validateQueueIndexEmbedMsgsBelow,
+  };
+
+  const errors: string[] = [];
+
+  for (const key in validators) {
+    const validate = validators[key];
+    const value = config[key];
+    const error = validate(value);
+    if (error) {
+      errors.push(error);
     }
   }
 
-  if (config.heartbeat !== undefined) {
-    const heartbeat = Number(config.heartbeat);
-    if (isNaN(heartbeat) || !Number.isInteger(heartbeat) || heartbeat <= 0) {
-      errors.heartbeat = "Heartbeat must be a positive integer (in seconds).";
-    }
-  }
-
-  if (config.channel_max !== undefined) {
-    const channelMax = Number(config.channel_max);
-    if (isNaN(channelMax) || !Number.isInteger(channelMax) || channelMax < 0) {
-      errors.channel_max =
-        "Channel Max must be an integer greater than or equal to 0.";
-    }
-  }
-
-  if (config.consumer_timeout !== undefined) {
-    const consumerTimeout = Number(config.consumer_timeout);
-    if (
-      isNaN(consumerTimeout) ||
-      !Number.isInteger(consumerTimeout) ||
-      consumerTimeout < 0 ||
-      consumerTimeout > 86400000
-    ) {
-      errors.consumer_timeout =
-        "Consumer Timeout must be a non-negative integer (ms) up to 86400000 (24h).";
-    }
-  }
-
-  if (config["vm_memory_high_watermark.relative"] !== undefined) {
-    const watermark = Number(config["vm_memory_high_watermark.relative"]);
-    if (isNaN(watermark) || watermark < 0.4 || watermark > 0.9) {
-      errors["vm_memory_high_watermark.relative"] =
-        "Memory High Watermark must be between 0.40 and 0.90.";
-    }
-  }
-
-  if (config.queue_index_embed_msgs_below !== undefined) {
-    const queueIndex = Number(config.queue_index_embed_msgs_below);
-    if (isNaN(queueIndex) || !Number.isInteger(queueIndex) || queueIndex < 0) {
-      errors.queue_index_embed_msgs_below =
-        "Queue Index Embed Msgs Below must be a non-negative integer.";
-    }
-  }
-
-  if (config.max_message_size !== undefined) {
-    const maxMessageSize = Number(config.max_message_size);
-    if (
-      isNaN(maxMessageSize) ||
-      !Number.isInteger(maxMessageSize) ||
-      maxMessageSize < 0 ||
-      maxMessageSize > 536870912
-    ) {
-      errors.max_message_size =
-        "Max Message Size must be a non-negative integer and at most 536870912.";
-    }
-  }
-
-  if (config["log.exchange.level"] !== undefined) {
-    const validLevels = [
-      "debug",
-      "info",
-      "warning",
-      "error",
-      "critical",
-      "none",
-    ];
-    if (!validLevels.includes(config["log.exchange.level"])) {
-      errors["log.exchange.level"] =
-        "Log Exchange Level must be one of " + validLevels.join(", ") + ".";
-    }
-  }
-
-  if (config.cluster_partition_handling !== undefined) {
-    const validOptions = ["ignore", "pause_minority", "autoheal"];
-    if (!validOptions.includes(config.cluster_partition_handling)) {
-      errors.cluster_partition_handling =
-        "Cluster Partition Handling must be one of " +
-        validOptions.join(", ") +
-        ".";
-    }
-  }
-  if (config["mqtt.exchange"] !== undefined) {
-    if (
-      typeof config["mqtt.exchange"] !== "string" ||
-      config["mqtt.exchange"].trim() === ""
-    ) {
-      errors["mqtt.exchange"] = "MQTT Exchange must be a non-empty string.";
-    }
-  }
-
-  return { valid: Object.keys(errors).length === 0, errors };
+  return errors;
 }

@@ -17,6 +17,7 @@ export function InstanceTypePage() {
     [],
   );
   const [instanceSize, setInstanceSize] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchInstanceTypes = async () => {
@@ -36,11 +37,32 @@ export function InstanceTypePage() {
     setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
   }, [selectedInstanceType, instanceTypes]);
 
+  const resetErrors = () =>  setErrors([]);
+
+  const addError = (error: string) => setErrors((prevErrors) => [...prevErrors, error]);
+
+  const validateInstanceTypeAndSize = (): boolean => {
+    resetErrors();
+  
+    if (!selectedInstanceType) {
+      addError("Please select an instance type.");
+    } else if (!(selectedInstanceType in instanceTypes)) {
+      addError("The selected instance type is not valid.");
+    }
+  
+    if (!instanceSize) {
+      addError("Please select an instance size.");
+    } else if (!instanceTypes[selectedInstanceType]?.includes(instanceSize)) {
+      addError(`The selected size is not valid for the chosen instance type.`);
+    }
+  
+    return errors.length === 0;
+  };
+
   const updateHardware = async () => {
-    if (!selectedInstanceType || !instanceSize) {
-      alert("Missing instance type or size");
+    if (!validateInstanceTypeAndSize()) {
       setSaving(false);
-      return;
+      return false;
     }
 
     try {
@@ -58,6 +80,7 @@ export function InstanceTypePage() {
     }
   };
 
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -65,6 +88,7 @@ export function InstanceTypePage() {
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Instance Type
       </h1>
+
       <div className="flex items-center gap-2 mb-6">
         <p className="font-text1 text-md">
           Current instance type and size:
@@ -87,6 +111,17 @@ export function InstanceTypePage() {
           AWS EC2 Instance Types
         </a>.
       </p>
+
+            {/* Error Banner */}
+      {errors.length > 0 && (
+        <div className="mb-4 p-4 bg-red-100 text-red-600 border border-red-500 rounded-lg">
+          <ul>
+            {errors.map((error, idx) => (
+              <li key={idx}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <fieldset disabled={saving} className="space-y-4">
         <div className="flex items-center gap-4">

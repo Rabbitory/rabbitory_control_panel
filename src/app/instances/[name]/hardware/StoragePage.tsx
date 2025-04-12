@@ -39,8 +39,9 @@ export function StoragePage() {
     fetchVolumeSize();
   }, [instance?.EBSVolumeId, instance?.region, instance?.id, instance?.name]);
 
-  const isValidStorageSize = (size: number) =>
-    size >= 1 && size <= 16000 && size > currentVolumeSize;
+  const isValidStorageSize = (size: number) => {
+    return size > currentVolumeSize && size <= 16000;
+  }
 
   const updateStorageSize = async () => {
     if (!isValidStorageSize(newVolumeSize)) {

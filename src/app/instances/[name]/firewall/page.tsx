@@ -5,9 +5,10 @@ import axios from "axios";
 import React from "react";
 import { useInstanceContext } from "../InstanceContext";
 import { FirewallRule } from "@/types/firewall";
-import { Info } from "lucide-react";
+import ErrorBanner from "@/app/components/ErrorBanner";
 import { isValidDescription, isValidSourceIp, isInRangeCustomPort } from "@/utils/firewallValidation";
 import { COMMON_PORTS } from "@/utils/firewallConstants";
+import { Info } from "lucide-react";
 import { Trash2 } from "lucide-react";
 
 
@@ -52,16 +53,14 @@ export default function FirewallPage() {
       const updatedRules = [...prevRules];
       updatedRules[index] = { ...updatedRules[index], description: value };
   
-      const inputError = `Description must be 255 characters or fewer, and cannot contain the following characters: ^, ", ', %, &, <, >, |, \``;
-      resetError(inputError);
+      const error = validateDescription(value);
+      resetError(`Description must be 255 characters or fewer, and cannot contain the following characters: ^, ", ', %, &, <, >, |, \``);
   
-      if (!isValidDescription(value)) {
-        addError(inputError);
-      }
-  
+      if (error) addError(error);
       return updatedRules;
     });
   };
+  
 
   const handleSourceIpChange = (index: number, value: string) => {
     setRules((prevRules) => {
@@ -74,14 +73,11 @@ export default function FirewallPage() {
   };
   
   const handleSourceIpBlur = (value: string) => {
-    const inputError = "Invalid Source IP format.";
-
-    if (value.trim() === "") return;
-
-    if (!isValidSourceIp(value)) {
-      addError(inputError);
-    }
+    const error = validateSourceIp(value);
+    resetError("Invalid Source IP format.");
+    if (error) addError(error);
   };
+  
 
   const handleCustomPortsChange = (index: number, value: string) => {
     setRules((prevRules) => {
@@ -134,25 +130,99 @@ export default function FirewallPage() {
     setRules(rules.filter((_rule, i) => i !== index));
   };
 
+  const validateDescription = (description: string): string | null => {
+    const inputError = `Description must be 255 characters or fewer, and cannot contain the following characters: ^, ", ', %, &, <, >, |, \``;
+    if (!isValidDescription(description)) {
+      return inputError;
+    }
+    return null;
+  }
+  
+  const validateSourceIp = (sourceIp: string): string | null => {
+    const inputError =
+      "Invalid Source IP format. Use CIDR block notation, e.g. '192.168.0.0/24' or '10.0.0.1/32'.";
+      
+    if (sourceIp.trim() !== "" && !isValidSourceIp(sourceIp)) {
+      return inputError;
+    }
+  
+    return null;
+  };
+  
+  
+  const validateCustomPorts = (customPorts: string, commonPorts: string[]): string[] => {
+    const errors: string[] = [];
+  
+    const portList = customPorts
+      .split(",")
+      .map((port) => port.trim())
+      .filter((port) => port !== "");
+  
+    const nonNumericPorts = portList.filter((port) => !/^\d+$/.test(port));
+  
+    if (nonNumericPorts.length > 0) {
+      errors.push("Custom ports must be a comma-separated list of numbers.");
+      return errors;
+    }
+  
+    if (!isInRangeCustomPort(customPorts)) {
+      errors.push("Ports must be between 1 and 65535.");
+    }
+  
+    const repeated = findCommonAndCustomPortOverlap(customPorts, commonPorts);
+    if (repeated.length > 0) {
+      errors.push("Port is already listed as a common port.");
+    }
+  
+    return errors;
+  };
+  
+  const findCommonAndCustomPortOverlap = (customPorts: string, commonPorts: string[]): string[] => {
+    const customList = customPorts
+      .split(",")
+      .map((port) => port.trim())
+      .filter((port) => port !== "");
+  
+    const commonPortNumbers = COMMON_PORTS.filter(({ name }) => commonPorts.includes(name)).map((p) => p.port.toString());
+    return customList.filter((port) => commonPortNumbers.includes(port));
+  }
+
   const handleSave = async () => {
     setIsSaving(true);
-
+    const validationErrors: string[] = [];
+  
+    rules.forEach((rule) => {
+      const descError = validateDescription(rule.description);
+      const sourceIpError = validateSourceIp(rule.sourceIp);
+      const customPortErrors = validateCustomPorts(rule.customPorts, rule.commonPorts);
+  
+      if (descError) validationErrors.push(descError);
+      if (sourceIpError) validationErrors.push(sourceIpError);
+      validationErrors.push(...customPortErrors);
+    });
+  
+    setErrors(validationErrors);
+  
+    if (validationErrors.length > 0) {
+      setIsSaving(false);
+      return;
+    }
+  
     try {
       const { data } = await axios.put(
         `/api/instances/${instance?.name}/firewall?region=${instance?.region}`,
-         { rules }
-        );
-
+        { rules }
+      );
+  
       console.log(data.message);
       console.log(rules);
-      alert("Firewall rules updated successfully!");
     } catch (error) {
       console.error("Error saving rules:", error);
     } finally {
       setIsSaving(false);
     }
   };
-
+  
   const handleReset = async () => {
     setIsLoading(true);
     try {
@@ -188,12 +258,14 @@ export default function FirewallPage() {
       </p>
   
       {errors.length > 0 && (
-        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+        <div className="mb-6 space-y-2">
           {errors.map((error, i) => (
-            <p key={i}>Error: {error}</p>
+            <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
           ))}
         </div>
       )}
+
+
   
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="space-y-4">
@@ -259,7 +331,7 @@ export default function FirewallPage() {
                           <Info className="h-4 w-4 text-gray-500 cursor-pointer group-hover:text-gray-700" />
   
                           {/* Tooltip Box */}
-                          <div className="absolute left-0 bottom-full mb-2 hidden w-64 p-2 bg-navbar1 text-navbartext1 text-xs rounded-md shadow-md group-hover:block">
+                          <div className="absolute left-0 bottom-full mb-2 hidden w-64 p-2 bg-navbar1 text-headertext1 text-xs rounded-md shadow-md group-hover:block">
                             <strong>Port {port}:</strong> {desc}
                           </div>
                         </div>

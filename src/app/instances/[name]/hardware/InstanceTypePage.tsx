@@ -3,8 +3,8 @@
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Link from "next/link";
 import ErrorBanner from "@/app/components/ErrorBanner";
+import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
 type InstanceTypes = Record<string, string[]>;
 
@@ -38,34 +38,32 @@ export function InstanceTypePage() {
     setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
   }, [selectedInstanceType, instanceTypes]);
 
-  const resetErrors = () => setErrors([]);
-
-  const addError = (error: string) => setErrors((prevErrors) => [...prevErrors, error]);
-
-  const validateInstanceTypeAndSize = (): boolean => {
-    resetErrors();
-
+  const validateInstanceTypeAndSize = (): string[] => {
+    const newErrors: string[] = [];
+  
     if (!selectedInstanceType) {
-      addError("Please select an instance type.");
+      newErrors.push("Please select an instance type.");
     } else if (!(selectedInstanceType in instanceTypes)) {
-      addError("The selected instance type is not valid.");
+      newErrors.push("The selected instance type is not valid.");
     }
-
+  
     if (!instanceSize) {
-      addError("Please select an instance size.");
+      newErrors.push("Please select an instance size.");
     } else if (!instanceTypes[selectedInstanceType]?.includes(instanceSize)) {
-      addError(`The selected size is not valid for the chosen instance type.`);
+      newErrors.push("The selected size is not valid for the chosen instance type.");
     }
-
-    return errors.length === 0;
+  
+    setErrors(newErrors);
+    return newErrors;
   };
-
+  
   const updateHardware = async () => {
-    if (!validateInstanceTypeAndSize()) {
+    const validationErrors = validateInstanceTypeAndSize();
+    if (validationErrors.length > 0) {
       setSaving(false);
       return false;
     }
-
+  
     try {
       await axios.put(`/api/instances/${instance?.name}/hardware/type`, {
         instanceId: instance?.id,
@@ -117,7 +115,13 @@ export function InstanceTypePage() {
       {errors.length > 0 && (
         <div className="mb-4">
           {errors.map((error, index) => (
-            <ErrorBanner key={index} message={error} onClose={() => setErrors([])} />
+            <ErrorBanner
+              key={index}
+              message={error}
+              onClose={() =>
+                setErrors((prevErrors) => prevErrors.filter((e) => e !== error))
+              }
+            />
           ))}
         </div>
       )}
@@ -182,12 +186,6 @@ export function InstanceTypePage() {
             </select>
           </div>
           <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
-            <Link
-              href={`/instances/${instance?.name}/hardware?region=${instance?.region}`}
-              className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
-            >
-              Cancel
-            </Link>
             <button
               className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
                     ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
@@ -202,7 +200,12 @@ export function InstanceTypePage() {
                   window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
               }}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? 
+              <span className="flex items-center gap-2">
+                <SubmissionSpinner />
+                Updating Instance ...
+              </span>
+              : "Update Instance"}
             </button>
           </div>
         </fieldset>

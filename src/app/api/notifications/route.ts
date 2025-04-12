@@ -11,7 +11,6 @@ export async function GET(request: Request) {
       controller.enqueue(encoder.encode(`: initial ping\n\n`));
       console.log("SSE client connected");
       const onEvent = (payload: Notification) => {
-        console.log(payload);
         const sseMessage = `data: ${JSON.stringify(payload)}\n\n`;
         controller.enqueue(encoder.encode(sseMessage));
       };

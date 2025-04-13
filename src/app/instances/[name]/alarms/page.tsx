@@ -2,9 +2,10 @@
 
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
+import { NewAlarmModal } from "@/app/components/NewAlarmModal";
+import { SlackModal } from "@/app/components/SlackModal";
 import Dropdown from "@/app/components/Dropdown";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 
 interface Alarm {
   id: string;
@@ -17,10 +18,29 @@ interface Alarm {
 
 export default function AlarmsPage() {
   const { instance } = useInstanceContext();
-  const router = useRouter();
   const [isFetching, setIsFetching] = useState(false);
   const [storageAlarms, setStorageAlarms] = useState<Alarm[]>([]);
   const [memoryAlarms, setMemoryAlarms] = useState<Alarm[]>([]);
+  const [showSlackModal, setShowSlackModal] = useState(false);
+  const [showNewAlarmModal, setShowNewAlarmModal] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState("");
+
+  useEffect(() => {
+    const fetchCurrentWebhookUrl = async () => {
+      try {
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+        );
+
+        setWebhookUrl(response.data.webhookUrl || "");
+      } catch (error) {
+        console.error("Error fetching webhook url:", error);
+      }
+    };
+
+    fetchCurrentWebhookUrl();
+  }, [instance?.name, instance?.region]);
+
 
   useEffect(() => {
     const fetchAlarms = async () => {
@@ -40,6 +60,14 @@ export default function AlarmsPage() {
 
     fetchAlarms();
   }, [instance?.name, instance?.region]);
+
+  const handleCloseSlackModal = () => {
+    setShowSlackModal(false);
+  }
+
+  const handleCloseNewAlarmModal = () => {
+    setShowNewAlarmModal(false);
+  }
 
   const handleDelete = async (type: "storage" | "memory", id: string) => {
     try {
@@ -72,29 +100,23 @@ export default function AlarmsPage() {
   };
 
   return (
-    <>
-      <button
-        className="px-3 py-1 bg-blue-500 text-white rounded-md mr-2"
-        onClick={(e) => {
-          e.preventDefault();
-          router.push(
-            `/instances/${instance?.name}/alarms/new?region=${instance?.region}`,
-          );
-        }}
-      >
-        Create Alarm
-      </button>
+    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
+      <p className="font-text1 text-sm mb-6">
+        Alarms are triggered when the storage or memory usage of your RabbitMQ instance exceeds the specified thresholds.
+        You can set up alarms to receive notifications via Slack using the button below.
+      </p>
       {isFetching ? (
         <div>Loading...</div>
       ) : (
         <>
           {/* Storage Alarms Section */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          <div className="mb-15">
+            <h2 className="text-md font-heading1 text-headertext1 mb-2">
               Storage Alarms
             </h2>
             <div className="overflow-visible">
-              <table className="w-full border-collapse">
+              <table className="font-heading1 text-sm w-full border-collapse">
                 <thead>
                   <tr>
                     <th className="p-2 text-left border-b">
@@ -103,15 +125,16 @@ export default function AlarmsPage() {
                     <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Memory Threshold</th>
-                    <th className="p-2 text-left border-b">Actions</th>
+                    <th className="p-2 text-left border-b">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="font-text1 text-sm text-pagetext1">
                   {storageAlarms.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="p-2 text-center text-gray-600">
-                        No storage alarms found.
+                      <td colSpan={4} className="p-2 text-md text-center text-gray-600">
+                        No storage alarms yet.
                       </td>
                     </tr>
                   ) : (
@@ -122,9 +145,6 @@ export default function AlarmsPage() {
                         </td>
                         <td className="p-2 border-b">
                           {alarm.data.reminderInterval}
-                        </td>
-                        <td className="p-2 border-b">
-                          {alarm.data.memoryThreshold}
                         </td>
                         <td className="p-2 border-b">
                           <Dropdown
@@ -144,37 +164,35 @@ export default function AlarmsPage() {
           </div>
 
           {/* Memory Alarms Section */}
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          <div className="mb-15">
+            <h2 className="text-md font-heading1 text-headertext1 mb-2">
               Memory Alarms
             </h2>
             <div className="overflow-visible">
-              <table className="w-full border-collapse">
+              <table className="font-heading1 text-sm w-full border-collapse">
                 <thead>
                   <tr>
                     <th className="p-2 text-left border-b">
-                      Storage Threshold
-                    </th>
-                    <th className="p-2 text-left border-b">
                       Reminder Interval
                     </th>
-                    <th className="p-2 text-left border-b">Memory Threshold</th>
-                    <th className="p-2 text-left border-b">Actions</th>
+                    <th className="p-2 text-left border-b">
+                      Memory Threshold
+                    </th>
+                    <th className="p-2 text-left border-b">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="font-text1 text-sm text-pagetext1">
                   {memoryAlarms.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="p-2 text-center text-gray-600">
-                        No memory alarms found.
+                        No memory alarms yet.
                       </td>
                     </tr>
                   ) : (
                     memoryAlarms.map((alarm) => (
                       <tr key={alarm.id}>
-                        <td className="p-2 border-b">
-                          {alarm.data.storageThreshold}
-                        </td>
                         <td className="p-2 border-b">
                           {alarm.data.reminderInterval}
                         </td>
@@ -197,19 +215,32 @@ export default function AlarmsPage() {
               </table>
             </div>
           </div>
-          <button
-            className="px-3 py-1 bg-blue-500 text-white rounded-md mr-2"
-            onClick={(e) => {
-              e.preventDefault();
-              router.push(
-                `/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
-              );
-            }}
-          >
-            Setup Slack
-          </button>
+
+          <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
+            <button
+              className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowSlackModal(true);
+              }}
+            >
+              Setup Slack
+            </button>
+            <button
+              disabled={!webhookUrl}
+              className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowNewAlarmModal(true);
+              }}
+            >
+              Create Alarm
+            </button>
+          </div>
         </>
       )}
-    </>
+      {showSlackModal && <SlackModal url={webhookUrl} onSave={(url) => setWebhookUrl(url)} onClose={handleCloseSlackModal} />}
+      {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
+    </div>
   );
 }

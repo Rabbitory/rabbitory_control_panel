@@ -1,27 +1,21 @@
-import {
-  EC2Client,
-  StopInstancesCommand,
-  waitUntilInstanceStopped,
-  ModifyInstanceAttributeCommand,
-  StartInstancesCommand,
-  waitUntilInstanceRunning,
-  _InstanceType,
-} from "@aws-sdk/client-ec2";
+import { _InstanceType } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
+import { modifyHardware } from "@/utils/AWS/EC2/modifyHardware";
 
 interface HardwareRequest {
   instanceId: string;
   instanceType: _InstanceType;
   region: string;
+  instanceName: string;
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const { instanceId, instanceType, region } =
+    const { instanceId, instanceType, region, instanceName } =
       (await request.json()) as HardwareRequest;
 
-    if (!instanceId || !instanceType || !region) {
-      return new NextResponse("Missing id, type or region", {
+    if (!instanceId || !instanceType || !region || !instanceName) {
+      return new NextResponse("Missing id, type, region or name", {
         status: 400,
       });
     }
@@ -34,33 +28,11 @@ export async function PUT(request: NextRequest) {
       return new NextResponse("Invalid region", { status: 400 });
     }
 
-    const client = new EC2Client({ region });
-
-    // Will have server side events with notifications eventually
-
-    await client.send(new StopInstancesCommand({ InstanceIds: [instanceId] }));
-
-    await waitUntilInstanceStopped(
-      { client, maxWaitTime: 300 },
-      { InstanceIds: [instanceId] },
-    );
-
-    await client.send(
-      new ModifyInstanceAttributeCommand({
-        InstanceId: instanceId,
-        InstanceType: { Value: instanceType },
-      }),
-    );
-
-    await client.send(new StartInstancesCommand({ InstanceIds: [instanceId] }));
-
-    await waitUntilInstanceRunning(
-      { client, maxWaitTime: 300 },
-      { InstanceIds: [instanceId] },
-    );
+    modifyHardware(instanceId, instanceType, region, instanceName);
 
     return new NextResponse(
-      `Instance ${instanceId} updated to type ${instanceType} successfully.`,
+      `Initialized ${instanceId} updated to ${instanceType} successfully.`,
+      { status: 202 },
     );
   } catch (error) {
     console.error("Error updating instance:", error);

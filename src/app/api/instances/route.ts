@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
 import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
 import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
+import eventEmitter from "@/utils/eventEmitter";
+import { deleteEvent } from "@/utils/eventBackups";
 
 // Define an interface that extends the AWS Instance with a non-optional region.
 export interface InstanceWithRegion extends Instance {
@@ -84,14 +86,6 @@ export const GET = async () => {
 };
 
 export const POST = async (request: NextRequest) => {
-  const body = await request.json();
-  if (!body) {
-    return NextResponse.json(
-      { message: "Invalid request body" },
-      { status: 400 }
-    );
-  }
-
   const {
     region,
     instanceName,
@@ -99,7 +93,21 @@ export const POST = async (request: NextRequest) => {
     username,
     password,
     storageSize,
-  } = body;
+  } = await request.json();
+
+  if (
+    !region ||
+    !instanceName ||
+    !instanceType ||
+    !username ||
+    !password ||
+    !storageSize
+  ) {
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 }
+    );
+  }
 
   const createInstanceResult = await createInstance(
     region,
@@ -111,6 +119,14 @@ export const POST = async (request: NextRequest) => {
   );
 
   if (!createInstanceResult) {
+    eventEmitter.emit("notification", {
+      message: `Error creating ${instanceName}.`,
+      type: "newInstance",
+      status: "error",
+      instanceName,
+    });
+
+    deleteEvent(instanceName, "newInstance");
     return NextResponse.json(
       { message: "Error creating instance" },
       { status: 500 }
@@ -126,8 +142,11 @@ export const POST = async (request: NextRequest) => {
     password,
     region
   );
-  return NextResponse.json({
-    name: instanceName,
-    id: instanceId,
-  });
+  return NextResponse.json(
+    {
+      name: instanceName,
+      id: instanceId,
+    },
+    { status: 202 }
+  );
 };

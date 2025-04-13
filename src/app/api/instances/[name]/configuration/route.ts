@@ -3,11 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import { validateConfiguration } from "@/utils/validateConfig";
+import { deleteEvent } from "@/utils/eventBackups";
+import eventEmitter from "@/utils/eventEmitter";
 import parseConfig from "@/utils/parseConfig";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -16,7 +18,7 @@ export async function GET(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -26,7 +28,7 @@ export async function GET(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
   const instanceId = instance.InstanceId;
@@ -36,7 +38,7 @@ export async function GET(
     const fileContent = await runSSMCommands(
       instanceId!,
       ["cat /etc/rabbitmq/rabbitmq.conf"],
-      region!,
+      region!
     );
 
     const config: Record<string, string> = {};
@@ -47,14 +49,14 @@ export async function GET(
     console.error("Error fetching configuration:", error);
     return NextResponse.json(
       { message: "Error fetching configuration", error: String(error) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -63,7 +65,7 @@ export async function POST(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -78,7 +80,7 @@ export async function POST(
     console.error("Invalid configuration:", errors);
     return NextResponse.json(
       { message: "Invalid configuration", errors },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -86,7 +88,7 @@ export async function POST(
   for (const [key, value] of Object.entries(newConfig)) {
     if (value !== "") {
       commands.push(
-        `sudo sed -i '/^${key}[[:space:]]*=.*/c\\${key} = ${value}' /etc/rabbitmq/rabbitmq.conf`,
+        `sudo sed -i '/^${key}[[:space:]]*=.*/c\\${key} = ${value}' /etc/rabbitmq/rabbitmq.conf`
       );
     }
   }
@@ -99,13 +101,21 @@ export async function POST(
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 },
+      { status: 404 }
     );
   }
   const instanceId = instance.InstanceId;
   try {
-    // Run all commands using our shared function.
     const output = await runSSMCommands(instanceId!, commands, region!);
+
+    eventEmitter.emit("notification", {
+      type: "configuration",
+      status: "success",
+      instanceName: instanceName,
+
+      message: "Configuration updated successfully",
+    });
+    deleteEvent(instanceName, "configuration");
 
     const parts = output.split("__CONFIG_START__");
     const configData = parts.length > 1 ? parts[1] : output;
@@ -114,10 +124,18 @@ export async function POST(
 
     return NextResponse.json(config);
   } catch (error) {
+    eventEmitter.emit("notification", {
+      type: "configuration",
+      status: "error",
+      instanceName: instanceName,
+
+      message: "Failed to update configuration",
+    });
+    deleteEvent(instanceName, "configuration");
     console.error("Error updating configuration:", error);
     return NextResponse.json(
       { message: "Error updating configuration", error: String(error) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

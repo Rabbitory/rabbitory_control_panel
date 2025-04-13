@@ -187,30 +187,9 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     if (!data.Instances) throw new Error("No instances found");
     const instanceId = data.Instances[0].InstanceId;
 
-    // console.log("Instance created:", instanceId);
-
-    // await waitUntilInstanceRunning(
-    //   { client: ec2Client, maxWaitTime: 3000 },
-    //   { InstanceIds: instanceId ? [instanceId] : undefined }
-    // );
-    // console.log(`Instance ${instanceId} is now running.`);
-
-    // Retrieve instance details to get its public DNS or IP
-    // const { publicDns, publicIp } = await getInstanceDetails(
-    //   instanceId,
-    //   ec2Client
-    // );
-
-    // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
-
-    // const endpointUrl = `amqp://${username}:${password}@${
-    //   publicDns || publicIp
-    // }:5672`;
-    // console.log(`Main queue endpoint URL: ${endpointUrl}`);
-
     return { instanceId, instanceName };
   } catch (err) {
-    console.error("Error creating instance:", err);
+    console.error(err);
     return false;
   }
 }

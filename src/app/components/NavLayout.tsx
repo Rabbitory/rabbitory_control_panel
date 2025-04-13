@@ -22,7 +22,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
       pageName.charAt(0).toUpperCase() + pageName.toLowerCase().slice(1);
 
     const linkClasses =
-      "block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors" +
+      "block w-full px-14 py-2 font-text1 text-sm text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors" +
       (isDisabled
         ? "cursor-not-allowed opacity-50"
         : "hover:bg-mainbghover hover:text-headertext1");

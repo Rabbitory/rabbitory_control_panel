@@ -4,7 +4,6 @@ import { NotificationsProvider } from "./NotificationContext";
 import NotificationsDropdown from "./components/NotificationsDropdown";
 import { Metrophobic, Montserrat } from "next/font/google";
 import RabbitoryLogoLink from "./components/RabbitoryLogoLink";
-import Link from "next/link";
 
 
 interface RootLayoutProps {
@@ -36,24 +35,19 @@ export default async function RootLayout({
       <NotificationsProvider>
         <body className={`bg-mainbg1 text-gray-900 mb-15`}>
           <div className="sticky top-0 z-50 flex justify-between items-center bg-mainbg1 pt-6 pb-6 pl-10 pr-10 border-b-[0.5] border-border1">
-            <Link
-              href="/"
-              className="font-heading1 text-headertext1 text-3xl transition-colors duration-200 hover:text-headertext2 hover:cursor-pointer"
-            >
-              Rabbitory
-            </Link>
+            <RabbitoryLogoLink />
             <NotificationsDropdown />
           </div>
-
-          <main className="">{children}</main>
+          <main className="flex-1 overflow-hidden">{children}</main>
         </body>
       </NotificationsProvider>
-      <body className="flex flex-col bg-mainbg1 text-gray-900">
+
+      {/* <body className="flex flex-col bg-mainbg1 text-gray-900">
       <div className="sticky top-0 z-50 flex justify-between items-center bg-mainbg1 pt-6 pb-6 pl-10 pr-10 border-b-[0.5] border-border1">
         <RabbitoryLogoLink />
       </div>
       <main className="flex-1 overflow-hidden">{children}</main>
-      </body>
+      </body> */}
     </html>
   );
 }

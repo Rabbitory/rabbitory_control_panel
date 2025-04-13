@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+import { useNotificationsContext } from "@/app/NotificationContext";
 import { useInstanceContext } from "../InstanceContext";
+
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -11,8 +14,8 @@ import { StorageDetails } from "@/app/components/StorageDetails";
 export function StoragePage() {
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
   const [newVolumeSize, setNewVolumeSize] = useState(0);
-  const [saving, setSaving] = useState(false);
   const { instance } = useInstanceContext();
+  const { addNotification, formPending } = useNotificationsContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,7 +27,7 @@ export function StoragePage() {
 
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`,
+          `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`
         );
 
         if (response.data) {
@@ -43,28 +46,34 @@ export function StoragePage() {
     size >= 1 && size <= 16000 && size > currentVolumeSize;
 
   const updateStorageSize = async () => {
-    if (!isValidStorageSize(newVolumeSize)) {
+    if (!isValidStorageSize(newVolumeSize) || !instance || !instance.name) {
       alert(
-        "Invalid storage size. Must be greater than current size & less than or equal to 16000 GB",
+        "Invalid storage size. Must be greater than current size & less than or equal to 16000 GB"
       );
       return false;
     }
 
-    setSaving(true);
+    await addNotification({
+      type: "storage",
+      status: "pending",
+      instanceName: instance.name,
+      path: "instances",
+      message: `Updating storage size for ${instance.name}`,
+    });
 
     try {
-      await axios.put(`/api/instances/${instance?.name}/hardware/storage`, {
-        instanceId: instance?.id,
-        volumeId: instance?.EBSVolumeId,
-        region: instance?.region,
+      await axios.put(`/api/instances/${instance.name}/hardware/storage`, {
+        instanceId: instance.id,
+        volumeId: instance.EBSVolumeId,
+        region: instance.region,
         size: newVolumeSize,
+        instanceName: instance.name,
       });
       return true;
     } catch (error) {
-      setSaving(false);
       console.error("Failed to update storage size:", error);
       alert(
-        "Failed to update storage size. You might have to wait 6 hours since the last update.",
+        "Failed to update storage size. You might have to wait 6 hours since the last update."
       );
       return false;
     }
@@ -85,7 +94,7 @@ export function StoragePage() {
       <p className="font-text1 text-md mb-6">
         Current instance storage size:{` ${currentVolumeSize} GB`}
       </p>
-      <fieldset disabled={saving} className="space-y-4">
+      <fieldset disabled={formPending()} className="space-y-4">
         <div className="flex items-center gap-4">
           <label
             htmlFor="storageSize"
@@ -113,20 +122,24 @@ export function StoragePage() {
           </Link>
           <button
             className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
-                  ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
+                  ${
+                    formPending()
+                      ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+                      : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+                  }
                 `}
-            disabled={saving || !isValidStorageSize(newVolumeSize)}
+            disabled={formPending() || !isValidStorageSize(newVolumeSize)}
             onClick={async (e) => {
               e.preventDefault();
               const success = await updateStorageSize();
               if (success) {
                 router.push(
-                  `/instances/${instance?.name}/hardware?region=${instance?.region}`,
+                  `/instances/${instance?.name}/hardware?region=${instance?.region}`
                 );
               }
             }}
           >
-            {saving ? "Saving..." : "Save"}
+            {formPending() ? "Saving..." : "Save"}
           </button>
         </div>
       </fieldset>

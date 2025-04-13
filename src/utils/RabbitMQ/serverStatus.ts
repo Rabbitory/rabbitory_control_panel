@@ -4,18 +4,20 @@ import { waitUntilInstanceRunning, EC2Client } from "@aws-sdk/client-ec2";
 import { encrypt } from "../encrypt";
 import { getDefinitions } from "./backupDefinitions";
 import { fetchInstance } from "../AWS/EC2/fetchInstance";
+import eventEmitter from "../eventEmitter";
+import { deleteEvent } from "../eventBackups";
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,
   instanceName: string,
   username: string,
   password: string,
-  region: string
+  region: string,
 ) {
   const ec2Client = new EC2Client({ region });
   await waitUntilInstanceRunning(
     { client: ec2Client, maxWaitTime: 3000 },
-    { InstanceIds: instanceId ? [instanceId] : undefined }
+    { InstanceIds: instanceId ? [instanceId] : undefined },
   );
 
   let instance = await fetchInstance(instanceName, ec2Client);
@@ -53,9 +55,8 @@ export async function pollRabbitMQServerStatus(
           const backupDefinitions = await getDefinitions(
             instance.PublicDnsName,
             username,
-            password
+            password,
           );
-          console.log("Backup definitions:", backupDefinitions);
           if (backupDefinitions) {
             await storeToDynamoDB("rabbitory-instances-metadata", {
               instanceId,
@@ -65,9 +66,17 @@ export async function pollRabbitMQServerStatus(
               backups: [backupDefinitions],
               alarms: {
                 memory: [],
-                storage: []
-              }
+                storage: [],
+              },
             });
+            eventEmitter.emit("notification", {
+              message: `${instanceName} has been created.`,
+              type: "newInstance",
+              status: "success",
+              instanceName,
+            });
+
+            deleteEvent(instanceName, "newInstance");
           }
         }
         return; // Stop polling once the server is up and metadata stored.
@@ -81,10 +90,18 @@ export async function pollRabbitMQServerStatus(
           }
         } else {
           console.log(
-            "RabbitMQ is up, waiting for metadata to be available..."
+            "RabbitMQ is up, waiting for metadata to be available...",
           );
         }
       } else {
+        eventEmitter.emit("notification", {
+          message: `Error creating ${instanceName}.`,
+          type: "newInstance",
+          status: "error",
+          instanceName,
+        });
+
+        deleteEvent(instanceName, "newInstance");
         console.log("Unexpected error:", error);
       }
     }

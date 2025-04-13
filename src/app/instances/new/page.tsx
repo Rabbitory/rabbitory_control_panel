@@ -8,11 +8,13 @@ import axios from "axios";
 import Link from "next/link";
 import { Lightbulb } from "lucide-react";
 import { StorageDetails } from "@/app/components/StorageDetails";
+import { useNotificationsContext } from "@/app/NotificationContext";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function NewFormPage() {
   const router = useRouter();
+  const { addNotification } = useNotificationsContext();
   const [isLoading, setIsLoading] = useState(false);
   const [instanceName, setInstanceName] = useState("");
   const [availableRegions, setAvailableRegions] = useState([]);
@@ -20,7 +22,7 @@ export default function NewFormPage() {
   const [instantiating, setInstantiating] = useState(false);
   const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
-    [],
+    []
   );
 
   useEffect(() => {
@@ -54,9 +56,27 @@ export default function NewFormPage() {
   }, [selectedInstanceType, instanceTypes]);
 
   const handleSubmit = async (formData: FormData) => {
+    const formInstanceName = formData.get("instanceName");
+    const region = formData.get("region");
+    const instanceType = formData.get("instanceSize");
+    const username = formData.get("username");
+    const password = formData.get("password");
+    const storageSize = formData.get("storageSize");
+    if (
+      !formInstanceName ||
+      !region ||
+      !instanceType ||
+      !username ||
+      !password ||
+      !storageSize
+    ) {
+      alert("All fields are required.");
+      setInstantiating(false);
+      return;
+    }
     if (!isValidName(instanceName)) {
       alert(
-        "Instance name must be 3-64 characters long with valid characters.",
+        "Instance name must be 3-64 characters long with valid characters."
       );
       setInstantiating(false);
       return;
@@ -69,13 +89,20 @@ export default function NewFormPage() {
     }
 
     try {
+      await addNotification({
+        type: "newInstance",
+        status: "pending",
+        instanceName,
+        path: "instances",
+        message: `Creating ${instanceName} instance.`,
+      });
       await axios.post("/api/instances", {
-        instanceName: formData.get("instanceName"),
-        region: formData.get("region"),
-        instanceType: formData.get("instanceSize"),
-        username: formData.get("username"),
-        password: formData.get("password"),
-        storageSize: formData.get("storageSize"),
+        instanceName: formInstanceName,
+        region,
+        instanceType,
+        username,
+        password,
+        storageSize,
       });
       router.push("/");
     } catch (error) {

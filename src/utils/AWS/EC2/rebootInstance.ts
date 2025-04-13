@@ -1,4 +1,8 @@
-import { EC2Client, RebootInstancesCommand } from "@aws-sdk/client-ec2";
+import {
+  EC2Client,
+  RebootInstancesCommand,
+  waitUntilInstanceRunning,
+} from "@aws-sdk/client-ec2";
 
 export async function rebootInstance(instanceId: string, region: string) {
   const client = new EC2Client({ region });
@@ -9,6 +13,15 @@ export async function rebootInstance(instanceId: string, region: string) {
         InstanceIds: [instanceId],
       }),
     );
+
+    console.log("hi");
+
+    await waitUntilInstanceRunning(
+      { client, maxWaitTime: 500 },
+      { InstanceIds: [instanceId] },
+    );
+
+    console.log("bye");
 
     return true;
   } catch (error) {

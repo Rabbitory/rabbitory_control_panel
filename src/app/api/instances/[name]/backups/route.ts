@@ -1,5 +1,7 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
+import eventEmitter from "@/utils/eventEmitter";
+import { deleteEvent } from "@/utils/eventBackups";
 import {
   appendBackupDefinition,
   fetchFromDynamoDB,
@@ -69,15 +71,9 @@ export async function POST(
   const username = request.headers.get("x-rabbitmq-username");
   const password = request.headers.get("x-rabbitmq-password");
 
-  if (!username || !password) {
+  if (!region || !username || !password) {
     return NextResponse.json(
-      { message: "Username and password are required" },
-      { status: 400 }
-    );
-  }
-  if (!region) {
-    return NextResponse.json(
-      { message: "Missing region parameter" },
+      { message: "Missing parameter(s)" },
       { status: 400 }
     );
   }
@@ -114,8 +110,28 @@ export async function POST(
       instance.InstanceId,
       definitions
     );
+
+    eventEmitter.emit("notification", {
+      type: "backup",
+      status: "success",
+      instanceName: instanceName,
+      message: "Backup definition added successfully",
+      path: "definitions",
+    });
+
+    deleteEvent(instanceName, "backup");
+
     return NextResponse.json(response.Attributes?.backups);
   } catch (error) {
+    eventEmitter.emit("notification", {
+      type: "backup",
+      status: "error",
+      instanceName: instanceName,
+      message: "Failed to add backup definition",
+      path: "definitions",
+    });
+
+    deleteEvent(instanceName, "backup");
     console.error("Error fetching rabbitmq definitions:", error);
     return NextResponse.json(
       { message: "Error fetching rabbitmq definitions:", error: String(error) },

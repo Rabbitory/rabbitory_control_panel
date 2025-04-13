@@ -4,9 +4,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { plugins, Plugin } from "@/types/plugins";
 import { useInstanceContext } from "../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 
 export default function PluginsPage() {
   const { instance } = useInstanceContext();
+  const { formPending, addNotification } = useNotificationsContext();
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -24,7 +26,6 @@ export default function PluginsPage() {
             },
           }
         );
-        console.log(response.data);
         setEnabledPlugins(response.data);
       } catch (error) {
         console.error("Error fetching plugins:", error);
@@ -41,9 +42,21 @@ export default function PluginsPage() {
     pluginName: string
   ) => {
     e.preventDefault();
+    if (!instance?.name) return;
+
     const currentlyEnabled = enabledPlugins.includes(pluginName);
     const newValue = !currentlyEnabled;
 
+    await addNotification({
+      type: "plugin",
+      status: "pending",
+      instanceName: instance?.name,
+      path: "plugins",
+      message: `${newValue ? "Enabling" : "Disabling"} ${pluginName}`,
+    });
+
+    //update the state immediately,
+    // we do this so that the toggle button updates immediately.
     setEnabledPlugins((prev) =>
       newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
     );
@@ -75,7 +88,10 @@ export default function PluginsPage() {
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-8">
       <h1 className="font-heading1 text-2xl text-headertext1 mb-10">Plugins</h1>
       <p className="font-text1 text-sm text-pagetext1 mb-6">
-        Below is a list of RabbitMQ plugins that you can enable or disable. Toggling a plugin will immediately update its status on this page and within your RabbitMQ instance. For more detailed information on RabbitMQ plugins and their management, refer to the{" "}
+        Below is a list of RabbitMQ plugins that you can enable or disable.
+        Toggling a plugin will immediately update its status on this page and
+        within your RabbitMQ instance. For more detailed information on RabbitMQ
+        plugins and their management, refer to the{" "}
         <a
           href="https://www.rabbitmq.com/docs/plugins"
           target="_blank"
@@ -83,11 +99,12 @@ export default function PluginsPage() {
           className="underline text-pagetext1 hover:text-headertext1"
         >
           RabbitMQ Plugins Guide
-        </a>.
+        </a>
+        .
       </p>
 
       {isSaving && <p className="font-heading1 text-white">Saving...</p>}
-  
+
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(plugins.length)].map((_, index) => (
@@ -117,11 +134,15 @@ export default function PluginsPage() {
               >
                 <div className="mb-2 md:mb-0">
                   <h2
-                    className={`font-heading1 text-sm ${isEnabled ? 'text-btnhover1' : 'text-pagetext1'}`}
+                    className={`font-heading1 text-sm ${
+                      isEnabled ? "text-btnhover1" : "text-pagetext1"
+                    }`}
                   >
                     {plugin.name}
                   </h2>
-                  <p className="font-text1 text-xs text-gray-500">{plugin.description}</p>
+                  <p className="font-text1 text-xs text-gray-500">
+                    {plugin.description}
+                  </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -131,6 +152,7 @@ export default function PluginsPage() {
                       aria-label={plugin.name}
                       onChange={(e) => e.currentTarget.form?.requestSubmit()}
                       className="sr-only peer"
+                      disabled={formPending()}
                     />
                     <div
                       className="w-8 h-4 bg-pagetext1/60 rounded-full
@@ -150,5 +172,4 @@ export default function PluginsPage() {
       )}
     </div>
   );
-  
 }

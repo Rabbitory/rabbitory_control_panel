@@ -3,6 +3,7 @@ import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useInstanceContext } from "../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 import { configItems } from "@/types/configuration";
 import { validateConfiguration } from "@/utils/validateConfig";
 import ErrorBanner from "@/app/components/ErrorBanner";
@@ -15,6 +16,7 @@ interface Configuration {
 
 export default function ConfigurationPage() {
   const { instance } = useInstanceContext();
+  const { addNotification, formPending } = useNotificationsContext();
   const [configuration, setConfiguration] = useState<Configuration>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -26,7 +28,7 @@ export default function ConfigurationPage() {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
+          `/api/instances/${instance?.name}/configuration?region=${instance?.region}`
         );
         setConfiguration(response.data);
       } catch (error) {
@@ -39,7 +41,7 @@ export default function ConfigurationPage() {
   }, [instance?.name, instance?.region]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setConfiguration((prev) => ({ ...prev, [name]: value }));
@@ -55,7 +57,15 @@ export default function ConfigurationPage() {
       return;
     }
   
-    setIsSaving(true);
+
+    await addNotification({
+      type: "configuration",
+      status: "pending",
+      instanceName: instance?.name,
+      path: "configuration",
+      message: `Setting new configuration for ${instance?.name}`,
+    });
+
     try {
       console.log("Submitting configuration:", configuration);
 
@@ -66,8 +76,6 @@ export default function ConfigurationPage() {
       setConfiguration(response.data);
     } catch (error) {
       console.error("Error saving configuration:", error);
-    } finally {
-      setIsSaving(false);
     }
   };
   
@@ -83,7 +91,8 @@ export default function ConfigurationPage() {
     >
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Configuration</h1>
       <p className="font-text1 text-sm text-pagetext1 mb-6">
-        Below are the RabbitMQ server configurations. For detailed explanations of each setting, refer to the{" "}
+        Below are the RabbitMQ server configurations. For detailed explanations
+        of each setting, refer to the{" "}
         <a
           href="https://www.rabbitmq.com/docs/configure"
           target="_blank"
@@ -91,7 +100,8 @@ export default function ConfigurationPage() {
           className="underline text-pagetext1 hover:text-headertext1"
         >
           RabbitMQ Configuration Guide
-        </a>.
+        </a>
+        .
       </p>
 
       {errors.length > 0 && (

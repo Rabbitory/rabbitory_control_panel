@@ -1,6 +1,12 @@
 import Link from "next/link";
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink } from "lucide-react";
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
+import { useNotificationsContext } from "../NotificationContext";
+
+interface PageLinkProps {
+  pageName: string;
+  disabledOn: string;
+}
 
 interface NavLayoutProps {
   name: string;
@@ -8,6 +14,34 @@ interface NavLayoutProps {
 
 export default function NavLayout({ name }: NavLayoutProps) {
   const { instance } = useInstanceContext();
+  const { linkPending } = useNotificationsContext();
+
+  function PageLink({ pageName, disabledOn }: PageLinkProps) {
+    const isDisabled = linkPending(disabledOn);
+    const content =
+      pageName.charAt(0).toUpperCase() + pageName.toLowerCase().slice(1);
+
+    const linkClasses =
+      "block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors" +
+      (isDisabled
+        ? "cursor-not-allowed opacity-50"
+        : "hover:bg-mainbghover hover:text-headertext1");
+
+    return (
+      <li className="mb-2">
+        {isDisabled ? (
+          <span className={linkClasses}>{content}</span>
+        ) : (
+          <Link
+            href={`/instances/${name}/${pageName}?region=${instance?.region}`}
+            className={linkClasses}
+          >
+            {content}
+          </Link>
+        )}
+      </li>
+    );
+  }
 
   return (
     <nav className="w-full bg-mainbg1 border-r-[0.5px] z-10">
@@ -25,86 +59,30 @@ export default function NavLayout({ name }: NavLayoutProps) {
       <h1>
         <Link
           href={`/instances/${name}?region=${instance?.region}`}
-          className="block w-full px-10 py-2 text-xl font-heading1 text-headertext1 hover:bg-mainbghover transition-colors"
+          className="block w-full px-10 py-2 text-xl font-heading1 text-headertext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
         >
           General
         </Link>
       </h1>
       <ul className="mt-5 text-sm space-y-2">
-
         {/* RabbitMQ Section */}
         <li className="font-heading1 px-10 text-headertext1 tracking-wide">RabbitMQ</li>
-        <li>
-          <Link
-            href={`/instances/${name}/versions?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Versions
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/instances/${name}/configuration?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Configuration
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/instances/${name}/plugins?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Plugins
-          </Link>
-        </li>
+        <PageLink pageName="versions" disabledOn="any" />
+        <PageLink pageName="configuration" disabledOn="any" />
+        <PageLink pageName="plugins" disabledOn="any" />
 
         {/* EC2 Instance Section */}
         <li className="font-heading1 px-10 mt-4 text-headertext1 tracking-wide">Server Instance</li>
-        <li>
-          <Link
-            href={`/instances/${name}/hardware?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Hardware
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/instances/${name}/backups?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Backups
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/instances/${name}/firewall?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Firewall
-          </Link>
-        </li>
+        <PageLink pageName="hardware" disabledOn="any" />
+        <PageLink pageName="backups" disabledOn="any" />
+        <PageLink pageName="firewall" disabledOn="any" />
 
         {/* Monitoring Section */}
         <li className="font-heading1 px-10 mt-4 text-headertext1 tracking-wide">Monitoring</li>
-        <li>
-          <Link
-            href={`/instances/${name}/logs?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Logs
-          </Link>
-        </li>
-        <li className="mb-2">
-          <Link
-            href={`/instances/${name}/alarms?region=${instance?.region}`}
-            className="block w-full px-14 py-2 font-text1 text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors"
-          >
-            Alarms
-          </Link>
-        </li>
+        <PageLink pageName="logs" disabledOn="any" />
+        <PageLink pageName="alarms" disabledOn="any" />
       </ul>
+
     </nav>
   );
 }

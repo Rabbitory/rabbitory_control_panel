@@ -4,6 +4,7 @@ import Link from "next/link";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNotificationsContext } from "../NotificationContext";
 import SubmissionSpinner from "../components/SubmissionSpinner";
 
 interface Instance {
@@ -17,9 +18,17 @@ export default function Home() {
   const [instances, setInstances] = useState<Instance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [selectedInstance, setSelectedInstance] = useState<Instance | null>(null);
+  const [selectedInstance, setSelectedInstance] = useState<Instance | null>(
+    null
+  );
   const [inputText, setInputText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const {
+    notifications,
+    addNotification,
+    instancePending,
+    instanceTerminated,
+  } = useNotificationsContext();
 
   const fetchInstances = async () => {
     setIsLoading(true);
@@ -37,6 +46,16 @@ export default function Home() {
     fetchInstances();
   }, []);
 
+  useEffect(() => {
+    setInstances((prev) =>
+      prev.map((instance) =>
+        instanceTerminated(instance.name)
+          ? { ...instance, state: "terminated" }
+          : instance
+      )
+    );
+  }, [notifications, instanceTerminated]);
+
   const openDeleteModal = (instance: Instance) => {
     setSelectedInstance(instance);
     setInputText("");
@@ -51,16 +70,28 @@ export default function Home() {
 
   const handleDelete = async () => {
     if (!selectedInstance) return;
+
+    addNotification({
+      type: "deleteInstance",
+      status: "pending",
+      instanceName: selectedInstance.name,
+      path: "instances",
+      message: `Deleting ${selectedInstance.name}`,
+    });
     setIsDeleting(true);
-    setInstances(prev => prev.map(instance =>
-      instance.name === selectedInstance.name
-        ? { ...instance, state: 'shutting-down' }
-        : instance
-    ));
+    setInstances((prev) =>
+      prev.map((instance) =>
+        instance.name === selectedInstance.name
+          ? { ...instance, state: "shutting-down" }
+          : instance
+      )
+    );
     closeDeleteModal();
 
     try {
-      await axios.post(`/api/instances/${selectedInstance.name}/delete?region=${selectedInstance.region}`);
+      await axios.post(
+        `/api/instances/${selectedInstance.name}/delete?region=${selectedInstance.region}`
+      );
     } catch (err) {
       console.error("Error deleting instance:", err);
     } finally {
@@ -79,7 +110,7 @@ export default function Home() {
               text-mainpage1 rounded-sm hover:bg-btnhover1 transition-all duration-200
               text-md
               hover:shadow-[0_0_8px_3px_rgba(135,217,218,0.5)]
-              ${!isLoading && instances.length === 0 ? 'pulse-glow' : ''}
+              ${!isLoading && instances.length === 0 ? "pulse-glow" : ""}
             `}
           >
             + Create New Instance
@@ -99,55 +130,71 @@ export default function Home() {
         </thead>
 
         <tbody className={isLoading ? "" : "animate-fade-in"}>
-          {isLoading ? (
-            Array.from({ length: 3 }).map((_, idx) => (
-              <tr key={idx} className="bg-card border border-gray-500/30 animate-pulse">
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="w-5 h-4 bg-gray-600 rounded ml-auto"></div>
-                </td>
-              </tr>
-            ))
-          ) : (
-            instances.map((instance) => (
-              <tr key={instance.name} className="bg-card border border-gray-500/30">
-                <td className="px-4 py-3 relative">
-                  {instance.state === "pending" || instance.state === "shutting-down" ? (
-                    <span className="text-pagetext1 truncate block group cursor-not-allowed">
-                      {instance.name}
-                    </span>
-                  ) : (
-                    <Link
-                      href={`/instances/${instance.name}?region=${instance.region}`}
-                      className="text-pagetext1 hover:text-btnhover1 truncate block"
-                    >
-                      {instance.name}
-                    </Link>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-pagetext1 truncate">{instance.id}</td>
-                <td className="px-4 py-3 text-pagetext1">{instance.region}</td>
-                <td
-                  className={`px-4 py-3 ${instance.state === "running"
-                    ? "text-btnhover1"
-                    : instance.state === "pending" || instance.state === "initializing"
-                      ? "text-btn1 italic"
-                      : instance.state === "stopped" || instance.state === "stopping"
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, idx) => (
+                <tr
+                  key={idx}
+                  className="bg-card border border-gray-500/30 animate-pulse"
+                >
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="w-5 h-4 bg-gray-600 rounded ml-auto"></div>
+                  </td>
+                </tr>
+              ))
+            : instances.map((instance) => (
+                <tr
+                  key={instance.name}
+                  className="bg-card border border-gray-500/30"
+                >
+                  <td className="px-4 py-3 relative">
+                    {instance.state === "pending" ||
+                    instance.state === "shutting-down" ||
+                    instance.state === "terminated" ||
+                    instancePending(instance.name) ? (
+                      <span className="text-pagetext1 truncate block group cursor-not-allowed">
+                        {instance.name}
+                      </span>
+                    ) : (
+                      <Link
+                        href={`/instances/${instance.name}?region=${instance.region}`}
+                        className="text-pagetext1 hover:text-btnhover1 truncate block"
+                      >
+                        {instance.name}
+                      </Link>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-pagetext1 truncate">
+                    {instance.id}
+                  </td>
+                  <td className="px-4 py-3 text-pagetext1">
+                    {instance.region}
+                  </td>
+                  <td
+                    className={`px-4 py-3 ${
+                      instance.state === "running"
+                        ? "text-btnhover1"
+                        : instance.state === "pending" ||
+                          instance.state === "initializing"
+                        ? "text-btn1 italic"
+                        : instance.state === "stopped" ||
+                          instance.state === "stopping"
                         ? "text-red-300"
-                        : instance.state === "shutting-down"
-                          ? "text-pagetext1 italic"
-                          : ""
+                        : instance.state === "shutting-down" ||
+                          instance.state === "terminated"
+                        ? "text-pagetext1 italic"
+                        : ""
                     }`}
                 >
                   {instance.state}
@@ -183,7 +230,8 @@ export default function Home() {
               Delete {selectedInstance.name}?
             </h2>
             <p className="font-text1 text-sm text-red-300 mb-6">
-              Deleting this instance is permanent and will result in the loss of all data stored on it. This action cannot be undone.
+              Deleting this instance is permanent and will result in the loss of
+              all data stored on it. This action cannot be undone.
             </p>
             <p className="font-text1 text-sm mb-2">
               Type <strong>{selectedInstance.name}</strong> to confirm deletion.
@@ -220,7 +268,8 @@ export default function Home() {
 
       <style jsx>{`
         @keyframes pulse-glow {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
             box-shadow: 0 0 0 0 rgba(135, 217, 218, 0);
           }

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+import { useNotificationsContext } from "@/app/NotificationContext";
 import { useInstanceContext } from "../InstanceContext";
+
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -14,8 +17,8 @@ export function StoragePage() {
   const { instance } = useInstanceContext();
   const [currentVolumeSize, setCurrentVolumeSize] = useState(0);
   const [newVolumeSize, setNewVolumeSize] = useState(0);
-  const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const { addNotification, formPending } = useNotificationsContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -27,7 +30,7 @@ export function StoragePage() {
 
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`,
+          `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`
         );
 
         if (response.data) {
@@ -65,7 +68,13 @@ export function StoragePage() {
       return false;
     }
 
-    setSaving(true);
+    await addNotification({
+      type: "storage",
+      status: "pending",
+      instanceName: instance?.name,
+      path: "instances",
+      message: `Updating storage size for ${instance?.name}`,
+    });
 
     try {
       await axios.put(`/api/instances/${instance?.name}/hardware/storage`, {
@@ -73,13 +82,13 @@ export function StoragePage() {
         volumeId: instance?.EBSVolumeId,
         region: instance?.region,
         size: newVolumeSize,
+        instanceName: instance?.name,
       });
       return true;
     } catch (error) {
-      setSaving(false);
       console.error("Failed to update storage size:", error);
       alert(
-        "Failed to update storage size. You might have to wait 6 hours since the last update.",
+        "Failed to update storage size. You might have to wait 6 hours since the last update."
       );
       return false;
     }
@@ -124,7 +133,7 @@ export function StoragePage() {
             )}
 
 
-      <fieldset disabled={saving} className="space-y-4">
+      <fieldset disabled={formPending()} className="space-y-4">
         {isLoading ? (
           <div className="animate-pulse">
             <div className="space-y-4 mb-4">
@@ -155,20 +164,24 @@ export function StoragePage() {
         <div className="font-heading1 text-sm flex justify-end gap-4">
           <button
             className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
-                  ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
+                  ${
+                    formPending()
+                      ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+                      : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+                  }
                 `}
-            disabled={saving}
+            disabled={formPending()}
             onClick={async (e) => {
               e.preventDefault();
               const success = await updateStorageSize();
               if (success) {
                 router.push(
-                  `/instances/${instance?.name}/hardware?region=${instance?.region}`,
+                  `/instances/${instance?.name}/hardware?region=${instance?.region}`
                 );
               }
             }}
           >
-            {saving ? 
+            {formPending() ? 
               <span className="flex items-center gap-2">
                 <SubmissionSpinner />
                 Updating Storage ...

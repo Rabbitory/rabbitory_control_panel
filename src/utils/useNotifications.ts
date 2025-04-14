@@ -132,6 +132,22 @@ export const useNotifications = () => {
     [notifications]
   );
 
+  const instanceCreated = useCallback(
+    (instanceName: string) => {
+      return (
+        notifications.find((notification) => {
+          return (
+            notification.path === "instances" &&
+            notification.instanceName === instanceName &&
+            notification.status === "success" &&
+            notification.type === "newInstance"
+          );
+        }) !== undefined
+      );
+    },
+    [notifications]
+  );
+
   return {
     notifications,
     setNotifications,
@@ -143,5 +159,6 @@ export const useNotifications = () => {
     linkPending,
     instancePending,
     instanceTerminated,
+    instanceCreated,
   };
 };

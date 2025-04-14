@@ -91,9 +91,6 @@ export function StoragePage() {
       return true;
     } catch (error) {
       console.error("Failed to update storage size:", error);
-      alert(
-        "Failed to update storage size. You might have to wait 6 hours since the last update.",
-      );
       return false;
     }
   };

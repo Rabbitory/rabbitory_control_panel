@@ -28,6 +28,7 @@ export default function Home() {
     addNotification,
     instancePending,
     instanceTerminated,
+    instanceCreated,
   } = useNotificationsContext();
 
   const fetchInstances = async () => {
@@ -55,6 +56,15 @@ export default function Home() {
       )
     );
   }, [notifications, instanceTerminated]);
+  useEffect(() => {
+    setInstances((prev) =>
+      prev.map((instance) =>
+        instanceCreated(instance.name)
+          ? { ...instance, state: "running" }
+          : instance
+      )
+    );
+  }, [notifications, instanceCreated]);
 
   const openDeleteModal = (instance: Instance) => {
     setSelectedInstance(instance);
@@ -130,91 +140,98 @@ export default function Home() {
         </thead>
 
         <tbody className={isLoading ? "" : "animate-fade-in"}>
-          {isLoading 
+          {isLoading
             ? Array.from({ length: 3 }).map((_, idx) => (
-              <tr
-                key={idx}
-                className="bg-card border border-gray-500/30 animate-pulse"
-              >
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="w-5 h-4 bg-gray-600 rounded ml-auto"></div>
-                </td>
-              </tr>
-            )) 
+                <tr
+                  key={idx}
+                  className="bg-card border border-gray-500/30 animate-pulse"
+                >
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="w-full h-4 bg-gray-600 rounded"></div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="w-5 h-4 bg-gray-600 rounded ml-auto"></div>
+                  </td>
+                </tr>
+              ))
             : instances.map((instance) => (
-              <tr
-                key={instance.name}
-                className="bg-card border border-gray-500/30"
-              >
-                <td className="px-4 py-3 relative">
-                  {instance.state === "pending" ||
-                  instance.state === "shutting-down" ||
-                  instance.state === "terminated" ||
-                  instancePending(instance.name) ? (
-                    <span className="text-pagetext1 truncate block group cursor-not-allowed">
-                      {instance.name}
-                    </span>
-                  ) : (
-                    <Link
-                      href={`/instances/${instance.name}?region=${instance.region}`}
-                      className="text-pagetext1 hover:text-btnhover1 truncate block"
-                    >
-                      {instance.name}
-                    </Link>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-pagetext1 truncate">
-                  {instance.id}
-                </td>
-                <td className="px-4 py-3 text-pagetext1">
-                  {instance.region}
-                </td>
-                <td
-                  className={`px-4 py-3 ${
-                    instance.state === "running"
-                      ? "text-btnhover1"
-                      : instance.state === "pending" ||
-                        instance.state === "initializing"
-                      ? "text-btn1 italic"
-                      : instance.state === "stopped" ||
-                        instance.state === "stopping"
-                      ? "text-red-300"
-                      : instance.state === "shutting-down" ||
-                        instance.state === "terminated"
-                      ? "text-pagetext1 italic"
-                      : ""
-                  }`}
-              >
-                {instance.state}
-              </td>
-              <td className="px-4 py-3 text-right">
-              <button
-                onClick={() => openDeleteModal(instance)}
-                className={`
+                <tr
+                  key={instance.name}
+                  className="bg-card border border-gray-500/30"
+                >
+                  <td className="px-4 py-3 relative">
+                    {instance.state === "pending" ||
+                    instance.state === "shutting-down" ||
+                    instance.state === "terminated" ||
+                    instancePending(instance.name) ? (
+                      <span className="text-pagetext1 truncate block group cursor-not-allowed">
+                        {instance.name}
+                      </span>
+                    ) : (
+                      <Link
+                        href={`/instances/${instance.name}?region=${instance.region}`}
+                        className="text-pagetext1 hover:text-btnhover1 truncate block"
+                      >
+                        {instance.name}
+                      </Link>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-pagetext1 truncate">
+                    {instance.id}
+                  </td>
+                  <td className="px-4 py-3 text-pagetext1">
+                    {instance.region}
+                  </td>
+                  <td
+                    className={`px-4 py-3 ${
+                      instance.state === "running"
+                        ? "text-btnhover1"
+                        : instance.state === "pending" ||
+                          instance.state === "initializing"
+                        ? "text-btn1 italic"
+                        : instance.state === "stopped" ||
+                          instance.state === "stopping"
+                        ? "text-red-300"
+                        : instance.state === "shutting-down" ||
+                          instance.state === "terminated"
+                        ? "text-pagetext1 italic"
+                        : ""
+                    }`}
+                  >
+                    {instance.state}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => openDeleteModal(instance)}
+                      className={`
                   text-gray-400 
-                  ${instance.state === "pending" || instance.state === "shutting-down" ? 'cursor-not-allowed' : 'hover:text-btnhover1 hover:shadow-btnhover1'}
+                  ${
+                    instance.state === "pending" ||
+                    instance.state === "shutting-down"
+                      ? "cursor-not-allowed"
+                      : "hover:text-btnhover1 hover:shadow-btnhover1"
+                  }
                 `}
-                aria-label="Delete instance"
-                disabled={instance.state === "pending" || instance.state === "shutting-down"}
-              >
-                <Trash2 size={20} />
-              </button>
-              </td>
-            </tr>
-            ))
-          }
+                      aria-label="Delete instance"
+                      disabled={
+                        instance.state === "pending" ||
+                        instance.state === "shutting-down"
+                      }
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
         </tbody>
       </table>
       {!isLoading && instances.length === 0 && (
@@ -254,12 +271,14 @@ export default function Home() {
                 onClick={handleDelete}
                 disabled={inputText !== selectedInstance.name || isDeleting}
               >
-                {isDeleting ?
+                {isDeleting ? (
                   <span className="flex items-center gap-2">
                     <SubmissionSpinner />
                     Deleting ...
                   </span>
-                : "Delete"}
+                ) : (
+                  "Delete"
+                )}
               </button>
             </div>
           </div>

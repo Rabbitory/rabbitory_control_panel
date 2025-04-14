@@ -40,30 +40,32 @@ export function InstanceTypePage() {
 
   const validateInstanceTypeAndSize = (): string[] => {
     const newErrors: string[] = [];
-  
+
     if (!selectedInstanceType) {
       newErrors.push("Please select an instance type.");
     } else if (!(selectedInstanceType in instanceTypes)) {
       newErrors.push("The selected instance type is not valid.");
     }
-  
+
     if (!instanceSize) {
       newErrors.push("Please select an instance size.");
     } else if (!instanceTypes[selectedInstanceType]?.includes(instanceSize)) {
-      newErrors.push("The selected size is not valid for the chosen instance type.");
+      newErrors.push(
+        "The selected size is not valid for the chosen instance type.",
+      );
     }
-  
+
     setErrors(newErrors);
     return newErrors;
   };
-  
+
   const updateHardware = async () => {
     const validationErrors = validateInstanceTypeAndSize();
     if (validationErrors.length > 0) {
       setSaving(false);
       return false;
     }
-  
+
     try {
       await axios.put(`/api/instances/${instance?.name}/hardware/type`, {
         instanceId: instance?.id,
@@ -93,15 +95,17 @@ export function InstanceTypePage() {
             </div>
           </div>
         </div>
-        ) :
+      ) : (
         <div className="flex items-center gap-2 mb-6">
           <p className="font-text1 text-md">Current instance type and size:</p>
           <p className="font-text1 text-btnhover1 text-sm">{instance?.type}</p>
         </div>
-      }
+      )}
 
       <p className="font-text1 text-sm text-pagetext1 mb-6">
-        This is the hardware of your instance. You can change the hardware to better suit the needs of the broker, or expand the size to have more cores and memory.{" "}
+        This is the hardware of your instance. You can change the hardware to
+        better suit the needs of the broker, or expand the size to have more
+        cores and memory.{" "}
         <a
           href="https://aws.amazon.com/ec2/instance-types/"
           target="_blank"
@@ -109,7 +113,9 @@ export function InstanceTypePage() {
           className="underline text-pagetext1 hover:text-headertext1"
         >
           AWS EC2 Instance Types
-        </a>.
+        </a>
+        . Changing this will cause the instance to be taken down and re-deployed
+        on the new hardware - this can take a couple minutes.
       </p>
 
       {errors.length > 0 && (
@@ -200,12 +206,14 @@ export function InstanceTypePage() {
                   window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
               }}
             >
-              {saving ? 
-              <span className="flex items-center gap-2">
-                <SubmissionSpinner />
-                Updating Instance ...
-              </span>
-              : "Update Instance"}
+              {saving ? (
+                <span className="flex items-center gap-2">
+                  <SubmissionSpinner />
+                  Updating Instance ...
+                </span>
+              ) : (
+                "Update Instance"
+              )}
             </button>
           </div>
         </fieldset>

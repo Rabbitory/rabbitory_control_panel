@@ -88,7 +88,7 @@ export function validateQueueIndexEmbedMsgsBelow(value: string | undefined): str
   return null;
 }
 
-export function validateConfiguration(config: Record<string, string>): string[] {
+export function validateConfiguration(config: Record<string, string>): { valid: boolean; errors: string[] } {
   const validators: Record<string, ValidationFunction> = {
     "log.exchange": validateLogExchange,
     heartbeat: validateHeartbeat,
@@ -104,14 +104,16 @@ export function validateConfiguration(config: Record<string, string>): string[] 
 
   const errors: string[] = [];
 
-  for (const key in validators) {
+  for (const key in config) {
     const validate = validators[key];
-    const value = config[key];
-    const error = validate(value);
-    if (error) {
-      errors.push(error);
+    if (validate) {
+      const value = config[key];
+      const error = validate(value);
+      if (error) {
+        errors.push(`${key}: ${error}`);
+      }
     }
   }
 
-  return errors;
+  return { valid: errors.length === 0, errors };
 }

@@ -6,7 +6,9 @@ import { useInstanceContext } from "../InstanceContext";
 import { useNotificationsContext } from "@/app/NotificationContext";
 import { configItems } from "@/types/configuration";
 import { validateConfiguration } from "@/utils/validateConfig";
+import ErrorBanner from "@/app/components/ErrorBanner";
 import Link from "next/link";
+import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
 interface Configuration {
   [key: string]: string;
@@ -17,6 +19,8 @@ export default function ConfigurationPage() {
   const { addNotification, formPending } = useNotificationsContext();
   const [configuration, setConfiguration] = useState<Configuration>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [errors, setErrors] = useState<string[]>([]);
+  const configSectionRef = React.useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchConfiguration = async () => {
@@ -44,38 +48,50 @@ export default function ConfigurationPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { valid, errors } = validateConfiguration(configuration);
-    if (!valid || !instance?.name) {
-      console.error("Invalid configuration:", errors);
+    const validationErrors = validateConfiguration(configuration);
+    setErrors(validationErrors);
+  
+    if (validationErrors.length > 0) {
+      configSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
+  
+    if (!instance || !instance.name) {
+      throw new Error("No instance found");
+    };
 
     await addNotification({
       type: "configuration",
       status: "pending",
-      instanceName: instance?.name,
+      instanceName: instance.name,
       path: "configuration",
       message: `Setting new configuration for ${instance?.name}`,
     });
 
     try {
+      console.log("Submitting configuration:", configuration);
+
       const response = await axios.post(
         `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
-        {
-          configuration,
-        }
+        { configuration },
       );
       setConfiguration(response.data);
     } catch (error) {
       console.error("Error saving configuration:", error);
     }
   };
+  
+
+  const resetError = (msg: string) => {
+    setErrors((prev) => prev.filter((e) => e !== msg));
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
-      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
-        Configuration
-      </h1>
+    <div 
+      className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8"
+      ref={configSectionRef}
+    >
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Configuration</h1>
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         Below are the RabbitMQ server configurations. For detailed explanations
         of each setting, refer to the{" "}
@@ -89,6 +105,15 @@ export default function ConfigurationPage() {
         </a>
         .
       </p>
+
+      {errors.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {errors.map((error, i) => (
+            <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
+          ))}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <table className="w-full border-collapse">
           <thead className="font-heading1 text-headertext1 text-sm">
@@ -98,11 +123,7 @@ export default function ConfigurationPage() {
               <th className="p-2 text-left border-b">Value</th>
             </tr>
           </thead>
-          <tbody
-            className={`font-text1 text-sm ${
-              isLoading ? "" : "animate-fade-in"
-            }`}
-          >
+          <tbody className={`font-text1 text-sm ${isLoading ? "" : "animate-fade-in"}`}>
             {configItems.map((item) => (
               <tr key={item.key} className="p-2">
                 <td className="p-2 border-b">
@@ -151,6 +172,7 @@ export default function ConfigurationPage() {
             ))}
           </tbody>
         </table>
+
         <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
           <Link
             href="/"
@@ -161,15 +183,18 @@ export default function ConfigurationPage() {
           <button
             type="submit"
             disabled={formPending()}
-            className={`px-4 py-2 text-mainbg1 font-semibold rounded-sm
-                ${
-                  formPending()
-                    ? "bg-btnhover1 opacity-70 cursor-not-allowed"
-                    : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
-                }
-              `}
+            className={`px-4 py-2 text-mainbg1 font-semibold rounded-sm ${
+              formPending()
+                ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+                : "bg-btn1 hover:bg-btnhover1 flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+            }`}
           >
-            {formPending() ? "Saving..." : "Save Configuration"}
+            {formPending() ? 
+              <span className="flex items-center gap-2">
+                  <SubmissionSpinner />
+                  Saving ...
+              </span>
+              : "Save"}
           </button>
         </div>
       </form>

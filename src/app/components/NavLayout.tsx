@@ -22,7 +22,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
       pageName.charAt(0).toUpperCase() + pageName.toLowerCase().slice(1);
 
     const linkClasses =
-      "block w-full px-10 py-2 font-text1 text-lg text-navbartext1 hover:bg-mainbghover hover:text-headertext1 transition-colors" +
+      "block w-full px-14 py-2 font-text1 text-sm text-pagetext1 hover:bg-mainbghover hover:text-headertext1 transition-colors" +
       (isDisabled
         ? "cursor-not-allowed opacity-50"
         : "hover:bg-mainbghover hover:text-headertext1");
@@ -44,7 +44,8 @@ export default function NavLayout({ name }: NavLayoutProps) {
   }
 
   return (
-    <nav className="w-full sticky top-0 h-full bg-mainbg1 border-r-[0.5px] z-10">
+    <nav className="w-full bg-mainbg1 border-r-[0.5px] z-10">
+
       <button
         className="m-6 bg-btn1 text-sm font-heading1 px-4 py-2 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
         onClick={(e) => {
@@ -63,16 +64,25 @@ export default function NavLayout({ name }: NavLayoutProps) {
           General
         </Link>
       </h1>
-      <ul className="mt-8">
-        <PageLink pageName="plugins" disabledOn="any" />
+      <ul className="mt-5 text-sm space-y-2">
+        {/* RabbitMQ Section */}
+        <li className="font-heading1 px-10 text-headertext1 tracking-wide">RabbitMQ</li>
         <PageLink pageName="versions" disabledOn="any" />
         <PageLink pageName="configuration" disabledOn="any" />
+        <PageLink pageName="plugins" disabledOn="any" />
+
+        {/* EC2 Instance Section */}
+        <li className="font-heading1 px-10 mt-4 text-headertext1 tracking-wide">Server Instance</li>
         <PageLink pageName="hardware" disabledOn="any" />
         <PageLink pageName="backups" disabledOn="any" />
-        <PageLink pageName="logs" disabledOn="any" />
         <PageLink pageName="firewall" disabledOn="any" />
+
+        {/* Monitoring Section */}
+        <li className="font-heading1 px-10 mt-4 text-headertext1 tracking-wide">Monitoring</li>
+        <PageLink pageName="logs" disabledOn="any" />
         <PageLink pageName="alarms" disabledOn="any" />
       </ul>
+
     </nav>
   );
 }

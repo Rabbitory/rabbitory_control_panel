@@ -104,163 +104,182 @@ export default function AlarmsPage() {
       {/* Slack Endpoint Card */}
       <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
         <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Slack Endpoint</h1>
-        <p className="font-text1 text-sm mb-6">To create an alarm, setup slack first.</p>
-          <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
-            <button
-              className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
-              onClick={(e) => {
-                e.preventDefault();
-                setShowSlackModal(true);
-              }}
-            >
-              Setup Slack
-            </button>
-          </div>
-      </div>
-
-      {/* Alarms Card */}
-      <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
-        <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
-        <p className="font-text1 text-sm mb-6">
-          Alarms are triggered when the storage or memory usage of your RabbitMQ instance exceeds the specified thresholds.
-          You can set up alarms to receive notifications via Slack using the button below.
-        </p>
-        {isLoading ? (
-        <div className="animate-pulse">
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
-            </div>
-          </div>
-        </div>
-      ) : (
-          <>
-            {/* Storage Alarms Section */}
-            <div className="mb-15">
-              <h2 className="text-md font-heading1 text-headertext1 mb-2">
-                Storage Alarms
-              </h2>
-              <div className="overflow-visible">
-                <table className="font-heading1 text-sm w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="p-2 text-left border-b">
-                        Storage Threshold
-                      </th>
-                      <th className="p-2 text-left border-b">
-                        Reminder Interval
-                      </th>
-                      <th className="p-2 text-left border-b">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="font-text1 text-sm text-pagetext1">
-                    {storageAlarms.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="p-2 text-md text-center text-gray-600">
-                          No storage alarms yet.
-                        </td>
-                      </tr>
-                    ) : (
-                      storageAlarms.map((alarm) => (
-                        <tr key={alarm.id}>
-                          <td className="p-2 border-b">
-                            {alarm.data.storageThreshold}
-                          </td>
-                          <td className="p-2 border-b">
-                            {alarm.data.reminderInterval}
-                          </td>
-                          <td className="p-2 border-b">
-                            <Dropdown
-                              label="Actions"
-                              options={{
-                                Delete: () => handleDelete("storage", alarm.id),
-                                Trigger: () => handleTrigger("storage", alarm),
-                              }}
-                            />
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Memory Alarms Section */}
-            <div className="mb-15">
-              <h2 className="text-md font-heading1 text-headertext1 mb-2">
-                Memory Alarms
-              </h2>
-              <div className="overflow-visible">
-                <table className="font-heading1 text-sm w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="p-2 text-left border-b">
-                        Reminder Interval
-                      </th>
-                      <th className="p-2 text-left border-b">
-                        Memory Threshold
-                      </th>
-                      <th className="p-2 text-left border-b">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="font-text1 text-sm text-pagetext1">
-                    {memoryAlarms.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="p-2 text-center text-gray-600">
-                          No memory alarms yet.
-                        </td>
-                      </tr>
-                    ) : (
-                      memoryAlarms.map((alarm) => (
-                        <tr key={alarm.id}>
-                          <td className="p-2 border-b">
-                            {alarm.data.reminderInterval}
-                          </td>
-                          <td className="p-2 border-b">
-                            {alarm.data.memoryThreshold}
-                          </td>
-                          <td className="p-2 border-b">
-                            <Dropdown
-                              label="Actions"
-                              options={{
-                                Delete: () => handleDelete("memory", alarm.id),
-                                Trigger: () => handleTrigger("memory", alarm),
-                              }}
-                            />
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
-              <button
-                disabled={!webhookUrl}
-                className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowNewAlarmModal(true);
-                }}
-              >
-                Create Alarm
-              </button>
-            </div>
-          </>
+        {webhookUrl ? (
+          <table className="text-sm w-full table-auto mb-6">
+            <colgroup>
+              <col className="w-1/5" />
+              <col />
+            </colgroup>
+            <tbody className="font-text1">
+              <tr>
+                <td className="py-2">Webhook URL:</td>
+                <td className="py-2">{webhookUrl}</td>
+              </tr>
+            </tbody>
+          </table>
+        ) : (
+          <p className="font-text1 text-sm mb-6">
+            You must set up a slack endpoint before creating alarms.
+          </p>
         )}
-        {showSlackModal && <SlackModal url={webhookUrl} onSave={(url) => setWebhookUrl(url)} onClose={handleCloseSlackModal} />}
-        {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
+        <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
+          <button
+            className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowSlackModal(true);
+            }}
+          >
+            Setup Slack
+          </button>
+        </div>
       </div>
+
+      {webhookUrl &&
+        <>
+          <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
+            <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
+            <p className="font-text1 text-sm mb-6">
+              Alarms are triggered when the storage or memory usage of your RabbitMQ instance exceeds the specified thresholds.
+              You can set up alarms to receive notifications via Slack using the button below.
+            </p>
+            {isLoading ? (
+              <div className="animate-pulse">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Storage Alarms Section */}
+                <div className="mb-15">
+                  <h2 className="text-md font-heading1 text-headertext1 mb-2">
+                    Storage Alarms
+                  </h2>
+                  <div className="overflow-visible">
+                    <table className="font-heading1 text-sm w-full border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="p-2 text-left border-b">
+                            Storage Threshold
+                          </th>
+                          <th className="p-2 text-left border-b">
+                            Reminder Interval
+                          </th>
+                          <th className="p-2 text-left border-b">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="font-text1 text-sm text-pagetext1">
+                        {storageAlarms.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} className="p-2 text-md text-center text-gray-600">
+                              No storage alarms yet.
+                            </td>
+                          </tr>
+                        ) : (
+                          storageAlarms.map((alarm) => (
+                            <tr key={alarm.id}>
+                              <td className="p-2 border-b">
+                                {alarm.data.storageThreshold}
+                              </td>
+                              <td className="p-2 border-b">
+                                {alarm.data.reminderInterval}
+                              </td>
+                              <td className="p-2 border-b">
+                                <Dropdown
+                                  label="Actions"
+                                  options={{
+                                    Delete: () => handleDelete("storage", alarm.id),
+                                    Trigger: () => handleTrigger("storage", alarm),
+                                  }}
+                                />
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Memory Alarms Section */}
+                <div className="mb-15">
+                  <h2 className="text-md font-heading1 text-headertext1 mb-2">
+                    Memory Alarms
+                  </h2>
+                  <div className="overflow-visible">
+                    <table className="font-heading1 text-sm w-full border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="p-2 text-left border-b">
+                            Reminder Interval
+                          </th>
+                          <th className="p-2 text-left border-b">
+                            Memory Threshold
+                          </th>
+                          <th className="p-2 text-left border-b">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="font-text1 text-sm text-pagetext1">
+                        {memoryAlarms.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} className="p-2 text-center text-gray-600">
+                              No memory alarms yet.
+                            </td>
+                          </tr>
+                        ) : (
+                          memoryAlarms.map((alarm) => (
+                            <tr key={alarm.id}>
+                              <td className="p-2 border-b">
+                                {alarm.data.reminderInterval}
+                              </td>
+                              <td className="p-2 border-b">
+                                {alarm.data.memoryThreshold}
+                              </td>
+                              <td className="p-2 border-b">
+                                <Dropdown
+                                  label="Actions"
+                                  options={{
+                                    Delete: () => handleDelete("memory", alarm.id),
+                                    Trigger: () => handleTrigger("memory", alarm),
+                                  }}
+                                />
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
+                  <button
+                    className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-sm text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowNewAlarmModal(true);
+                    }}
+                  >
+                    Create Alarm
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </>
+      }
+      {showSlackModal && <SlackModal url={webhookUrl} onSave={(url) => setWebhookUrl(url)} onClose={handleCloseSlackModal} />}
+      {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
     </>
 
   );

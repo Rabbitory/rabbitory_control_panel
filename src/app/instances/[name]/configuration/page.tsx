@@ -56,11 +56,14 @@ export default function ConfigurationPage() {
       return;
     }
   
+    if (!instance || !instance.name) {
+      throw new Error("No instance found");
+    };
 
     await addNotification({
       type: "configuration",
       status: "pending",
-      instanceName: instance?.name,
+      instanceName: instance.name,
       path: "configuration",
       message: `Setting new configuration for ${instance?.name}`,
     });

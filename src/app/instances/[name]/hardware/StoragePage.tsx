@@ -68,6 +68,10 @@ export function StoragePage() {
       return false;
     }
 
+    if (!instance || !instance.name) {
+      throw new Error("No instance found");
+    };
+
     await addNotification({
       type: "storage",
       status: "pending",

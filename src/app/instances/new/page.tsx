@@ -14,13 +14,13 @@ import ErrorBanner from "@/app/components/ErrorBanner";
 import NewInstanceLoadingSkeleton from "./NewInstanceLoadingSkeleton";
 import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
-import { useNotificationsContext } from "@/app/NotificationContext";
+// import { useNotificationsContext } from "@/app/NotificationContext";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function NewInstancePage() {
   const router = useRouter();
-  const { addNotification } = useNotificationsContext();
+  // const { addNotification } = useNotificationsContext();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [instantiating, setInstantiating] = useState(false);

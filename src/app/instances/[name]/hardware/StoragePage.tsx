@@ -30,7 +30,7 @@ export function StoragePage() {
 
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`
+          `/api/instances/${instance?.name}/hardware/storage?volumeId=${instance?.EBSVolumeId}&region=${instance?.region}`,
         );
 
         if (response.data) {
@@ -52,7 +52,7 @@ export function StoragePage() {
 
     if (!newVolumeSize || newVolumeSize <= currentVolumeSize) {
       errorMessages.push(
-        `Storage size must be greater than current size (${currentVolumeSize} GB).`
+        `Storage size must be greater than current size (${currentVolumeSize} GB).`,
       );
     }
     if (newVolumeSize > 16000) {
@@ -70,7 +70,7 @@ export function StoragePage() {
 
     if (!instance || !instance.name) {
       throw new Error("No instance found");
-    };
+    }
 
     await addNotification({
       type: "storage",
@@ -92,7 +92,7 @@ export function StoragePage() {
     } catch (error) {
       console.error("Failed to update storage size:", error);
       alert(
-        "Failed to update storage size. You might have to wait 6 hours since the last update."
+        "Failed to update storage size. You might have to wait 6 hours since the last update.",
       );
       return false;
     }
@@ -112,30 +112,31 @@ export function StoragePage() {
             </div>
           </div>
         </div>
-        ) :
+      ) : (
         <div className="flex items-center gap-2 mb-6">
-          <p className="font-text1 text-md">
-          Current instance storage size:
-          </p>
+          <p className="font-text1 text-md">Current instance storage size:</p>
           <p className="font-text1 text-btnhover1 text-sm">
-          {` ${currentVolumeSize} GB`}
+            {` ${currentVolumeSize} GB`}
           </p>
         </div>
-      }
+      )}
       <p className="font-text1 text-sm text-pagetext1 mb-6">
-        The amount of storage the broker has access to. 8gb minimum. System
-        files take about 4gb.
+        The total amount of storage the broker has access to. System files take
+        about 4gb of this total.
       </p>
       <StorageDetails />
 
       {errors.length > 0 && (
-              <div className="mb-4">
-                {errors.map((error, index) => (
-                  <ErrorBanner key={index} message={error} onClose={() => setErrors([])} />
-                ))}
-              </div>
-            )}
-
+        <div className="mb-4">
+          {errors.map((error, index) => (
+            <ErrorBanner
+              key={index}
+              message={error}
+              onClose={() => setErrors([])}
+            />
+          ))}
+        </div>
+      )}
 
       <fieldset disabled={formPending()} className="space-y-4">
         {isLoading ? (
@@ -146,7 +147,7 @@ export function StoragePage() {
               </div>
             </div>
           </div>
-          ) :
+        ) : (
           <div className="flex items-center gap-4">
             <label
               htmlFor="storageSize"
@@ -163,7 +164,7 @@ export function StoragePage() {
               className="font-text1 w-1/10 p-1 border rounded-md text-sm"
             />
           </div>
-        }
+        )}
 
         <div className="font-heading1 text-sm flex justify-end gap-4">
           <button
@@ -180,17 +181,19 @@ export function StoragePage() {
               const success = await updateStorageSize();
               if (success) {
                 router.push(
-                  `/instances/${instance?.name}/hardware?region=${instance?.region}`
+                  `/instances/${instance?.name}/hardware?region=${instance?.region}`,
                 );
               }
             }}
           >
-            {formPending() ? 
+            {formPending() ? (
               <span className="flex items-center gap-2">
                 <SubmissionSpinner />
                 Updating Storage ...
               </span>
-              : "Update Storage"}
+            ) : (
+              "Update Storage"
+            )}
           </button>
         </div>
       </fieldset>

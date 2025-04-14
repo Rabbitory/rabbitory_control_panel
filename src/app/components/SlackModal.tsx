@@ -20,6 +20,10 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
   };
 
   const isValidWebhookUrl = () => {
+    if (!webhookUrl) {
+      return true;
+    }
+
     if (!webhookUrl.startsWith("https://")) {
       handleError("Webhook URL must start with 'https://'.");
       return false;

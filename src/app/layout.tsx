@@ -33,7 +33,7 @@ export default async function RootLayout({
       className={`${metrophobic.variable} ${montserrat.variable}`}
     >
       <NotificationsProvider>
-        <body className={`bg-mainbg1 text-gray-900 mb-15`}>
+        <body className="flex flex-col bg-mainbg1 text-gray-900`">
           <div className="sticky top-0 z-50 flex justify-between items-center bg-mainbg1 pt-6 pb-6 pl-10 pr-10 border-b-[0.5] border-border1">
             <RabbitoryLogoLink />
             <NotificationsDropdown />

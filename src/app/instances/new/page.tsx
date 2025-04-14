@@ -14,27 +14,29 @@ import ErrorBanner from "@/app/components/ErrorBanner";
 import NewInstanceLoadingSkeleton from "./NewInstanceLoadingSkeleton";
 import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
-// import { useNotificationsContext } from "@/app/NotificationContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function NewInstancePage() {
   const router = useRouter();
-  // const { addNotification } = useNotificationsContext();
+  const { addNotification } = useNotificationsContext();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [instantiating, setInstantiating] = useState(false);
 
   const [availableRegions, setAvailableRegions] = useState<string[]>([]);
   const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
-  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
+  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
+    []
+  );
 
-  const [instanceName, setInstanceName] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedInstanceType, setSelectedInstanceType] = useState('');
-  const [selectedInstanceSize, setSelectedInstanceSize] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [instanceName, setInstanceName] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedInstanceType, setSelectedInstanceType] = useState("");
+  const [selectedInstanceSize, setSelectedInstanceSize] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [storageSize, setStorageSize] = useState(8);
 
   useEffect(() => {
@@ -42,13 +44,13 @@ export default function NewInstancePage() {
       try {
         setIsLoading(true);
         const [regionRes, typeRes] = await Promise.all([
-          axios.get('/api/regions'),
-          axios.get('/api/instanceTypes'),
+          axios.get("/api/regions"),
+          axios.get("/api/instanceTypes"),
         ]);
         setAvailableRegions(regionRes.data.regions);
         setInstanceTypes(typeRes.data.instanceTypes);
       } catch (err) {
-        console.error('Error loading form data:', err);
+        console.error("Error loading form data:", err);
       } finally {
         setIsLoading(false);
       }
@@ -64,42 +66,55 @@ export default function NewInstancePage() {
   // Validation functions
   const validateName = (name: string) =>
     !/^[a-z0-9-_]{3,64}$/i.test(name)
-      ? ['Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.']
+      ? [
+          "Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.",
+        ]
       : [];
 
   const validateRegion = (region: string) =>
     !region
-      ? ['Please select a region.']
+      ? ["Please select a region."]
       : !availableRegions.includes(region)
-      ? ['Selected region is not valid.']
+      ? ["Selected region is not valid."]
       : [];
 
   const validateInstanceType = (type: string) =>
     !type
-      ? ['Please select an instance type.']
+      ? ["Please select an instance type."]
       : !(type in instanceTypes)
-      ? ['Selected instance type is not valid.']
+      ? ["Selected instance type is not valid."]
       : [];
 
   const validateSize = (size: string) =>
     !size
-      ? ['Please select an instance size.']
+      ? ["Please select an instance size."]
       : !filteredInstanceTypes.includes(size)
-      ? ['Selected instance size is not valid.']
+      ? ["Selected instance size is not valid."]
       : [];
 
   const validateUsername = (u: string) =>
-    !u ? ['Username is required.'] : u.length < 6 ? ['Username must be at least 6 characters long.'] : [];
+    !u
+      ? ["Username is required."]
+      : u.length < 6
+      ? ["Username must be at least 6 characters long."]
+      : [];
 
   const validatePassword = (p: string) =>
     !p
-      ? ['Password is required.']
-      : p.length < 8 || !/[a-zA-Z]/.test(p) || !/[0-9]/.test(p) || !/[!@#$%^&*]/.test(p)
-      ? ['Password must be at least 8 characters long and include a letter, a number, and a special character.']
+      ? ["Password is required."]
+      : p.length < 8 ||
+        !/[a-zA-Z]/.test(p) ||
+        !/[0-9]/.test(p) ||
+        !/[!@#$%^&*]/.test(p)
+      ? [
+          "Password must be at least 8 characters long and include a letter, a number, and a special character.",
+        ]
       : [];
 
   const validateStorageSize = (size: number) =>
-    isNaN(size) || size < 8 || size > 16000 ? ['Storage size must be between 8 and 16000 GB.'] : [];
+    isNaN(size) || size < 8 || size > 16000
+      ? ["Storage size must be between 8 and 16000 GB."]
+      : [];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -122,7 +137,14 @@ export default function NewInstancePage() {
     }
 
     try {
-      await axios.post('/api/instances', {
+      await addNotification({
+        type: "newInstance",
+        status: "pending",
+        instanceName,
+        path: "instances",
+        message: `Creating ${instanceName} instance.`,
+      });
+      await axios.post("/api/instances", {
         instanceName,
         region: selectedRegion,
         instanceType: selectedInstanceSize,
@@ -130,29 +152,39 @@ export default function NewInstancePage() {
         password,
         storageSize,
       });
-      router.push('/');
+      router.push("/");
     } catch (err) {
-      console.error('Error creating instance:', err);
-      setErrorMessages(['Something went wrong while creating the instance. Please try again.']);
+      console.error("Error creating instance:", err);
+      setErrorMessages([
+        "Something went wrong while creating the instance. Please try again.",
+      ]);
     } finally {
       setInstantiating(false);
     }
   };
 
   const handleGenerate = () => setInstanceName(generateName());
-  const dismissError = (i: number) => setErrorMessages((prev) => prev.filter((_, idx) => idx !== i));
+  const dismissError = (i: number) =>
+    setErrorMessages((prev) => prev.filter((_, idx) => idx !== i));
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-6 mb-6">
-      <h1 className="text-2xl font-heading1 text-headertext1 mb-10">Create Instance</h1>
+      <h1 className="text-2xl font-heading1 text-headertext1 mb-10">
+        Create Instance
+      </h1>
       <p className="font-text1 text-pagetext1 text-sm mb-8 px-4">
-        Provide the following details to launch a new RabbitMQ instance in the cloud.
+        Provide the following details to launch a new RabbitMQ instance in the
+        cloud.
       </p>
 
       {errorMessages.length > 0 && (
         <div className="space-y-2 mb-4">
           {errorMessages.map((msg, idx) => (
-            <ErrorBanner key={idx} message={msg} onClose={() => dismissError(idx)} />
+            <ErrorBanner
+              key={idx}
+              message={msg}
+              onClose={() => dismissError(idx)}
+            />
           ))}
         </div>
       )}
@@ -164,7 +196,10 @@ export default function NewInstancePage() {
           <fieldset disabled={instantiating} className="space-y-4">
             {/* Instance Name */}
             <div className="flex items-center gap-4">
-              <label htmlFor="instanceName" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="instanceName"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Instance Name:
               </label>
               <div className="flex gap-2 w-3/4">
@@ -188,7 +223,10 @@ export default function NewInstancePage() {
 
             {/* Region */}
             <div className="flex items-center gap-4">
-              <label htmlFor="region" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="region"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Region:
               </label>
               <select
@@ -211,7 +249,10 @@ export default function NewInstancePage() {
 
             {/* Instance Type */}
             <div className="flex items-center gap-4">
-              <label htmlFor="instanceType" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="instanceType"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Instance Type:
               </label>
               <select
@@ -232,7 +273,10 @@ export default function NewInstancePage() {
 
             {/* Instance Size */}
             <div className="flex items-center gap-4">
-              <label htmlFor="instanceSize" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="instanceSize"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Instance Size:
               </label>
               <select
@@ -256,7 +300,10 @@ export default function NewInstancePage() {
 
             {/* Storage Size */}
             <div className="flex items-center gap-4">
-              <label htmlFor="storageSize" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="storageSize"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Storage Size (GB):
               </label>
               <input
@@ -271,12 +318,16 @@ export default function NewInstancePage() {
 
             <p className="py-4 bg-card font-text1 text-sm text-p flex items-center gap-2">
               <Lightbulb className="w-6 h-6 text-btnhover1" />
-              The following username and password will be for logging into your RabbitMQ Manager portal.
+              The following username and password will be for logging into your
+              RabbitMQ Manager portal.
             </p>
 
             {/* Username */}
             <div className="flex items-center gap-4">
-              <label htmlFor="username" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="username"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Username:
               </label>
               <input
@@ -291,7 +342,10 @@ export default function NewInstancePage() {
 
             {/* Password */}
             <div className="flex items-center gap-4">
-              <label htmlFor="password" className="font-heading1 text-md text-headertext1 w-1/4">
+              <label
+                htmlFor="password"
+                className="font-heading1 text-md text-headertext1 w-1/4"
+              >
                 Password:
               </label>
               <input

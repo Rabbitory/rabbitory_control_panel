@@ -12,6 +12,7 @@ import { Info } from "lucide-react";
 import { Trash2 } from "lucide-react";
 
 import { useNotificationsContext } from "@/app/NotificationContext";
+import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
 export default function FirewallPage() {
   const { instance } = useInstanceContext();
@@ -426,7 +427,12 @@ export default function FirewallPage() {
               disabled={errors.length > 0 || formPending()}
               className="font-heading1 bg-btn1 text-mainbg1 font-semibold px-4 py-2 rounded-sm hover:bg-btnhover1 cursor-pointer flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
             >
-              Save
+            {formPending() ? 
+              <span className="flex items-center gap-2">
+                  <SubmissionSpinner />
+                  Saving ...
+              </span>
+              : "Save"}
             </button>
           </div>
         </div>

@@ -10,7 +10,6 @@ import { isValidDescription, isValidSourceIp, isInRangeCustomPort } from "@/util
 import { COMMON_PORTS } from "@/utils/firewallConstants";
 import { Info } from "lucide-react";
 import { Trash2 } from "lucide-react";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 
 import { useNotificationsContext } from "@/app/NotificationContext";
 
@@ -19,7 +18,6 @@ export default function FirewallPage() {
   const { addNotification, formPending } = useNotificationsContext();
   const [rules, setRules] = useState<FirewallRule[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -69,7 +67,6 @@ export default function FirewallPage() {
     });
   };
   
-
   const handleSourceIpChange = (index: number, value: string) => {
     setRules((prevRules) => {
       const updatedRules = [...prevRules];
@@ -86,7 +83,6 @@ export default function FirewallPage() {
     if (error) addError(error);
   };
   
-
   const handleCustomPortsChange = (index: number, value: string) => {
     setRules((prevRules) => {
       const updatedRules = [...prevRules];
@@ -102,7 +98,6 @@ export default function FirewallPage() {
     resetError(portRangeError);
     resetError(portRepeatedError);
 
-    // Validate if the ports are within range
     if (!isInRangeCustomPort(value)) {
       addError(portRangeError);
     }
@@ -158,7 +153,6 @@ export default function FirewallPage() {
   
     return null;
   };
-  
   
   const validateCustomPorts = (customPorts: string, commonPorts: string[]): string[] => {
     const errors: string[] = [];
@@ -222,10 +216,7 @@ export default function FirewallPage() {
   
     setErrors(validationErrors);
   
-    if (validationErrors.length > 0) {
-      setIsSaving(false);
-      return;
-    }
+    if (validationErrors.length > 0) return;
   
     try {
       const { data } = await axios.put(
@@ -233,8 +224,7 @@ export default function FirewallPage() {
         { rules }
       );
   
-      console.log(data.message);
-      console.log(rules);
+      setRules(data);
     } catch (error) {
       console.error("Error saving rules:", error);
     }
@@ -436,14 +426,7 @@ export default function FirewallPage() {
               disabled={errors.length > 0 || formPending()}
               className="font-heading1 bg-btn1 text-mainbg1 font-semibold px-4 py-2 rounded-sm hover:bg-btnhover1 cursor-pointer flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
             >
-              {formPending() ? (
-                <span className="flex items-center gap-2">
-                  <SubmissionSpinner />
-                  Saving ...
-                </span>
-              ) : (
-                "Save"
-              )}
+              Save
             </button>
           </div>
         </div>

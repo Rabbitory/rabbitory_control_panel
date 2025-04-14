@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import { NotificationStatus } from "@/types/notification";
+import { Bell, X } from "lucide-react";
+
 
 export default function NotificationsDropdown() {
-  const { notifications, updateNotification, deleteNotification } =
-    useNotificationsContext();
+  const { notifications, updateNotification, deleteNotification } = useNotificationsContext();
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
@@ -16,9 +18,9 @@ export default function NotificationsDropdown() {
   const getTextColor = (status: NotificationStatus) => {
     switch (status) {
       case "success":
-        return "text-green-400";
+        return "text-btnhover1";
       case "pending":
-        return "text-blue-400";
+        return "text-btn1";
       case "error":
         return "text-red-400";
       default:
@@ -29,9 +31,9 @@ export default function NotificationsDropdown() {
   const getBubbleColor = (status: NotificationStatus) => {
     switch (status) {
       case "success":
-        return "bg-green-400";
+        return "bg-btnhover1";
       case "pending":
-        return "bg-blue-400";
+        return "bg-btn1";
       case "error":
         return "bg-red-400";
       default:
@@ -44,7 +46,6 @@ export default function NotificationsDropdown() {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-
       updateNotification(data);
     };
 
@@ -58,43 +59,54 @@ export default function NotificationsDropdown() {
     };
   }, [updateNotification]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const notificationCount = notifications.length;
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        className="relative p-2 transition group"
+        aria-label="Toggle notifications dropdown"
       >
-        Notifications
+        <Bell className="w-5 h-5 text-btn1 group-hover:animate-wiggle hover:text-checkmark" />
         {notificationCount > 0 && (
-          <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full text-xs px-2 py-1">
+          <span className="absolute -top-1 -right-1 bg-red-400 text-white rounded-full text-xs w-4 h-4 px-[2.5] flex items-center justify-center">
             {notificationCount}
           </span>
         )}
       </button>
+
       {showDropdown && (
-        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 shadow-md z-50 w-40 p-2">
+        <div className="absolute top-full right-0 mt-2 bg-card border border-mainbg1 z-50 w-64 p-2 rounded-sm">
           {notificationCount === 0 ? (
-            <div className="text-gray-800 text-xs">No notifications</div>
+            <div className="font-text1 text-pagetext1 text-sm p-1">No notifications</div>
           ) : (
-            <ul className="list-none m-0 p-0 text-xs">
+            <ul className="text-sm space-y-2">
               {notifications.map((notification, index) => (
                 <li
                   key={index}
-                  className={`flex items-start p-2 border-b border-gray-200 last:border-0 ${getTextColor(
+                  className={`font-text1 flex items-start border-b last:border-none border-gray-200 pb-1 ${getTextColor(
                     notification.status
                   )}`}
                 >
                   <span
-                    className={`inline-block w-3 h-3 rounded-full mr-2 mt-1 ${getBubbleColor(
+                    className={`inline-block w-2 h-2 rounded-full mr-2 mt-2 ${getBubbleColor(
                       notification.status
                     )}`}
                   />
-                  {/* Use break-all for especially long words or single unbroken strings */}
-                  <span className="flex-1 whitespace-normal break-all">
-                    {notification.message}
-                  </span>
+                  <span className="flex-1 break-words">{notification.message}</span>
                   <button
                     onClick={() =>
                       deleteNotification(
@@ -104,10 +116,10 @@ export default function NotificationsDropdown() {
                         index
                       )
                     }
-                    className="ml-2 text-xs text-red-500 hover:text-red-700"
+                    className="ml-2 text-pagetext1 hover:text-card text-xs"
                     disabled={notification.status === "pending"}
                   >
-                    X
+                    <X size={16} />
                   </button>
                 </li>
               ))}

@@ -27,7 +27,6 @@ export async function GET(
   }
 
   try {
-    // update all these functions to take a region parameter
     const currentSGRules = await getCurrentSecurityGroupRules(
       instanceName,
       region
@@ -82,8 +81,6 @@ export async function PUT(
     );
     await updateRabbitmqPorts(instanceName, region, portsToAdd, portsToRemove);
 
-    // re-fetch new AWS Security Group rule
-    // convert these fetched rules to sg rules and send to in NextResponse
     const updatedSGRules = await getCurrentSecurityGroupRules(
       instanceName,
       region

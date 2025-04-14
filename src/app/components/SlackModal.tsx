@@ -36,19 +36,23 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
 
     if (servicePathParts.length !== 3) {
       handleError("Invalid Slack webhook URL format. Expected three service path components.");
+      return false;
     }
 
     const [workspace, channel, token] = servicePathParts;
     if (!/^[A-Z0-9]{8,12}$/i.test(workspace)) {
       handleError("Invalid workspace identifier in webhook URL.");
+      return false;
     }
 
     if (!/^[A-Z0-9]{8,12}$/i.test(channel)) {
       handleError("Invalid channel identifier in webhook URL.");
+      return false;
     }
 
     if (!/^[A-Z0-9]{24}$/i.test(token)) {
       handleError("Invalid token in webhook URL.");
+      return false;
     }
 
     return true;

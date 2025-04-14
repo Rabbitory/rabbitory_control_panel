@@ -11,7 +11,6 @@ export default function PluginsPage() {
   const { formPending, addNotification } = useNotificationsContext();
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchPlugins = async () => {
@@ -60,7 +59,6 @@ export default function PluginsPage() {
     setEnabledPlugins((prev) =>
       newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
     );
-    setIsSaving(true);
 
     try {
       await axios.post(
@@ -79,8 +77,6 @@ export default function PluginsPage() {
           ? [...prev, pluginName]
           : prev.filter((p) => p !== pluginName)
       );
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -102,8 +98,6 @@ export default function PluginsPage() {
         </a>
         .
       </p>
-
-      {isSaving && <p className="font-heading1 text-white">Saving...</p>}
 
       {isLoading ? (
         <div className="space-y-4">

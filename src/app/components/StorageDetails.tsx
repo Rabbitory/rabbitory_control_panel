@@ -17,7 +17,7 @@ export function StorageDetails() {
     <details className="py-4 bg-card text-sm text-gray-700">
       <summary className="cursor-pointer font-text1 text-md text-pagetext1 mb-2 flex items-center gap-2 hover:text-headertext1">
         <Lightbulb className="w-6 h-6 text-btnhover1" />
-        Need help choosing a storage size?
+        This is the storage volume attached to your instance. Minimum size is 8 GB. Click here for recommendations
       </summary>
       <div className="px-8 mt-2 space-y-2">
         <p className="text-btn1 font-text1 py-6">

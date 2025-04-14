@@ -2,7 +2,7 @@ import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
-import { validateConfiguration } from "@/utils/validateConfig";
+import { validateConfiguration } from "@/utils/validateConfigBackend";
 import { deleteEvent } from "@/utils/eventBackups";
 import eventEmitter from "@/utils/eventEmitter";
 import parseConfig from "@/utils/parseConfig";
@@ -83,6 +83,7 @@ export async function POST(
       { status: 400 }
     );
   }
+  
 
   const commands: string[] = [];
   for (const [key, value] of Object.entries(newConfig)) {

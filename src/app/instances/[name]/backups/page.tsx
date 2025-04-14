@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useInstanceContext } from "../InstanceContext";
+import SubmissionSpinner from "@/app/components/SubmissionSpinner";
 import { useNotificationsContext } from "@/app/NotificationContext";
 
 interface Backup {
@@ -110,7 +111,12 @@ export default function BackupsPage() {
           disabled={formPending()}
           className="font-heading1 text-sm px-4 py-2 mb-8 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
         >
-          {formPending() ? "Creating Backup..." : "Manual backup"}
+          {formPending() ? 
+            <span className="flex items-center gap-2">
+              <SubmissionSpinner />
+              Adding Manual Backup...
+            </span>
+          : "+ Add Manual Backup"}
         </button>
       </div>
 

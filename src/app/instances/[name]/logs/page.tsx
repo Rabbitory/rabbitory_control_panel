@@ -11,8 +11,8 @@ export default function LogsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const logsEndRef = useRef<HTMLDivElement | null>(null);
-  const scrollContainerRef = useRef(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -40,10 +40,12 @@ export default function LogsPage() {
   }, [instance?.name, instance?.region]);
 
   useEffect(() => {
-    if (logsEndRef.current) {
-      logsEndRef.current.scrollIntoView({ behavior: "smooth" });
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
     }
   }, [logs]);
+  
 
   const handleCopy = () => {
     navigator.clipboard.writeText(logs);
@@ -91,7 +93,6 @@ export default function LogsPage() {
             <pre className="bg-mainbg1 p-4 rounded-lg whitespace-pre-wrap font-text1 text-gray-300 text-sm">
               {logs}
             </pre>
-            <div ref={logsEndRef} />
           </div>
         </div>
       )}

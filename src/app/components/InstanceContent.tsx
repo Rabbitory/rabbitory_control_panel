@@ -1,72 +1,39 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { useSearchParams } from "next/navigation";
-// import NavLayout from "@/app/components/NavLayout";
-// import { useInstanceContext } from "../instances/[name]/InstanceContext";
-// import axios from "axios";
-// import { Instance } from "@/types/instance";
-
-// export function InstanceContent({
-//   children,
-//   name,
-// }: {
-//   children: React.ReactNode;
-//   name: string;
-// }) {
-//   const { setInstance } = useInstanceContext();
-//   const [isFetching, setIsFetching] = useState(true);
-//   const searchParams = useSearchParams();
-//   const region = searchParams.get("region");
-
-//   useEffect(() => {
-//     const fetchInstance = async () => {
-//       setIsFetching(true);
-//       try {
-//         const response = await axios.get<Instance>(
-//           `/api/instances/${name}?region=${region}`,
-//         );
-//         setInstance(response.data);
-//       } catch (error) {
-//         console.error("Error fetching instance:", error);
-//       } finally {
-//         setIsFetching(false);
-//       }
-//     };
-
-//     fetchInstance();
-//   }, [name, setInstance, region]);
-
-//   if (isFetching) {
-//     return <div>Loading...</div>;
-//   }
-
-// return (
-//   <div className="h-screen flex overflow-hidden">
-//     {/* Sticky sidebar */}
-//     <div className="w-[200px] sticky top-0 h-full bg-mainbg1 border-r-[0.5px] border-border1">
-//       <NavLayout name={name} />
-//     </div>
-
-//     {/* Main content (this will scroll) */}
-//     <div className="flex-1 overflow-y-auto">
-//       <section className="p-4">
-//         {children}
-//       </section>
-//     </div>
-//   </div>
-// );
-
-// }
-
-"use client";  // Ensure this component runs on the client side
+"use client";
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import NavLayout from "@/app/components/NavLayout";
-import { useInstanceContext } from "../instances/[name]/InstanceContext"; // Client-side context hook
+import { useInstanceContext } from "../instances/[name]/InstanceContext";
 import axios from "axios";
 import { Instance } from "@/types/instance";
+
+export default function PageSkeleton() {
+  return (
+    <div className="flex">
+      {/* Sidebar Skeleton */}
+      <div className="w-[200px] h-[calc(100vh-88px)] sticky top-[88px] bg-mainbg1 border-r-[0.5px] border-border1 p-4 space-y-4">
+          <div className="h-150 bg-gray-600 rounded-md animate-pulse"
+          />
+      </div>
+
+      {/* Main Content Skeleton */}
+      <div className="flex-1 h-[calc(100vh-88px)] overflow-y-auto">
+        <section className="p-4 mb-15">
+          <div className="h-142 text-pagetext1 flex-1 max-w-7xl mx-auto p-6 bg-card rounded-sm shadow-md mt-8 space-y-4">
+            <div className="h-8 bg-gray-600 rounded-md w-1/3 animate-pulse mb-15" />
+
+            <div className="h-5 bg-gray-600 rounded-md w-1/3 animate-pulse mb-4" />
+            <div className="h-20 bg-gray-600 rounded-md w-full animate-pulse mb-10" />
+
+            <div className="h-5 bg-gray-600 rounded-md w-1/3 animate-pulse mb-4" />
+            <div className="h-20 bg-gray-600 rounded-md w-full animate-pulse" />
+
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
 
 export function InstanceContent({
   children,
@@ -76,13 +43,13 @@ export function InstanceContent({
   name: string;
 }) {
   const { setInstance } = useInstanceContext();
-  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const searchParams = useSearchParams();
   const region = searchParams.get("region");
 
   useEffect(() => {
     const fetchInstance = async () => {
-      setIsFetching(true);
+      setIsLoading(true);
       try {
         const response = await axios.get<Instance>(
           `/api/instances/${name}?region=${region}`,
@@ -91,30 +58,28 @@ export function InstanceContent({
       } catch (error) {
         console.error("Error fetching instance:", error);
       } finally {
-        setIsFetching(false);
+        setIsLoading(false);
       }
     };
 
     fetchInstance();
   }, [name, setInstance, region]);
 
-  if (isFetching) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <div className="h-screen flex overflow-hidden">
-      {/* Sticky sidebar (Nav) */}
-      <div className="w-[200px] sticky top-0 h-full bg-mainbg1 border-r-[0.5px] border-border1 z-10">
+  return isLoading ? (
+    <PageSkeleton />
+  ) : (
+    <div className="flex">
+      {/* Sidebar Nav */}
+      <div className="w-[200px] h-[calc(100vh-88px)] sticky top-[88px] bg-mainbg1 border-r-[0.5px] border-border1">
         <NavLayout name={name} />
       </div>
-
-      {/* Main content (scrollable) */}
-      <div className="flex-1 overflow-y-auto">
-        <section className="p-4 h-full">
-          {children}
-        </section>
+  
+      {/* Scrollable Main Content */}
+      <div className="flex-1 h-[calc(100vh-88px)] overflow-y-auto">
+        <section className="p-4 mb-15">{children}</section>
       </div>
     </div>
   );
+  
+  
 }

@@ -1,161 +1,170 @@
 "use client";
 
-import Form from "next/form";
+// import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 import Link from "next/link";
 import { Lightbulb } from "lucide-react";
+
 import { StorageDetails } from "@/app/components/StorageDetails";
-import { useNotificationsContext } from "@/app/NotificationContext";
+import { InstanceDetails } from "@/app/components/InstanceDetails";
+import ErrorBanner from "@/app/components/ErrorBanner";
+import NewInstanceLoadingSkeleton from "./NewInstanceLoadingSkeleton";
+import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+
+// import { useNotificationsContext } from "@/app/NotificationContext";
 
 type InstanceTypes = Record<string, string[]>;
 
-export default function NewFormPage() {
+export default function NewInstancePage() {
   const router = useRouter();
-  const { addNotification } = useNotificationsContext();
+  // const { addNotification } = useNotificationsContext();
   const [isLoading, setIsLoading] = useState(false);
-  const [instanceName, setInstanceName] = useState("");
-  const [availableRegions, setAvailableRegions] = useState([]);
-  const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [instantiating, setInstantiating] = useState(false);
-  const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
-  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
-    []
-  );
+
+  const [availableRegions, setAvailableRegions] = useState<string[]>([]);
+  const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
+  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
+
+  const [instanceName, setInstanceName] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedInstanceType, setSelectedInstanceType] = useState('');
+  const [selectedInstanceSize, setSelectedInstanceSize] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [storageSize, setStorageSize] = useState(8);
 
   useEffect(() => {
-    const fetchRegions = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const { data } = await axios.get("/api/regions");
-        setAvailableRegions(data.regions);
-      } catch (error) {
-        console.error("Error fetching regions:", error);
+        const [regionRes, typeRes] = await Promise.all([
+          axios.get('/api/regions'),
+          axios.get('/api/instanceTypes'),
+        ]);
+        setAvailableRegions(regionRes.data.regions);
+        setInstanceTypes(typeRes.data.instanceTypes);
+      } catch (err) {
+        console.error('Error loading form data:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    const fetchInstanceTypes = async () => {
-      try {
-        const { data } = await axios.get("/api/instanceTypes");
-        setInstanceTypes(data.instanceTypes);
-      } catch (error) {
-        console.log("Error fetching instance types:", error);
-      }
-    };
-
-    fetchRegions();
-    fetchInstanceTypes();
+    fetchData();
   }, []);
 
   useEffect(() => {
     setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
   }, [selectedInstanceType, instanceTypes]);
 
-  const handleSubmit = async (formData: FormData) => {
-    const formInstanceName = formData.get("instanceName");
-    const region = formData.get("region");
-    const instanceType = formData.get("instanceSize");
-    const username = formData.get("username");
-    const password = formData.get("password");
-    const storageSize = formData.get("storageSize");
-    if (
-      !formInstanceName ||
-      !region ||
-      !instanceType ||
-      !username ||
-      !password ||
-      !storageSize
-    ) {
-      alert("All fields are required.");
-      setInstantiating(false);
-      return;
-    }
-    if (!isValidName(instanceName)) {
-      alert(
-        "Instance name must be 3-64 characters long with valid characters."
-      );
-      setInstantiating(false);
-      return;
-    }
+  // Validation functions
+  const validateName = (name: string) =>
+    !/^[a-z0-9-_]{3,64}$/i.test(name)
+      ? ['Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.']
+      : [];
 
-    if (!isValidStorageSize(Number(formData.get("storageSize")))) {
-      alert("Storage size must be between 1 & 16000.");
+  const validateRegion = (region: string) =>
+    !region
+      ? ['Please select a region.']
+      : !availableRegions.includes(region)
+      ? ['Selected region is not valid.']
+      : [];
+
+  const validateInstanceType = (type: string) =>
+    !type
+      ? ['Please select an instance type.']
+      : !(type in instanceTypes)
+      ? ['Selected instance type is not valid.']
+      : [];
+
+  const validateSize = (size: string) =>
+    !size
+      ? ['Please select an instance size.']
+      : !filteredInstanceTypes.includes(size)
+      ? ['Selected instance size is not valid.']
+      : [];
+
+  const validateUsername = (u: string) =>
+    !u ? ['Username is required.'] : u.length < 6 ? ['Username must be at least 6 characters long.'] : [];
+
+  const validatePassword = (p: string) =>
+    !p
+      ? ['Password is required.']
+      : p.length < 8 || !/[a-zA-Z]/.test(p) || !/[0-9]/.test(p) || !/[!@#$%^&*]/.test(p)
+      ? ['Password must be at least 8 characters long and include a letter, a number, and a special character.']
+      : [];
+
+  const validateStorageSize = (size: number) =>
+    isNaN(size) || size < 8 || size > 16000 ? ['Storage size must be between 8 and 16000 GB.'] : [];
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setInstantiating(true);
+
+    const errors: string[] = [
+      ...validateName(instanceName),
+      ...validateRegion(selectedRegion),
+      ...validateInstanceType(selectedInstanceType),
+      ...validateSize(selectedInstanceSize),
+      ...validateUsername(username),
+      ...validatePassword(password),
+      ...validateStorageSize(storageSize),
+    ];
+
+    if (errors.length > 0) {
+      setErrorMessages(errors);
       setInstantiating(false);
       return;
     }
 
     try {
-      await addNotification({
-        type: "newInstance",
-        status: "pending",
+      await axios.post('/api/instances', {
         instanceName,
-        path: "instances",
-        message: `Creating ${instanceName} instance.`,
-      });
-      await axios.post("/api/instances", {
-        instanceName: formInstanceName,
-        region,
-        instanceType,
+        region: selectedRegion,
+        instanceType: selectedInstanceSize,
         username,
         password,
         storageSize,
       });
-      router.push("/");
-    } catch (error) {
+      router.push('/');
+    } catch (err) {
+      console.error('Error creating instance:', err);
+      setErrorMessages(['Something went wrong while creating the instance. Please try again.']);
+    } finally {
       setInstantiating(false);
-      console.error("Error creating instance:", error);
     }
   };
 
-  const handleGenerate = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    setInstanceName(generateName());
-  };
-
-  const isValidName = (name: string) => /^[a-z0-9-_]{3,64}$/i.test(name);
-  const isValidStorageSize = (size: number) => size >= 1 && size <= 16000;
+  const handleGenerate = () => setInstanceName(generateName());
+  const dismissError = (i: number) => setErrorMessages((prev) => prev.filter((_, idx) => idx !== i));
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 shadow-md mt-6">
-      <h1 className="text-2xl font-heading1 text-headertext1 mb-10">
-        Create Instance
-      </h1>
+    <div className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-6 mb-6">
+      <h1 className="text-2xl font-heading1 text-headertext1 mb-10">Create Instance</h1>
       <p className="font-text1 text-pagetext1 text-sm mb-8 px-4">
-        Provide the following details to launch a new RabbitMQ instance in the
-        cloud.
+        Provide the following details to launch a new RabbitMQ instance in the cloud.
       </p>
-      {isLoading ? (
-        <div className="space-y-6 animate-pulse">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4">
-              <div className="w-1/4 h-5 bg-gray-600 rounded"></div>
-              <div className="w-3/4 h-5 bg-gray-600 rounded"></div>
-            </div>
+
+      {errorMessages.length > 0 && (
+        <div className="space-y-2 mb-4">
+          {errorMessages.map((msg, idx) => (
+            <ErrorBanner key={idx} message={msg} onClose={() => dismissError(idx)} />
           ))}
-          <div className="border-t border-gray-600 my-6" />
-          <div className="flex justify-end gap-4 mt-6">
-            <div className="w-24 h-5 bg-gray-600 rounded"></div>
-            <div className="w-28 h-5 bg-gray-600 rounded"></div>
-          </div>
         </div>
+      )}
+
+      {isLoading ? (
+        <NewInstanceLoadingSkeleton />
       ) : (
-        <Form
-          action={(formData) => {
-            setInstantiating(true);
-            handleSubmit(formData);
-          }}
-          className="space-y-4 m-5"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4 m-5">
           <fieldset disabled={instantiating} className="space-y-4">
+            {/* Instance Name */}
             <div className="flex items-center gap-4">
-              <label
-                htmlFor="instanceName"
-                className="font-heading1 text-md text-headertext1 w-1/4"
-              >
+              <label htmlFor="instanceName" className="font-heading1 text-md text-headertext1 w-1/4">
                 Instance Name:
               </label>
               <div className="flex gap-2 w-3/4">
@@ -165,7 +174,7 @@ export default function NewFormPage() {
                   type="text"
                   value={instanceName}
                   onChange={(e) => setInstanceName(e.target.value)}
-                  className={`font-text1 text-btnhover1 w-9/16 p-2 border border-pagetext1 rounded-md text-sm`}
+                  className="font-text1 text-btnhover1 w-9/16 p-2 border border-pagetext1 rounded-md text-sm"
                 />
                 <button
                   type="button"
@@ -177,19 +186,19 @@ export default function NewFormPage() {
               </div>
             </div>
 
+            {/* Region */}
             <div className="flex items-center gap-4">
-              <label
-                htmlFor="region"
-                className="font-heading1 text-md text-headertext1 w-1/4"
-              >
+              <label htmlFor="region" className="font-heading1 text-md text-headertext1 w-1/4">
                 Region:
               </label>
               <select
                 id="region"
                 name="region"
-                disabled={instantiating}
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               >
+                <option value="">Select a region</option>
                 {availableRegions.map((region) => (
                   <option key={region} value={region}>
                     {region}
@@ -198,84 +207,11 @@ export default function NewFormPage() {
               </select>
             </div>
 
-            <details className="py-4 bg-card text-sm text-gray-700">
-              <summary className="cursor-pointer font-text1 text-md text-pagetext1 mb-2 flex items-center gap-2 hover:text-headertext1">
-                <Lightbulb className="w-6 h-6 text-btnhover1" />
-                Want advice on choosing the best instance for your needs? Click
-                here for recommendations
-              </summary>
-              <div className="px-8 mt-2 space-y-2">
-                <p className="text-btn1 font-text1 py-6">
-                  Here are some suggested EC2 instance types for running
-                  RabbitMQ based on your workload:
-                </p>
-                <table className="w-full text-left border-pagetext1 text-sm">
-                  <thead className="bg-headertext1 font-heading1">
-                    <tr>
-                      <th className="px-3 py-2 border-b">Use Case</th>
-                      <th className="px-3 py-2 border-b">Instance Type</th>
-                      <th className="px-3 py-2 border-b">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">
-                        Testing
-                      </td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
-                        t3.micro, t3.small
-                      </td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
-                        Very low cost, good for dev or trials
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">
-                        Low Throughput
-                      </td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
-                        m8g.medium
-                      </td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
-                        Balanced performance with Graviton4
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-heading1 text-headertext1 text-xs px-3 py-2 border-b border-gray-700">
-                        Medium Throughput
-                      </td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
-                        c8g.large
-                      </td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
-                        Compute-optimized, strong networking
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-heading1 text-headertext1 text-xs  px-3 py-2 border-b border-gray-700">
-                        High Throughput
-                      </td>
-                      <td className="font-text1 text-pagetext1 px-3 py-2 border-b border-gray-700">
-                        c7gn.large, m7gd.large
-                      </td>
-                      <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
-                        Great for high I/O or network-heavy workloads
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            <InstanceDetails />
 
-                <p className="text-btn1 font-text1 pt-6 pb-2">
-                  You can still choose from all available instance types below.
-                </p>
-              </div>
-            </details>
-
+            {/* Instance Type */}
             <div className="flex items-center gap-4">
-              <label
-                htmlFor="instanceType"
-                className="font-heading1 text-md text-headertext1 w-1/4"
-              >
+              <label htmlFor="instanceType" className="font-heading1 text-md text-headertext1 w-1/4">
                 Instance Type:
               </label>
               <select
@@ -294,16 +230,16 @@ export default function NewFormPage() {
               </select>
             </div>
 
+            {/* Instance Size */}
             <div className="flex items-center gap-4">
-              <label
-                htmlFor="instanceSize"
-                className="font-heading1 text-md text-headertext1  w-1/4"
-              >
+              <label htmlFor="instanceSize" className="font-heading1 text-md text-headertext1 w-1/4">
                 Instance Size:
               </label>
               <select
                 id="instanceSize"
                 name="instanceSize"
+                value={selectedInstanceSize}
+                onChange={(e) => setSelectedInstanceSize(e.target.value)}
                 disabled={!selectedInstanceType}
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               >
@@ -318,63 +254,60 @@ export default function NewFormPage() {
 
             <StorageDetails />
 
+            {/* Storage Size */}
             <div className="flex items-center gap-4">
-              <label
-                htmlFor="storageSize"
-                className="font-heading1 text-md text-headertext1  w-1/4"
-              >
+              <label htmlFor="storageSize" className="font-heading1 text-md text-headertext1 w-1/4">
                 Storage Size (GB):
               </label>
               <input
                 id="storageSize"
                 name="storageSize"
                 type="number"
-                defaultValue={8}
+                value={storageSize}
+                onChange={(e) => setStorageSize(Number(e.target.value))}
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
-                min={8}
-                max={16000}
               />
             </div>
 
             <p className="py-4 bg-card font-text1 text-sm text-p flex items-center gap-2">
               <Lightbulb className="w-6 h-6 text-btnhover1" />
-              The following username and password will be for logging into your
-              RabbitMQ Manger portal.
+              The following username and password will be for logging into your RabbitMQ Manager portal.
             </p>
 
+            {/* Username */}
             <div className="flex items-center gap-4">
-              <label
-                htmlFor="username"
-                className="font-heading1 text-md text-headertext1 w-1/4"
-              >
+              <label htmlFor="username" className="font-heading1 text-md text-headertext1 w-1/4">
                 Username:
               </label>
               <input
                 id="username"
                 name="username"
                 type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               />
             </div>
 
+            {/* Password */}
             <div className="flex items-center gap-4">
-              <label
-                htmlFor="password"
-                className="font-heading1 text-md text-headertext1 w-1/4"
-              >
+              <label htmlFor="password" className="font-heading1 text-md text-headertext1 w-1/4">
                 Password:
               </label>
               <input
                 id="password"
                 name="password"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               />
             </div>
 
             <div className="border-t border-headertext1 my-6"></div>
 
-            <div className="font-heading1 text-sm  flex justify-end gap-4 mt-6">
+            {/* Buttons */}
+            <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
               <Link
                 href="/"
                 className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
@@ -387,9 +320,9 @@ export default function NewFormPage() {
                 className="px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
               >
                 {instantiating ? (
-                  <span className="flex items-center">
-                    <div className="animate-spin border-2 border-t-2 border-mainbg1 w-4 h-4 rounded-full mr-2"></div>
-                    Creating...
+                  <span className="flex items-center gap-2">
+                    <SubmissionSpinner />
+                    Creating ...
                   </span>
                 ) : (
                   "Create"
@@ -397,7 +330,7 @@ export default function NewFormPage() {
               </button>
             </div>
           </fieldset>
-        </Form>
+        </form>
       )}
     </div>
   );

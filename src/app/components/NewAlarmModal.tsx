@@ -126,8 +126,6 @@ export const NewAlarmModal = ({ onClose }: Props) => {
             onClick={async (e) => {
               e.preventDefault();
               setSaving(true);
-              const success = await createAlarm();
-              if (success) alert("Alarm created successfully!");
               onClose();
               setSaving(false);
             }}

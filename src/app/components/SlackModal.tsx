@@ -78,7 +78,6 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
       `/api/instances/${instance?.name}/alarms/slack/test?region=${instance?.region}`,
       { text: "This a test for Rabbitory's alarms" },
     );
-    alert("Message sent");
   }
 
   const resetError = (msg: string) => {
@@ -149,7 +148,7 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
               e.preventDefault();
               setSaving(true);
               const success = await saveWebhookUrl();
-              if (success) alert("Webhook URL saved");
+              if (success) onClose();
               setSaving(false);
             }}
           >

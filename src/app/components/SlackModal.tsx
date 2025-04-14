@@ -19,7 +19,7 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
     setErrors((prev) => [...prev, msg]);
   };
 
-  const validateWebhookUrl = () => {
+  const isValidWebhookUrl = () => {
     if (!webhookUrl.startsWith("https://")) {
       handleError("Webhook URL must start with 'https://'.");
       return false;
@@ -56,7 +56,7 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
 
   const saveWebhookUrl = async () => {
     setErrors([]);
-    if (!validateWebhookUrl()) return false;
+    if (!isValidWebhookUrl()) return false;
 
     try {
       await axios.post(

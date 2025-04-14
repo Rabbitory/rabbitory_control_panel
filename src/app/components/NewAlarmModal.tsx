@@ -1,9 +1,16 @@
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
 import { useState } from "react";
+import ErrorBanner from "@/app/components/ErrorBanner";
 import axios from "axios";
 
 interface Props {
   onClose: () => void;
+}
+
+interface Data {
+  memoryThreshold?: number;
+  storageThreshold?: number;
+  reminderInterval: number;
 }
 
 export const NewAlarmModal = ({ onClose }: Props) => {
@@ -13,10 +20,39 @@ export const NewAlarmModal = ({ onClose }: Props) => {
   const [memoryThreshold, setMemoryThreshold] = useState(60);
   const [storageThreshold, setStorageThreshold] = useState(90);
   const [reminderInterval, setReminderInterval] = useState(1);
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const isValidData = ({ memoryThreshold, storageThreshold, reminderInterval }: Data) => {
+    if (!memoryThreshold && !storageThreshold) {
+      setErrors(prev => [...prev, "A memory or storage threshold is required."])
+      return false;
+    }
+
+    if (reminderInterval <= 0) {
+      setErrors(prev => [...prev, "Reminder interval must be greater than 0."])
+      return false;
+    }
+
+    if (memoryThreshold && (memoryThreshold < 0 || memoryThreshold > 100)) {
+      setErrors(prev => [...prev, "Memory threshold must be between 0 and 100."])
+      return false;
+    }
+
+    if (storageThreshold && (storageThreshold < 0 || storageThreshold > 100)) {
+      setErrors(prev => [...prev, "Storage threshold must be between 0 and 100."])
+      return false;
+    }
+
+    return true;
+  }
 
   const createAlarm = async () => {
+    setErrors([]);
+
     try {
       const data = alarmType === "memory" ? { memoryThreshold, reminderInterval } : { storageThreshold, reminderInterval };
+      if (!isValidData(data)) return false;
+
       await axios.post(
         `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         {
@@ -29,6 +65,10 @@ export const NewAlarmModal = ({ onClose }: Props) => {
       console.error(error);
       return false;
     }
+  };
+
+  const resetError = (msg: string) => {
+    setErrors((prev) => prev.filter((e) => e !== msg));
   };
 
   return (
@@ -44,6 +84,13 @@ export const NewAlarmModal = ({ onClose }: Props) => {
         <h2 className="font-heading1 text-xl text-headertext1 mb-4">
           Create New Alarm
         </h2>
+        {errors.length > 0 && (
+          <div className="mb-6 space-y-2">
+            {errors.map((error, i) => (
+              <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
+            ))}
+          </div>
+        )}
         <div className="flex items-center gap-4">
           <label className="font-heading1 text-md text-headertext1 w-2/3"
             htmlFor="alarmType">
@@ -126,7 +173,8 @@ export const NewAlarmModal = ({ onClose }: Props) => {
             onClick={async (e) => {
               e.preventDefault();
               setSaving(true);
-              onClose();
+              const success = await createAlarm();
+              if (success) onClose();
               setSaving(false);
             }}
           >

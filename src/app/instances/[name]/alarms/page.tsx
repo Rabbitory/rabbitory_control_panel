@@ -24,7 +24,6 @@ export default function AlarmsPage() {
   const [showSlackModal, setShowSlackModal] = useState(false);
   const [showNewAlarmModal, setShowNewAlarmModal] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState("");
-  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCurrentWebhookUrl = async () => {

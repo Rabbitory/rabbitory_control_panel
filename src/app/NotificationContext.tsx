@@ -19,6 +19,7 @@ interface NotificationsContextType {
   linkPending: (pageName: string) => boolean;
   instancePending: (instanceName: string) => boolean;
   instanceTerminated: (instanceName: string) => boolean;
+  instanceCreated: (instanceName: string) => boolean;
 }
 
 const defaultContextValue: NotificationsContextType = {
@@ -49,6 +50,9 @@ const defaultContextValue: NotificationsContextType = {
   instanceTerminated: () => {
     throw new Error("instanceTerminated not implemented");
   },
+  instanceCreated: () => {
+    throw new Error("instanceCreated not implemented");
+  },
 };
 
 export const NotificationsContext =
@@ -75,6 +79,7 @@ export function NotificationsProvider({
     linkPending,
     instancePending,
     instanceTerminated,
+    instanceCreated,
   } = useNotifications();
 
   const value = useMemo(
@@ -88,6 +93,7 @@ export function NotificationsProvider({
       deleteNotification,
       formPending,
       instanceTerminated,
+      instanceCreated,
     }),
     [
       notifications,
@@ -99,6 +105,7 @@ export function NotificationsProvider({
       deleteNotification,
       formPending,
       instanceTerminated,
+      instanceCreated,
     ]
   );
 

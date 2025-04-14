@@ -1,6 +1,7 @@
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
 import { useState } from "react";
 import axios from "axios";
+import ErrorBanner from "@/app/components/ErrorBanner";
 
 interface Props {
   url: string;
@@ -8,12 +9,55 @@ interface Props {
   onClose: () => void;
 }
 
-export const SlackModal = ({ url, onSave, onClose }: Props) => {
+export const SlackModal = ({ url, onSave, onClose, }: Props) => {
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState(url);
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const handleError = (msg: string) => {
+    setErrors((prev) => [...prev, msg]);
+  };
+
+  const validateWebhookUrl = () => {
+    if (!webhookUrl.startsWith("https://")) {
+      handleError("Webhook URL must start with 'https://'.");
+      return false;
+    }
+
+    if (!webhookUrl.startsWith("https://hooks.slack.com/services/")) {
+      handleError("Invalid Slack webhook URL. Valid Slack webhook URLs must begin with 'https://hooks.slack.com/services/'");
+      return false;
+    }
+
+    const servicePathParts = webhookUrl
+      .replace("https://hooks.slack.com/services/", "")
+      .split("/");
+
+    if (servicePathParts.length !== 3) {
+      handleError("Invalid Slack webhook URL format. Expected three service path components.");
+    }
+
+    const [workspace, channel, token] = servicePathParts;
+    if (!/^[A-Z0-9]{8,12}$/i.test(workspace)) {
+      handleError("Invalid workspace identifier in webhook URL.");
+    }
+
+    if (!/^[A-Z0-9]{8,12}$/i.test(channel)) {
+      handleError("Invalid channel identifier in webhook URL.");
+    }
+
+    if (!/^[A-Z0-9]{24}$/i.test(token)) {
+      handleError("Invalid token in webhook URL.");
+    }
+
+    return true;
+  }
 
   const saveWebhookUrl = async () => {
+    setErrors([]);
+    if (!validateWebhookUrl()) return false;
+
     try {
       await axios.post(
         `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
@@ -37,6 +81,11 @@ export const SlackModal = ({ url, onSave, onClose }: Props) => {
     alert("Message sent");
   }
 
+  const resetError = (msg: string) => {
+    setErrors((prev) => prev.filter((e) => e !== msg));
+  };
+
+
   return (
     <div className="fixed inset-0 backdrop-blur-xs bg-white/5 flex justify-center items-center z-50">
       <div className="bg-card text-pagetext1 p-6 rounded-md shadow-lg w-full max-w-md relative">
@@ -50,6 +99,14 @@ export const SlackModal = ({ url, onSave, onClose }: Props) => {
         <h2 className="font-heading1 text-xl text-headertext1 mb-4">
           Set Up Slack Endpoint
         </h2>
+
+        {errors.length > 0 && (
+          <div className="mb-6 space-y-2">
+            {errors.map((error, i) => (
+              <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
+            ))}
+          </div>
+        )}
 
         <p className="font-text1 text-pagetext1 text-md mb-6">
           <a className="underline hover:text-headertext1"

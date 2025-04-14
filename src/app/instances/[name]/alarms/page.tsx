@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { NewAlarmModal } from "@/app/components/NewAlarmModal";
 import { SlackModal } from "@/app/components/SlackModal";
 import Dropdown from "@/app/components/Dropdown";
-import ErrorBanner from "@/app/components/ErrorBanner";
 import axios from "axios";
 
 interface Alarm {
@@ -36,7 +35,7 @@ export default function AlarmsPage() {
 
         setWebhookUrl(response.data.webhookUrl || "");
       } catch (error) {
-        setErrors((prev) => [...prev, "Failed to fetch webhook url"]);
+        console.error("Error fetching webhook url:", error);
       }
     };
 
@@ -54,7 +53,7 @@ export default function AlarmsPage() {
         setMemoryAlarms(response.data.memory || []);
         setStorageAlarms(response.data.storage || []);
       } catch (error) {
-        setErrors((prev) => [...prev, "Failed to fetch alarms"]);
+        console.error("Error fetching alarms:", error);
       } finally {
         setIsLoading(false);
       }
@@ -79,7 +78,7 @@ export default function AlarmsPage() {
       setStorageAlarms((prev) => prev.filter((alarm) => alarm.id !== id));
       setMemoryAlarms((prev) => prev.filter((alarm) => alarm.id !== id));
     } catch (error) {
-      setErrors((prev) => [...prev, "Failed to delete alarm"]);
+      console.error("Error deleting alarm:", error);
     }
   };
 
@@ -97,25 +96,12 @@ export default function AlarmsPage() {
       );
       console.log("Alarm triggered successfully");
     } catch (error) {
-      setErrors((prev) => [...prev, "Failed to trigger alarm"]);
+      console.error("Error triggering alarm:", error);
     }
   };
 
-  const resetError = (msg: string) => {
-    setErrors((prev) => prev.filter((e) => e !== msg));
-  };
-
-
   return (
     <>
-      {errors.length > 0 && (
-        <div className="mb-6 space-y-2">
-          {errors.map((error, i) => (
-            <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
-          ))}
-        </div>
-      )}
-
       {/* Slack Endpoint Card */}
       <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
         <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Slack Endpoint</h1>

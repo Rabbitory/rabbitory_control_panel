@@ -1,5 +1,5 @@
 <a name="top"></a>
-![rabbitory logo](https://raw.githubusercontent.com/Rabbitory/rabbitory/main/public/rabbitory-logo.png)
+![rabbitory logo](https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/public/rabbitory-logo.png)
 
 # Rabbitory Control Panel
 

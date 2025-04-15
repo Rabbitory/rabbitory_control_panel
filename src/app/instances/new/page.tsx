@@ -358,7 +358,7 @@ export default function NewInstancePage() {
             </div>
 
             <p className="pl-47 bg-card font-text1 text-xs text-pagetext1">
-              Password must be 8 characters long and include one letter, one number, and one special character ( !@#$%^&* ) .
+              Password must be at least 8 characters long and include one letter, one number, and one special character ( !@#$%^&* ) .
             </p>
 
             <div className="border-t border-headertext1 my-6"></div>

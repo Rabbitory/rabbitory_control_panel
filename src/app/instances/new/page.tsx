@@ -64,6 +64,15 @@ export default function NewInstancePage() {
     setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
   }, [selectedInstanceType, instanceTypes]);
 
+  useEffect(() => {
+    if (errorMessages.length > 0) {
+      configSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errorMessages]);
+
   // Validation functions
   const validateName = (name: string) =>
     !/^[a-z0-9-_]{3,64}$/i.test(name)
@@ -134,12 +143,6 @@ export default function NewInstancePage() {
     if (errors.length > 0) {
       setErrorMessages(errors);
       setInstantiating(false);
-      setTimeout(() => {
-        configSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 0);
       return;
     }
 

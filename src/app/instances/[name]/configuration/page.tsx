@@ -39,6 +39,15 @@ export default function ConfigurationPage() {
     fetchConfiguration();
   }, [instance?.name, instance?.region]);
 
+  useEffect(() => {
+    if (errors.length > 0) {
+      configSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errors]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -52,12 +61,6 @@ export default function ConfigurationPage() {
     setErrors(validationErrors);
 
     if (validationErrors.length > 0) {
-      setTimeout(() => {
-        configSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 0);
       return;
     }
 

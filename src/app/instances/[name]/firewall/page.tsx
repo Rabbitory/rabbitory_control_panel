@@ -45,6 +45,15 @@ export default function FirewallPage() {
     fetchRules();
   }, [instance?.name, instance?.region]);
 
+  useEffect(() => {
+    if (errors.length > 0) {
+      configSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errors]);
+
   const resetError = (errorMessage: string) => {
     setErrors((prevErrors) =>
       prevErrors.filter((error) => error !== errorMessage)
@@ -226,14 +235,8 @@ export default function FirewallPage() {
     });
 
     setErrors(validationErrors);
-    console.log(validationErrors);
+
     if (validationErrors.length > 0) {
-      setTimeout(() => {
-        configSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 0);
       return;
     }
 

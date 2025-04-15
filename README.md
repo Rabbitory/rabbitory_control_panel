@@ -1,4 +1,6 @@
-<a name="top"></a>
+<a name="top">
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/rabbitory-logo.png" alt="Rabbitory Logo" width="60%"/>
+</a>
 ![rabbitory logo](https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/rabbitory-logo.png)
 
 # Rabbitory Control Panel

@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useInstanceContext } from "../InstanceContext";
@@ -50,7 +50,6 @@ export default function ConfigurationPage() {
     e.preventDefault();
     const validationErrors = validateConfiguration(configuration);
     setErrors(validationErrors);
-    console.log(configuration);
 
     if (validationErrors.length > 0) {
       setTimeout(() => {

@@ -1,11 +1,10 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
 import formatDate from "@/utils/formatDate";
 import { useInstanceContext } from "./InstanceContext";
 import { Copy, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-
 
 export default function InstancePage() {
   const { instance } = useInstanceContext();
@@ -25,9 +24,13 @@ export default function InstancePage() {
 
   return (
     <div className="text-pagetext1 flex-1 max-w-7xl mx-auto p-6 bg-card rounded-sm shadow-md">
-      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">{instance?.name}</h1>
-  
-      <h2 className="font-heading1 text-headertext1 text-md pb-4">Instance Info</h2>
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
+        {instance?.name}
+      </h1>
+
+      <h2 className="font-heading1 text-headertext1 text-md pb-4">
+        Instance Info
+      </h2>
       <table className="text-sm w-full table-auto mb-6">
         <colgroup>
           <col className="w-1/5" />
@@ -36,15 +39,17 @@ export default function InstancePage() {
         <tbody className="font-text1">
           <tr>
             <td className="py-2">Status:</td>
-            <td className={
-                    instance?.state === "running"
-                      ? "text-btnhover1"
-                      : instance?.state === "stopped" || instance?.state === "stopping"
-                      ? "text-red-300"
-                      : instance?.state === "shutting-down"
-                      ? "text-pagetext1 italic"
-                      : ""
-                  }
+            <td
+              className={
+                instance?.state === "running"
+                  ? "text-btnhover1"
+                  : instance?.state === "stopped" ||
+                    instance?.state === "stopping"
+                  ? "text-red-300"
+                  : instance?.state === "shutting-down"
+                  ? "text-pagetext1 italic"
+                  : ""
+              }
             >
               {instance?.state}
             </td>
@@ -55,7 +60,9 @@ export default function InstancePage() {
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">Created at:</td>
-            <td className="py-2">{instance?.launchTime && formatDate(instance?.launchTime)}</td>
+            <td className="py-2">
+              {instance?.launchTime && formatDate(instance?.launchTime)}
+            </td>
           </tr>
           <tr className="border-t border-gray-300">
             <td className="py-2">Data Center:</td>
@@ -64,7 +71,9 @@ export default function InstancePage() {
         </tbody>
       </table>
 
-      <h2 className="font-heading1 text-headertext1 text-md pb-4">RabbitMQ Server Info:</h2>
+      <h2 className="font-heading1 text-headertext1 text-md pb-4">
+        RabbitMQ Server Info:
+      </h2>
       <table className="text-sm w-full table-auto mb-6">
         <colgroup>
           <col className="w-1/5" />
@@ -83,7 +92,9 @@ export default function InstancePage() {
             <td className="py-2">Password:</td>
             <td className="py-2 flex items-center gap-2">
               <span className="font-mono">
-                {showPassword ? instance?.password : "•".repeat(instance?.password?.length || 8)}
+                {showPassword
+                  ? instance?.password
+                  : "•".repeat(instance?.password?.length || 8)}
               </span>
               <button
                 onClick={togglePassword}
@@ -117,7 +128,6 @@ export default function InstancePage() {
           </tr>
         </tbody>
       </table>
-
     </div>
   );
 }

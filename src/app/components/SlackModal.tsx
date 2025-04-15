@@ -82,6 +82,7 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
   };
 
   async function testWebhook() {
+    await saveWebhookUrl();
     await axios.post(
       `/api/instances/${instance?.name}/alarms/slack/test?region=${instance?.region}`,
       { text: "This a test for Rabbitory's alarms" },
@@ -138,7 +139,6 @@ export const SlackModal = ({ url, onSave, onClose, }: Props) => {
           onChange={(e) => setWebhookUrl(e.target.value)}
         />
         <div className="flex justify-end mt-6 gap-4">
-          <p className="text-sm text-pagetext1">Note: You must save your endpoint before testing it.</p>
           <button
             className="px-4 py-2 bg-card border border-btn1 text-btn1 rounded-sm hover:shadow-[0_0_8px_#87d9da]"
             disabled={saving || !webhookUrl}

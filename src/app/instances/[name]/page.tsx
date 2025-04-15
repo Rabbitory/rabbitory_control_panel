@@ -95,7 +95,7 @@ export default function InstancePage() {
             </td>
           </tr>
           <tr className="border-t border-gray-300">
-            <td className="py-2">RabbitMQ URL:</td>
+            <td className="py-2">RabbitMQ Connection URL:</td>
             <td className="py-2 relative">
               <div className="flex items-center gap-2">
                 <span>{instance?.endpointUrl}</span>

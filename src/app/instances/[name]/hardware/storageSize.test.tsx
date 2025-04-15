@@ -36,6 +36,7 @@ const mockedNotificationsContextValue = {
   linkPending: () => false,
   instancePending: () => false,
   instanceTerminated: () => false,
+  instanceCreated: () => false,
 };
 
 it("Fetches storage size", async () => {

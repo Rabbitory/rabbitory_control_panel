@@ -10,6 +10,7 @@ export default function InstancePage() {
   const { instance } = useInstanceContext();
   const [showCopied, setShowCopied] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showUrlPassword, setShowUrlPassword] = useState(false);
 
   const handleCopy = async () => {
     if (!instance?.endpointUrl) return;
@@ -20,6 +21,27 @@ export default function InstancePage() {
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
+  };
+
+  const toggleUrlPassword = () => {
+    setShowUrlPassword((prev) => !prev);
+  };
+
+  const getDisplayedEndpointUrl = (): string => {
+    if (!instance || !instance.endpointUrl) return "";
+    try {
+      const urlObj = new URL(instance.endpointUrl);
+
+      if (!urlObj.password) return instance.endpointUrl;
+
+      const displayedPassword = showUrlPassword
+        ? urlObj.password
+        : "•".repeat(urlObj.password.length || 8);
+
+      return `${urlObj.protocol}//${urlObj.username}:${displayedPassword}@${urlObj.host}${urlObj.pathname}${urlObj.search}`;
+    } catch (error) {
+      return instance.endpointUrl;
+    }
   };
 
   return (
@@ -109,7 +131,16 @@ export default function InstancePage() {
             <td className="py-2">RabbitMQ URL:</td>
             <td className="py-2 relative">
               <div className="flex items-center gap-2">
-                <span>{instance?.endpointUrl}</span>
+                <span>{getDisplayedEndpointUrl()}</span>
+                <button
+                  onClick={toggleUrlPassword}
+                  className="text-btn1 hover:text-checkmark p-1"
+                  aria-label={
+                    showUrlPassword ? "Hide URL password" : "Show URL password"
+                  }
+                >
+                  {showUrlPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
                 <div className="relative">
                   <button
                     onClick={handleCopy}

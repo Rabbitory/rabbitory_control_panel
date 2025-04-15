@@ -28,7 +28,7 @@ export default function BackupsPage() {
         const response = await axios.get(
           `/api/instances/${instance.name}/backups?region=${instance.region}`
         );
-        console.log(response.data);
+
         setBackups(response.data);
       } catch (error) {
         console.error("Error fetching backups:", error);
@@ -111,12 +111,14 @@ export default function BackupsPage() {
           disabled={formPending()}
           className="font-heading1 text-sm px-4 py-2 mb-8 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
         >
-          {formPending() ? 
+          {formPending() ? (
             <span className="flex items-center gap-2">
               <SubmissionSpinner />
               Adding Manual Backup...
             </span>
-          : "+ Add Manual Backup"}
+          ) : (
+            "+ Add Manual Backup"
+          )}
         </button>
       </div>
 

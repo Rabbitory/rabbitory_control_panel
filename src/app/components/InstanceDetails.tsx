@@ -17,7 +17,7 @@ export function InstanceDetails() {
           <thead className="bg-headertext1 font-heading1">
             <tr>
               <th className="px-3 py-2 border-b">Use Case</th>
-              <th className="px-3 py-2 border-b">Instance Type</th>
+              <th className="px- py-2 border-b">Instance Type</th>
               <th className="px-3 py-2 border-b">Notes</th>
             </tr>
           </thead>

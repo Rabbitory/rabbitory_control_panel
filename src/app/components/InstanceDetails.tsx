@@ -17,7 +17,7 @@ export function InstanceDetails() {
           <thead className="bg-headertext1 font-heading1">
             <tr>
               <th className="px-3 py-2 border-b">Use Case</th>
-              <th className="px-3 py-2 border-b">Instance Type</th>
+              <th className="px- py-2 border-b">Instance Type</th>
               <th className="px-3 py-2 border-b">Notes</th>
             </tr>
           </thead>
@@ -35,7 +35,7 @@ export function InstanceDetails() {
                 m8g.medium
               </td>
               <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
-                Balanced performance with Graviton4
+              Balanced performance, energy-efficient processors
               </td>
             </tr>
             <tr>

@@ -1,5 +1,6 @@
-<a name="top"></a>
-![rabbitory logo](https://raw.githubusercontent.com/your-username/rabbitory/main/public/rabbitory-logo.png)
+<a name="top">
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/rabbitory-logo.png" alt="Rabbitory Logo" width="20%"/>
+</a>
 
 # Rabbitory Control Panel
 
@@ -47,7 +48,11 @@ Once launched, your instance appears on the Home Page, where you can view all yo
 
 ### View Details for a RabbitMQ Instance
 
-Each instance has a General Page that gives you everything you need to start sending and receiving messages — including your RabbitMQ endpoint, credentials, and key metadata. This page additionally provides a link to the RabbitMQ Management UI that ...
+Each instance has a General Page that gives you everything you need to start sending and receiving messages — including your RabbitMQ endpoint, credentials, and key metadata.
+
+Notably, this page provides you with your instance's RabbitMQ connection URL. This URL contains your username, password, server address, and virtual host, and it's what your producer and consumer applications use to connect to your RabbitMQ instance to send and receive messages.
+
+This page additionally provides a link to the RabbitMQ Management UI, which is the built-in web interface provided by RabbitMQ.
 [image from Control Panel here]
 
 ### Configure Your RabbitMQ Server

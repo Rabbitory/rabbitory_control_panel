@@ -316,10 +316,9 @@ export default function NewInstancePage() {
               />
             </div>
 
-            <p className="py-4 bg-card font-text1 text-sm text-p flex items-center gap-2">
+            <p className="py-4 bg-card font-text1 text-sm text-pagetext1 flex items-center gap-2">
               <Lightbulb className="w-6 h-6 text-btnhover1" />
-              The following username and password will be for logging into your
-              RabbitMQ Manager portal.
+              Create a username and password for logging into your RabbitMQ Management UI.
             </p>
 
             {/* Username */}
@@ -357,6 +356,10 @@ export default function NewInstancePage() {
                 className="font-text1 w-3/4 p-2 border rounded-md text-sm"
               />
             </div>
+
+            <p className="pl-47 bg-card font-text1 text-xs text-pagetext1">
+              Password must be 8 characters long and include one letter, one number, and one special character ( !@#$%^&* ) .
+            </p>
 
             <div className="border-t border-headertext1 my-6"></div>
 

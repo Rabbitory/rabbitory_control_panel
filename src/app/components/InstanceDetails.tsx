@@ -35,7 +35,7 @@ export function InstanceDetails() {
                 m8g.medium
               </td>
               <td className="text-pagetext1 font-text1 text-sm px-3 py-2 border-b border-gray-700">
-                Balanced performance with Graviton4
+              Balanced performance, energy-efficient processors
               </td>
             </tr>
             <tr>

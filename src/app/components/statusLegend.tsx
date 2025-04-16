@@ -70,7 +70,7 @@ export function StatusLegend() {
           </p>
           <p className="mb-2">
             <span className="text-red-300 font-bold">stopping</span>: Instance
-            is being stopped. (happens unless you stop it from the AWS console)
+            is being stopped. (happens when you stop it in the AWS console)
           </p>
           <p>
             <span className="text-red-300 font-bold">stopped</span>: Instance

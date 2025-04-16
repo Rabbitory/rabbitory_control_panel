@@ -118,8 +118,8 @@ export function StoragePage() {
         </div>
       )}
       <p className="font-text1 text-sm text-pagetext1 mb-6">
-        The total amount of storage the broker has access to. System files take
-        about 4gb of this total.
+        The total amount of storage the broker has access to. Must be expanded -
+        cannot be downsized. System files take about 4gb of this total.
       </p>
       <StorageDetails />
 
@@ -177,9 +177,7 @@ export function StoragePage() {
               e.preventDefault();
               const success = await updateStorageSize();
               if (success) {
-                router.push(
-                  `/instances/${instance?.name}/hardware?region=${instance?.region}`,
-                );
+                router.push(`/instances`);
               }
             }}
           >

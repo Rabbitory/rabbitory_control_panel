@@ -74,9 +74,11 @@ export function InstanceTypePage() {
       });
       return true;
     } catch (error) {
+      if (!error) return;
       setSaving(false);
-      console.error(error);
-      alert("Failed to update instance hardware");
+      setErrors([
+        "Failed to update instance hardware. You must be upgrading the size.",
+      ]);
       return false;
     }
   };
@@ -105,7 +107,7 @@ export function InstanceTypePage() {
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         This is the hardware of your instance. You can change the hardware to
         better suit the needs of the broker, or expand the size to have more
-        cores and memory.{" "}
+        cores and memory:{" "}
         <a
           href="https://aws.amazon.com/ec2/instance-types/"
           target="_blank"
@@ -114,8 +116,9 @@ export function InstanceTypePage() {
         >
           AWS EC2 Instance Types
         </a>
-        . Changing this will cause the instance to be taken down and re-deployed
-        on the new hardware - this can take a couple minutes.
+        . You must upgrade the hardware size - you cannot downgrade the instance
+        size. Changing this will cause the instance to be taken down and
+        re-deployed on the new hardware - this can take a couple minutes.
       </p>
 
       {errors.length > 0 && (

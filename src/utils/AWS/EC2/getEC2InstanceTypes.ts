@@ -16,7 +16,7 @@ export async function getEC2InstanceTypes(): Promise<Record<string, string[]>> {
         Filters: [
           {
             Name: "instance-type",
-            Values: ["m8g.*", "m7g.*", "c8g.*", "c7gn.*", "r8g.*", "t2.*"],
+            Values: ["m8g.*", "m7g.*", "c8g.*", "c7gn.*", "r8g.*", "t2.micro", "t2.small"],
           },
         ],
         NextToken: nextToken,

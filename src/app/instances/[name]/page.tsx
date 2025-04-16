@@ -19,6 +19,14 @@ export default function InstancePage() {
     setTimeout(() => setShowCopied(false), 2000);
   };
 
+  const secureWindow = () => {
+    return (
+      window !== undefined &&
+      (new RegExp(/^https/).test(window.location.href) ||
+        new RegExp(/^http:\/\/localhost/).test(window.location.href))
+    );
+  };
+
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
   };
@@ -129,7 +137,7 @@ export default function InstancePage() {
             </td>
           </tr>
           <tr className="border-t border-gray-300">
-            <td className="py-2">RabbitMQ URL:</td>
+            <td className="py-2">RabbitMQ Connection URL:</td>
             <td className="py-2 relative">
               <div className="flex items-center gap-2">
                 <span>{getDisplayedEndpointUrl()}</span>
@@ -143,12 +151,14 @@ export default function InstancePage() {
                   {showUrlPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
                 <div className="relative">
-                  <button
-                    onClick={handleCopy}
-                    className="text-btn1 hover:text-checkmark p-1"
-                  >
-                    <Copy size={16} />
-                  </button>
+                  {secureWindow() && (
+                    <button
+                      onClick={handleCopy}
+                      className="text-btn1 hover:text-checkmark p-1"
+                    >
+                      <Copy size={16} />
+                    </button>
+                  )}
                   {showCopied && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 bg-black text-white text-xs px-2 py-1 rounded shadow z-10 whitespace-nowrap">
                       RabbitMQ URL copied to clipboard

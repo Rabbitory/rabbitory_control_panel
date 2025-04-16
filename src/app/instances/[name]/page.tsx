@@ -37,18 +37,33 @@ export default function InstancePage() {
 
   const getDisplayedEndpointUrl = (): string => {
     if (!instance || !instance.endpointUrl) return "";
-    try {
-      const urlObj = new URL(instance.endpointUrl);
 
-      if (!urlObj.password) return instance.endpointUrl;
+    try {
+      const full = instance.endpointUrl;
+
+      const protocolSplit = full.split("://");
+      if (protocolSplit.length !== 2) return full;
+
+      const protocol = protocolSplit[0] + "://";
+      const rest = protocolSplit[1];
+
+      const atIndex = rest.lastIndexOf("@");
+      if (atIndex === -1) return full;
+
+      const credentials = rest.slice(0, atIndex);
+      const hostAndPath = rest.slice(atIndex + 1);
+
+      const [username, rawPassword] = credentials.split(":");
+
+      if (!username || !rawPassword) return full;
 
       const displayedPassword = showUrlPassword
-        ? urlObj.password
-        : "•".repeat(urlObj.password.length || 8);
+        ? decodeURIComponent(rawPassword)
+        : "•".repeat(decodeURIComponent(rawPassword).length || 8);
 
-      return `${urlObj.protocol}//${urlObj.username}:${displayedPassword}@${urlObj.host}${urlObj.pathname}${urlObj.search}`;
+      return `${protocol}${username}:${displayedPassword}@${hostAndPath}`;
     } catch (error) {
-      console.error("Error parsing URL:", error);
+      console.error("Error parsing endpoint URL:", error);
       return instance.endpointUrl;
     }
   };

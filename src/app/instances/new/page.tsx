@@ -2,7 +2,7 @@
 
 // import Form from "next/form";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 import Link from "next/link";
@@ -30,6 +30,7 @@ export default function NewInstancePage() {
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
     []
   );
+  const configSectionRef = React.useRef<HTMLDivElement | null>(null);
 
   const [instanceName, setInstanceName] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
@@ -62,6 +63,15 @@ export default function NewInstancePage() {
   useEffect(() => {
     setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
   }, [selectedInstanceType, instanceTypes]);
+
+  useEffect(() => {
+    if (errorMessages.length > 0) {
+      configSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errorMessages]);
 
   // Validation functions
   const validateName = (name: string) =>
@@ -168,7 +178,10 @@ export default function NewInstancePage() {
     setErrorMessages((prev) => prev.filter((_, idx) => idx !== i));
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-6 mb-6">
+    <div
+      className="max-w-3xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-6 mb-6"
+      ref={configSectionRef}
+    >
       <h1 className="text-2xl font-heading1 text-headertext1 mb-10">
         Create Instance
       </h1>

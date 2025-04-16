@@ -3,9 +3,10 @@
 import Link from "next/link";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import SubmissionSpinner from "../components/SubmissionSpinner";
+import { StatusLegend } from "../components/statusLegend";
 
 interface Instance {
   state: string;
@@ -25,46 +26,56 @@ export default function Home() {
   const [isDeleting, setIsDeleting] = useState(false);
   const {
     notifications,
+    notificationsReady,
     addNotification,
-    instancePending,
+    instanceCreating,
     instanceTerminated,
     instanceCreated,
+    instanceDeleting,
   } = useNotificationsContext();
+  const applyNotificationOverrides = useCallback(
+    (instances: Instance[]): Instance[] => {
+      return instances.map((instance) => {
+        if (instanceCreating(instance.name)) {
+          return { ...instance, state: "pending" };
+        }
+        if (instanceDeleting(instance.name)) {
+          return { ...instance, state: "shutting-down" };
+        }
+        if (instanceTerminated(instance.name)) {
+          return { ...instance, state: "terminated" };
+        }
+        if (instanceCreated(instance.name)) {
+          return { ...instance, state: "running" };
+        }
 
-  const fetchInstances = async () => {
-    setIsLoading(true);
-    try {
-      const fetchedInstances = await axios.get("/api/instances");
-      setInstances(fetchedInstances.data);
-    } catch (err) {
-      console.error("Failed to fetch instances:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        return instance;
+      });
+    },
+    [instanceTerminated, instanceCreated, instanceCreating, instanceDeleting]
+  );
 
   useEffect(() => {
+    if (!notificationsReady) return;
+    const fetchInstances = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedInstances = await axios.get("/api/instances");
+        const corrected = applyNotificationOverrides(fetchedInstances.data);
+
+        setInstances(corrected);
+      } catch (err) {
+        console.error("Failed to fetch instances:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchInstances();
-  }, []);
+  }, [notificationsReady, applyNotificationOverrides]);
 
   useEffect(() => {
-    setInstances((prev) =>
-      prev.map((instance) =>
-        instanceTerminated(instance.name)
-          ? { ...instance, state: "terminated" }
-          : instance
-      )
-    );
-  }, [notifications, instanceTerminated]);
-  useEffect(() => {
-    setInstances((prev) =>
-      prev.map((instance) =>
-        instanceCreated(instance.name)
-          ? { ...instance, state: "running" }
-          : instance
-      )
-    );
-  }, [notifications, instanceCreated]);
+    setInstances((prev) => applyNotificationOverrides(prev));
+  }, [notifications, applyNotificationOverrides]);
 
   const openDeleteModal = (instance: Instance) => {
     setSelectedInstance(instance);
@@ -81,7 +92,7 @@ export default function Home() {
   const handleDelete = async () => {
     if (!selectedInstance) return;
 
-    addNotification({
+    await addNotification({
       type: "deleteInstance",
       status: "pending",
       instanceName: selectedInstance.name,
@@ -134,7 +145,9 @@ export default function Home() {
             <th className="text-left w-[12%] px-4 py-2">Name</th>
             <th className="text-left w-[12%] px-4 py-2">Instance ID</th>
             <th className="text-left w-[10%] px-4 py-2">Data Center</th>
-            <th className="text-left w-[10%] px-4 py-2">Status</th>
+            <th className="text-left w-[10%] px-4 py-2">
+              Status <StatusLegend />
+            </th>
             <th className="w-[5%]"></th>
           </tr>
         </thead>
@@ -171,8 +184,7 @@ export default function Home() {
                   <td className="px-4 py-3 relative">
                     {instance.state === "pending" ||
                     instance.state === "shutting-down" ||
-                    instance.state === "terminated" ||
-                    instancePending(instance.name) ? (
+                    instance.state === "terminated" ? (
                       <span className="text-pagetext1 truncate block group cursor-not-allowed">
                         {instance.name}
                       </span>
@@ -216,7 +228,8 @@ export default function Home() {
                   text-gray-400 
                   ${
                     instance.state === "pending" ||
-                    instance.state === "shutting-down"
+                    instance.state === "shutting-down" ||
+                    instance.state === "terminated"
                       ? "cursor-not-allowed"
                       : "hover:text-btnhover1 hover:shadow-btnhover1"
                   }
@@ -224,7 +237,8 @@ export default function Home() {
                       aria-label="Delete instance"
                       disabled={
                         instance.state === "pending" ||
-                        instance.state === "shutting-down"
+                        instance.state === "shutting-down" ||
+                        instance.state === "terminated"
                       }
                     >
                       <Trash2 size={20} />

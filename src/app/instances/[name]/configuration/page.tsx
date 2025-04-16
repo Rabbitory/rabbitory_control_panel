@@ -6,9 +6,9 @@ import { useInstanceContext } from "../InstanceContext";
 import { useNotificationsContext } from "@/app/NotificationContext";
 import { configItems } from "@/types/configuration";
 import { validateConfiguration } from "@/utils/validateConfig";
-import ErrorBanner from "@/app/components/ErrorBanner";
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
 import Link from "next/link";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+import SubmissionSpinner from "../../components/SubmissionSpinner";
 
 interface Configuration {
   [key: string]: string;
@@ -50,12 +50,12 @@ export default function ConfigurationPage() {
     e.preventDefault();
     const validationErrors = validateConfiguration(configuration);
     setErrors(validationErrors);
-  
+
     if (validationErrors.length > 0) {
       configSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
-  
+
     if (!instance || !instance.name) {
       throw new Error("No instance found");
     };
@@ -80,14 +80,14 @@ export default function ConfigurationPage() {
       console.error("Error saving configuration:", error);
     }
   };
-  
+
 
   const resetError = (msg: string) => {
     setErrors((prev) => prev.filter((e) => e !== msg));
   };
 
   return (
-    <div 
+    <div
       className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8"
       ref={configSectionRef}
     >
@@ -183,16 +183,15 @@ export default function ConfigurationPage() {
           <button
             type="submit"
             disabled={formPending()}
-            className={`px-4 py-2 text-mainbg1 font-semibold rounded-sm ${
-              formPending()
-                ? "bg-btnhover1 opacity-70 cursor-not-allowed"
-                : "bg-btn1 hover:bg-btnhover1 flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
-            }`}
+            className={`px-4 py-2 text-mainbg1 font-semibold rounded-sm ${formPending()
+              ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+              : "bg-btn1 hover:bg-btnhover1 flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+              }`}
           >
-            {formPending() ? 
+            {formPending() ?
               <span className="flex items-center gap-2">
-                  <SubmissionSpinner />
-                  Saving ...
+                <SubmissionSpinner />
+                Saving ...
               </span>
               : "Save"}
           </button>

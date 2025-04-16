@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useInstanceContext } from "../InstanceContext";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+import SubmissionSpinner from "../../components/SubmissionSpinner";
 import { useNotificationsContext } from "@/app/NotificationContext";
 
 interface Backup {

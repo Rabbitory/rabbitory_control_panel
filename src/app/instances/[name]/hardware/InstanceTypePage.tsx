@@ -3,8 +3,8 @@
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import ErrorBanner from "@/app/components/ErrorBanner";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
+import SubmissionSpinner from "../../components/SubmissionSpinner";
 
 type InstanceTypes = Record<string, string[]>;
 

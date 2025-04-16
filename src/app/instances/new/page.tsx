@@ -8,11 +8,11 @@ import axios from "axios";
 import Link from "next/link";
 import { Lightbulb } from "lucide-react";
 
-import { StorageDetails } from "@/app/components/StorageDetails";
-import { InstanceDetails } from "@/app/components/InstanceDetails";
-import ErrorBanner from "@/app/components/ErrorBanner";
-import NewInstanceLoadingSkeleton from "./NewInstanceLoadingSkeleton";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+import { StorageDetails } from "../components/StorageDetails";
+import { InstanceDetails } from "../components/InstanceDetails";
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
+import NewInstanceLoadingSkeleton from "./components/NewInstanceLoadingSkeleton";
+import SubmissionSpinner from "../components/SubmissionSpinner";
 
 import { useNotificationsContext } from "@/app/NotificationContext";
 
@@ -67,37 +67,37 @@ export default function NewInstancePage() {
   const validateName = (name: string) =>
     !/^[a-z0-9-_]{3,64}$/i.test(name)
       ? [
-          "Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.",
-        ]
+        "Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.",
+      ]
       : [];
 
   const validateRegion = (region: string) =>
     !region
       ? ["Please select a region."]
       : !availableRegions.includes(region)
-      ? ["Selected region is not valid."]
-      : [];
+        ? ["Selected region is not valid."]
+        : [];
 
   const validateInstanceType = (type: string) =>
     !type
       ? ["Please select an instance type."]
       : !(type in instanceTypes)
-      ? ["Selected instance type is not valid."]
-      : [];
+        ? ["Selected instance type is not valid."]
+        : [];
 
   const validateSize = (size: string) =>
     !size
       ? ["Please select an instance size."]
       : !filteredInstanceTypes.includes(size)
-      ? ["Selected instance size is not valid."]
-      : [];
+        ? ["Selected instance size is not valid."]
+        : [];
 
   const validateUsername = (u: string) =>
     !u
       ? ["Username is required."]
       : u.length < 6
-      ? ["Username must be at least 6 characters long."]
-      : [];
+        ? ["Username must be at least 6 characters long."]
+        : [];
 
   const validatePassword = (p: string) =>
     !p
@@ -106,10 +106,10 @@ export default function NewInstancePage() {
         !/[a-zA-Z]/.test(p) ||
         !/[0-9]/.test(p) ||
         !/[!@#$%^&*]/.test(p)
-      ? [
+        ? [
           "Password must be at least 8 characters long and include a letter, a number, and a special character.",
         ]
-      : [];
+        : [];
 
   const validateStorageSize = (size: number) =>
     isNaN(size) || size < 8 || size > 16000

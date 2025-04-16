@@ -8,9 +8,9 @@ import { useInstanceContext } from "../InstanceContext";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { StorageDetails } from "@/app/components/StorageDetails";
-import ErrorBanner from "@/app/components/ErrorBanner";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+import { StorageDetails } from "../../components/StorageDetails";
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
+import SubmissionSpinner from "../../components/SubmissionSpinner";
 
 export function StoragePage() {
   const router = useRouter();
@@ -166,11 +166,10 @@ export function StoragePage() {
         <div className="font-heading1 text-sm flex justify-end gap-4">
           <button
             className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
-                  ${
-                    formPending()
-                      ? "bg-btnhover1 opacity-70 cursor-not-allowed"
-                      : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
-                  }
+                  ${formPending()
+                ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+                : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+              }
                 `}
             disabled={formPending()}
             onClick={async (e) => {

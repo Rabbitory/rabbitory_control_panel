@@ -1,6 +1,6 @@
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
 import { useState } from "react";
-import ErrorBanner from "@/app/components/ErrorBanner";
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
 import axios from "axios";
 
 interface Props {

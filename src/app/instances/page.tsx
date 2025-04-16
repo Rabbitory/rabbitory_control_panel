@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import SubmissionSpinner from "../components/SubmissionSpinner";
+import { StatusLegend } from "../components/statusLegend";
 
 interface Instance {
   state: string;
@@ -141,7 +142,9 @@ export default function Home() {
             <th className="text-left w-[12%] px-4 py-2">Name</th>
             <th className="text-left w-[12%] px-4 py-2">Instance ID</th>
             <th className="text-left w-[10%] px-4 py-2">Data Center</th>
-            <th className="text-left w-[10%] px-4 py-2">Status</th>
+            <th className="text-left w-[10%] px-4 py-2">
+              Status <StatusLegend />
+            </th>
             <th className="w-[5%]"></th>
           </tr>
         </thead>

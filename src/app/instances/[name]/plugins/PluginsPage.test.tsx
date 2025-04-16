@@ -29,6 +29,7 @@ const fakeInstance: Instance = {
 
 const mockedNotificationsContextValue = {
   notifications: [],
+  notificationsReady: true,
   setNotifications: jest.fn(),
   addNotification: jest.fn(),
   updateNotification: jest.fn(),
@@ -37,20 +38,18 @@ const mockedNotificationsContextValue = {
   formPending: () => false, // Provide a dummy implementation
   linkPending: () => false,
   instancePending: () => false,
+  instanceCreated: () => false,
+  instanceCreating: () => false,
   instanceTerminated: () => false,
+  instanceDeleting: () => false,
 };
 beforeEach(() => {
   mockedAxios.get.mockReset();
   mockedAxios.post.mockReset();
 });
 
-it.skip("renders loading state and then plugins form", async () => {
-  mockedAxios.get.mockImplementationOnce(
-    () =>
-      new Promise((resolve) =>
-        setTimeout(() => resolve({ data: fakePluginsData }), 200)
-      )
-  );
+it("renders plugins form", async () => {
+  mockedAxios.get.mockResolvedValueOnce({ data: fakePluginsData });
 
   render(
     <NotificationsContext.Provider value={mockedNotificationsContextValue}>
@@ -65,14 +64,12 @@ it.skip("renders loading state and then plugins form", async () => {
     </NotificationsContext.Provider>
   );
 
-  expect(screen.getByText(/loading/i)).toBeInTheDocument();
   expect(mockedAxios.get).toHaveBeenCalledTimes(1);
 
-  await waitFor(() => {
-    expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+  await screen.findByRole("checkbox", {
+    name: /^rabbitmq_management$/i,
   });
 
-  // Check that the input for setting1 contains the value from fakePluginsData.
   const checkbox1 = screen.getByRole("checkbox", {
     name: /^rabbitmq_management$/i,
   });

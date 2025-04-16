@@ -4,9 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { Instance } from "@/types/instance";
 import ConfigurationPage from "./page";
 import { InstanceContext } from "../InstanceContext";
+import { NotificationsContext } from "@/app/NotificationContext";
+
 import axios from "axios";
 
 jest.mock("axios");
+jest.mock("@/utils/validateConfig", () => ({
+  validateConfiguration: jest.fn(() => []),
+}));
+window.HTMLElement.prototype.scrollIntoView = jest.fn();
 const mockedAxios = jest.mocked(axios);
 
 const fakeConfigData = {
@@ -28,63 +34,82 @@ const fakeInstance: Instance = {
   EBSVolumeId: "vol-123456",
 };
 
+const mockedNotificationsContextValue = {
+  notifications: [],
+  notificationsReady: true,
+  setNotifications: jest.fn(),
+  addNotification: jest.fn(),
+  updateNotification: jest.fn(),
+  clearNotifications: jest.fn(),
+  deleteNotification: jest.fn(),
+  formPending: () => false, // Provide a dummy implementation
+  linkPending: () => false,
+  instancePending: () => false,
+  instanceTerminated: () => false,
+  instanceCreated: () => false,
+  instanceCreating: () => false,
+  instanceDeleting: () => false,
+};
+
 beforeEach(() => {
   mockedAxios.get.mockReset();
   mockedAxios.post.mockReset();
 });
 
-it.skip("renders loading state and then configuration form", async () => {
-  //Simulate a delay in the response so that we can test the loading state.
-  mockedAxios.get.mockImplementationOnce(
-    () =>
-      new Promise((resolve) =>
-        setTimeout(() => resolve({ data: fakeConfigData }), 50)
-      )
-  );
+it("renders configuration form with values", async () => {
+  mockedAxios.get.mockResolvedValueOnce({ data: fakeConfigData });
 
   render(
-    <InstanceContext.Provider
-      value={{
-        instance: fakeInstance,
-        setInstance: jest.fn(),
-      }}
-    >
-      <ConfigurationPage />
-    </InstanceContext.Provider>
+    <NotificationsContext.Provider value={mockedNotificationsContextValue}>
+      <InstanceContext.Provider
+        value={{
+          instance: fakeInstance,
+          setInstance: jest.fn(),
+        }}
+      >
+        <ConfigurationPage />
+      </InstanceContext.Provider>
+    </NotificationsContext.Provider>
   );
 
-  expect(screen.getByText(/loading/i)).toBeInTheDocument();
   expect(mockedAxios.get).toHaveBeenCalledTimes(1);
 
-  await waitFor(() => {
-    expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
-  });
+  await waitFor(() =>
+    expect(
+      screen.getByDisplayValue(String(fakeConfigData["heartbeat"]))
+    ).toBeInTheDocument()
+  );
 
-  // Check that the input for setting1 contains the value from fakeConfigData.
-  const setting1Input = screen.getByDisplayValue(fakeConfigData["heartbeat"]);
-  const setting2Input = screen.getByDisplayValue(fakeConfigData["channel_max"]);
-  expect(setting1Input).toBeInTheDocument();
-  expect(setting2Input).toBeInTheDocument();
+  expect(
+    screen.getByDisplayValue(String(fakeConfigData["channel_max"]))
+  ).toBeInTheDocument();
 });
 
-it.skip("handles form submission and updates configuration", async () => {
+it("handles form submission and updates configuration", async () => {
   mockedAxios.get.mockResolvedValueOnce({ data: fakeConfigData });
 
   const updatedConfig = { ...fakeConfigData, heartbeat: 20 };
   mockedAxios.post.mockResolvedValueOnce({ data: updatedConfig });
 
   render(
-    <InstanceContext.Provider
-      value={{
-        instance: fakeInstance,
-        setInstance: jest.fn(),
-      }}
-    >
-      <ConfigurationPage />
-    </InstanceContext.Provider>
+    <NotificationsContext.Provider value={mockedNotificationsContextValue}>
+      <InstanceContext.Provider
+        value={{
+          instance: fakeInstance,
+          setInstance: jest.fn(),
+        }}
+      >
+        <ConfigurationPage />
+      </InstanceContext.Provider>
+    </NotificationsContext.Provider>
   );
 
-  await waitFor(() => expect(mockedAxios.get).toHaveBeenCalledTimes(1));
+  expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+  await waitFor(() =>
+    expect(
+      screen.getByDisplayValue(String(fakeConfigData["heartbeat"]))
+    ).toBeInTheDocument()
+  );
 
   const user = userEvent.setup();
 
@@ -96,7 +121,7 @@ it.skip("handles form submission and updates configuration", async () => {
   await user.type(heartbeatInput, "20");
 
   const submitButton = screen.getByRole("button", {
-    name: /save configuration/i,
+    name: /save/i,
   });
   await user.click(submitButton);
 

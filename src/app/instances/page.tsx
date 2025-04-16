@@ -3,7 +3,7 @@
 import Link from "next/link";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import SubmissionSpinner from "../components/SubmissionSpinner";
 
@@ -32,43 +32,46 @@ export default function Home() {
     instanceTerminated,
     instanceCreated,
   } = useNotificationsContext();
-  const applyNotificationOverrides = (instances: Instance[]): Instance[] => {
-    return instances.map((instance) => {
-      if (instanceTerminated(instance.name)) {
-        return { ...instance, state: "terminated" };
-      }
-      if (instanceCreated(instance.name)) {
-        return { ...instance, state: "running" };
-      }
-      if (instanceCreating(instance.name)) {
-        return { ...instance, state: "pending" };
-      }
-      return instance;
-    });
-  };
+  const applyNotificationOverrides = useCallback(
+    (instances: Instance[]): Instance[] => {
+      return instances.map((instance) => {
+        if (instanceTerminated(instance.name)) {
+          return { ...instance, state: "terminated" };
+        }
+        if (instanceCreated(instance.name)) {
+          return { ...instance, state: "running" };
+        }
+        if (instanceCreating(instance.name)) {
+          return { ...instance, state: "pending" };
+        }
+        return instance;
+      });
+    },
+    [instanceTerminated, instanceCreated, instanceCreating]
+  );
 
-  const fetchInstances = async () => {
+  const fetchInstances = useCallback(async () => {
     setIsLoading(true);
     try {
       const fetchedInstances = await axios.get("/api/instances");
       const corrected = applyNotificationOverrides(fetchedInstances.data);
-      console.log("Running applyNotificationOverrides", corrected);
+
       setInstances(corrected);
     } catch (err) {
       console.error("Failed to fetch instances:", err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [applyNotificationOverrides]);
 
   useEffect(() => {
     if (!notificationsReady) return;
     fetchInstances();
-  }, [notificationsReady]);
+  }, [notificationsReady, fetchInstances]);
 
   useEffect(() => {
     setInstances((prev) => applyNotificationOverrides(prev));
-  }, [notifications, instanceCreated, instanceCreating, instanceTerminated]);
+  }, [notifications, applyNotificationOverrides]);
 
   const openDeleteModal = (instance: Instance) => {
     setSelectedInstance(instance);

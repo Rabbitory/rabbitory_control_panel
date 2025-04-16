@@ -40,6 +40,7 @@ export default function InstancePage() {
 
       return `${urlObj.protocol}//${urlObj.username}:${displayedPassword}@${urlObj.host}${urlObj.pathname}${urlObj.search}`;
     } catch (error) {
+      console.error("Error parsing URL:", error);
       return instance.endpointUrl;
     }
   };

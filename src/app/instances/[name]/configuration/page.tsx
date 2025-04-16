@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useInstanceContext } from "../InstanceContext";
@@ -39,6 +39,15 @@ export default function ConfigurationPage() {
     fetchConfiguration();
   }, [instance?.name, instance?.region]);
 
+  useEffect(() => {
+    if (errors.length > 0) {
+      configSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errors]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -52,35 +61,31 @@ export default function ConfigurationPage() {
     setErrors(validationErrors);
 
     if (validationErrors.length > 0) {
-      configSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
 
     if (!instance || !instance.name) {
       throw new Error("No instance found");
-    };
-
-    await addNotification({
-      type: "configuration",
-      status: "pending",
-      instanceName: instance.name,
-      path: "configuration",
-      message: `Setting new configuration for ${instance?.name}`,
-    });
+    }
 
     try {
-      console.log("Submitting configuration:", configuration);
+      await addNotification({
+        type: "configuration",
+        status: "pending",
+        instanceName: instance.name,
+        path: "configuration",
+        message: `Setting new configuration for ${instance?.name}`,
+      });
 
       const response = await axios.post(
         `/api/instances/${instance?.name}/configuration?region=${instance?.region}`,
-        { configuration },
+        { configuration }
       );
       setConfiguration(response.data);
     } catch (error) {
       console.error("Error saving configuration:", error);
     }
   };
-
 
   const resetError = (msg: string) => {
     setErrors((prev) => prev.filter((e) => e !== msg));
@@ -91,7 +96,9 @@ export default function ConfigurationPage() {
       className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8"
       ref={configSectionRef}
     >
-      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Configuration</h1>
+      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
+        Configuration
+      </h1>
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         Below are the RabbitMQ server configurations. For detailed explanations
         of each setting, refer to the{" "}
@@ -109,7 +116,11 @@ export default function ConfigurationPage() {
       {errors.length > 0 && (
         <div className="mb-6 space-y-2">
           {errors.map((error, i) => (
-            <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
+            <ErrorBanner
+              key={i}
+              message={error}
+              onClose={() => resetError(error)}
+            />
           ))}
         </div>
       )}
@@ -123,7 +134,10 @@ export default function ConfigurationPage() {
               <th className="p-2 text-left border-b">Value</th>
             </tr>
           </thead>
-          <tbody className={`font-text1 text-sm ${isLoading ? "" : "animate-fade-in"}`}>
+          <tbody
+            className={`font-text1 text-sm ${isLoading ? "" : "animate-fade-in"
+              }`}
+          >
             {configItems.map((item) => (
               <tr key={item.key} className="p-2">
                 <td className="p-2 border-b">
@@ -188,12 +202,14 @@ export default function ConfigurationPage() {
               : "bg-btn1 hover:bg-btnhover1 flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
               }`}
           >
-            {formPending() ?
+            {formPending() ? (
               <span className="flex items-center gap-2">
                 <SubmissionSpinner />
                 Saving ...
               </span>
-              : "Save"}
+            ) : (
+              "Save"
+            )}
           </button>
         </div>
       </form>

@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
 import formatDate from "@/utils/formatDate";
 import { useInstanceContext } from "./InstanceContext";
 import { Copy, Eye, EyeOff } from "lucide-react";
@@ -10,6 +10,7 @@ export default function InstancePage() {
   const { instance } = useInstanceContext();
   const [showCopied, setShowCopied] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showUrlPassword, setShowUrlPassword] = useState(false);
 
   const handleCopy = async () => {
     if (!instance?.endpointUrl) return;
@@ -28,6 +29,43 @@ export default function InstancePage() {
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
+  };
+
+  const toggleUrlPassword = () => {
+    setShowUrlPassword((prev) => !prev);
+  };
+
+  const getDisplayedEndpointUrl = (): string => {
+    if (!instance || !instance.endpointUrl) return "";
+
+    try {
+      const full = instance.endpointUrl;
+
+      const protocolSplit = full.split("://");
+      if (protocolSplit.length !== 2) return full;
+
+      const protocol = protocolSplit[0] + "://";
+      const rest = protocolSplit[1];
+
+      const atIndex = rest.lastIndexOf("@");
+      if (atIndex === -1) return full;
+
+      const credentials = rest.slice(0, atIndex);
+      const hostAndPath = rest.slice(atIndex + 1);
+
+      const [username, rawPassword] = credentials.split(":");
+
+      if (!username || !rawPassword) return full;
+
+      const displayedPassword = showUrlPassword
+        ? decodeURIComponent(rawPassword)
+        : "•".repeat(decodeURIComponent(rawPassword).length || 8);
+
+      return `${protocol}${username}:${displayedPassword}@${hostAndPath}`;
+    } catch (error) {
+      console.error("Error parsing endpoint URL:", error);
+      return instance.endpointUrl;
+    }
   };
 
   return (
@@ -52,11 +90,11 @@ export default function InstancePage() {
                 instance?.state === "running"
                   ? "text-btnhover1"
                   : instance?.state === "stopped" ||
-                      instance?.state === "stopping"
-                    ? "text-red-300"
-                    : instance?.state === "shutting-down"
-                      ? "text-pagetext1 italic"
-                      : ""
+                    instance?.state === "stopping"
+                  ? "text-red-300"
+                  : instance?.state === "shutting-down"
+                  ? "text-pagetext1 italic"
+                  : ""
               }
             >
               {instance?.state}
@@ -117,7 +155,16 @@ export default function InstancePage() {
             <td className="py-2">RabbitMQ Connection URL:</td>
             <td className="py-2 relative">
               <div className="flex items-center gap-2">
-                <span>{instance?.endpointUrl}</span>
+                <span>{getDisplayedEndpointUrl()}</span>
+                <button
+                  onClick={toggleUrlPassword}
+                  className="text-btn1 hover:text-checkmark p-1"
+                  aria-label={
+                    showUrlPassword ? "Hide URL password" : "Show URL password"
+                  }
+                >
+                  {showUrlPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
                 <div className="relative">
                   {secureWindow() && (
                     <button

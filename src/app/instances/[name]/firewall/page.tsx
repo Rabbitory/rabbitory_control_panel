@@ -6,7 +6,11 @@ import React from "react";
 import { useInstanceContext } from "../InstanceContext";
 import { FirewallRule } from "@/types/firewall";
 import ErrorBanner from "@/app/instances/components/ErrorBanner";
-import { isValidDescription, isValidSourceIp, isInRangeCustomPort } from "@/utils/firewallValidation";
+import {
+  isValidDescription,
+  isValidSourceIp,
+  isInRangeCustomPort,
+} from "@/utils/firewallValidation";
 import { COMMON_PORTS } from "@/utils/firewallConstants";
 import { Info } from "lucide-react";
 import { Trash2 } from "lucide-react";
@@ -20,6 +24,7 @@ export default function FirewallPage() {
   const [rules, setRules] = useState<FirewallRule[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const configSectionRef = React.useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     async function fetchRules() {
@@ -39,6 +44,15 @@ export default function FirewallPage() {
 
     fetchRules();
   }, [instance?.name, instance?.region]);
+
+  useEffect(() => {
+    if (errors.length > 0) {
+      configSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errors]);
 
   const resetError = (errorMessage: string) => {
     setErrors((prevErrors) =>
@@ -61,7 +75,9 @@ export default function FirewallPage() {
       updatedRules[index] = { ...updatedRules[index], description: value };
 
       const error = validateDescription(value);
-      resetError(`Description must be 255 characters or fewer, and cannot contain the following characters: ^, ", ', %, &, <, >, |, \``);
+      resetError(
+        `Description must be 255 characters or fewer, and cannot contain the following characters: ^, ", ', %, &, <, >, |, \``
+      );
 
       if (error) addError(error);
       return updatedRules;
@@ -142,7 +158,7 @@ export default function FirewallPage() {
       return inputError;
     }
     return null;
-  }
+  };
 
   const validateSourceIp = (sourceIp: string): string | null => {
     const inputError =
@@ -155,7 +171,10 @@ export default function FirewallPage() {
     return null;
   };
 
-  const validateCustomPorts = (customPorts: string, commonPorts: string[]): string[] => {
+  const validateCustomPorts = (
+    customPorts: string,
+    commonPorts: string[]
+  ): string[] => {
     const errors: string[] = [];
 
     const portList = customPorts
@@ -182,33 +201,33 @@ export default function FirewallPage() {
     return errors;
   };
 
-  const findCommonAndCustomPortOverlap = (customPorts: string, commonPorts: string[]): string[] => {
+  const findCommonAndCustomPortOverlap = (
+    customPorts: string,
+    commonPorts: string[]
+  ): string[] => {
     const customList = customPorts
       .split(",")
       .map((port) => port.trim())
       .filter((port) => port !== "");
 
-    const commonPortNumbers = COMMON_PORTS.filter(({ name }) => commonPorts.includes(name)).map((p) => p.port.toString());
+    const commonPortNumbers = COMMON_PORTS.filter(({ name }) =>
+      commonPorts.includes(name)
+    ).map((p) => p.port.toString());
     return customList.filter((port) => commonPortNumbers.includes(port));
-  }
+  };
 
   const handleSave = async () => {
     if (!instance || !instance.name) return;
-
-    addNotification({
-      type: "firewall",
-      status: "pending",
-      instanceName: instance.name,
-      path: "firewall",
-      message: `Saving firewall rules for ${instance.name}`,
-    });
 
     const validationErrors: string[] = [];
 
     rules.forEach((rule) => {
       const descError = validateDescription(rule.description);
       const sourceIpError = validateSourceIp(rule.sourceIp);
-      const customPortErrors = validateCustomPorts(rule.customPorts, rule.commonPorts);
+      const customPortErrors = validateCustomPorts(
+        rule.customPorts,
+        rule.commonPorts
+      );
 
       if (descError) validationErrors.push(descError);
       if (sourceIpError) validationErrors.push(sourceIpError);
@@ -217,9 +236,18 @@ export default function FirewallPage() {
 
     setErrors(validationErrors);
 
-    if (validationErrors.length > 0) return;
+    if (validationErrors.length > 0) {
+      return;
+    }
 
     try {
+      addNotification({
+        type: "firewall",
+        status: "pending",
+        instanceName: instance.name,
+        path: "firewall",
+        message: `Saving firewall rules for ${instance.name}`,
+      });
       const { data } = await axios.put(
         `/api/instances/${instance?.name}/firewall?region=${instance?.region}`,
         { rules }
@@ -247,7 +275,10 @@ export default function FirewallPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card rounded-md shadow-md mt-8 text-pagetext1">
+    <div
+      className="max-w-4xl mx-auto p-6 bg-card rounded-md shadow-md mt-8 text-pagetext1"
+      ref={configSectionRef}
+    >
       <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
         Firewall Settings
       </h1>
@@ -279,7 +310,11 @@ export default function FirewallPage() {
       {errors.length > 0 && (
         <div className="mb-6 space-y-2">
           {errors.map((error, i) => (
-            <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
+            <ErrorBanner
+              key={i}
+              message={error}
+              onClose={() => resetError(error)}
+            />
           ))}
         </div>
       )}
@@ -427,16 +462,18 @@ export default function FirewallPage() {
               disabled={errors.length > 0 || formPending()}
               className="font-heading1 bg-btn1 text-mainbg1 font-semibold px-4 py-2 rounded-sm hover:bg-btnhover1 cursor-pointer flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
             >
-              {formPending() ?
+              {formPending() ? (
                 <span className="flex items-center gap-2">
                   <SubmissionSpinner />
                   Saving ...
                 </span>
-                : "Save"}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
+              ) : (
+                "Save"
+              )}
+            </button >
+          </div >
+        </div >
+      </form >
+    </div >
   );
 }

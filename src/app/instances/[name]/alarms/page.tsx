@@ -2,9 +2,9 @@
 
 import { useInstanceContext } from "../InstanceContext";
 import { useEffect, useState } from "react";
-import { NewAlarmModal } from "@/app/components/NewAlarmModal";
-import { SlackModal } from "@/app/components/SlackModal";
-import Dropdown from "@/app/components/Dropdown";
+import { NewAlarmModal } from "./components/NewAlarmModal";
+import { SlackModal } from "./components/SlackModal";
+import Dropdown from "./components/Dropdown";
 import axios from "axios";
 
 interface Alarm {

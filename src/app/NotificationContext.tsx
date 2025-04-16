@@ -19,6 +19,7 @@ interface NotificationsContextType {
   formPending: () => boolean;
   linkPending: (pageName: string) => boolean;
   instancePending: (instanceName: string) => boolean;
+  instanceDeleting: (instanceName: string) => boolean;
   instanceCreating: (instanceName: string) => boolean;
   instanceTerminated: (instanceName: string) => boolean;
   instanceCreated: (instanceName: string) => boolean;
@@ -51,6 +52,9 @@ const defaultContextValue: NotificationsContextType = {
   },
   instanceCreating: () => {
     throw new Error("instanceCreating not implemented");
+  },
+  instanceDeleting: () => {
+    throw new Error("instanceDeleting not implemented");
   },
 
   instanceTerminated: () => {
@@ -86,6 +90,7 @@ export function NotificationsProvider({
     linkPending,
     instancePending,
     instanceCreating,
+    instanceDeleting,
     instanceTerminated,
     instanceCreated,
   } = useNotifications();
@@ -102,6 +107,7 @@ export function NotificationsProvider({
       clearNotifications,
       deleteNotification,
       formPending,
+      instanceDeleting,
       instanceTerminated,
       instanceCreated,
     }),
@@ -116,6 +122,7 @@ export function NotificationsProvider({
       clearNotifications,
       deleteNotification,
       formPending,
+      instanceDeleting,
       instanceTerminated,
       instanceCreated,
     ]

@@ -41,6 +41,7 @@ const mockedNotificationsContextValue = {
   instanceCreated: () => false,
   instanceCreating: () => false,
   instanceTerminated: () => false,
+  instanceDeleting: () => false,
 };
 beforeEach(() => {
   mockedAxios.get.mockReset();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Notification } from "@/types/notification";
 import { usePathname } from "next/navigation";
 import axios from "axios";
@@ -10,6 +10,10 @@ export const useNotifications = () => {
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationsReady, setNotificationsReady] = useState<boolean>(false);
+  const notificationsRef = useRef<Notification[]>([]);
+  useEffect(() => {
+    notificationsRef.current = notifications;
+  }, [notifications]);
   useEffect(() => {
     const fetchNotificationsBackups = async () => {
       try {
@@ -118,53 +122,57 @@ export const useNotifications = () => {
     [notifications]
   );
 
-  const instanceCreating = useCallback(
-    (instanceName: string) => {
-      return (
-        notifications.find((notification) => {
-          return (
-            notification.path === "instances" &&
-            notification.instanceName === instanceName &&
-            notification.status === "pending" &&
-            notification.type === "newInstance"
-          );
-        }) !== undefined
-      );
-    },
-    [notifications]
-  );
+  const instanceCreating = useCallback((instanceName: string) => {
+    return (
+      notificationsRef.current.find((notification) => {
+        return (
+          notification.path === "instances" &&
+          notification.instanceName === instanceName &&
+          notification.status === "pending" &&
+          notification.type === "newInstance"
+        );
+      }) !== undefined
+    );
+  }, []);
 
-  const instanceTerminated = useCallback(
-    (instanceName: string) => {
-      return (
-        notifications.find((notification) => {
-          return (
-            notification.path === "instances" &&
-            notification.instanceName === instanceName &&
-            notification.status === "success" &&
-            notification.type === "deleteInstance"
-          );
-        }) !== undefined
-      );
-    },
-    [notifications]
-  );
+  const instanceDeleting = useCallback((instanceName: string) => {
+    return (
+      notificationsRef.current.find((notification) => {
+        return (
+          notification.path === "instances" &&
+          notification.instanceName === instanceName &&
+          notification.status === "pending" &&
+          notification.type === "deleteInstance"
+        );
+      }) !== undefined
+    );
+  }, []);
 
-  const instanceCreated = useCallback(
-    (instanceName: string) => {
-      return (
-        notifications.find((notification) => {
-          return (
-            notification.path === "instances" &&
-            notification.instanceName === instanceName &&
-            notification.status === "success" &&
-            notification.type === "newInstance"
-          );
-        }) !== undefined
-      );
-    },
-    [notifications]
-  );
+  const instanceTerminated = useCallback((instanceName: string) => {
+    return (
+      notificationsRef.current.find((notification) => {
+        return (
+          notification.path === "instances" &&
+          notification.instanceName === instanceName &&
+          notification.status === "success" &&
+          notification.type === "deleteInstance"
+        );
+      }) !== undefined
+    );
+  }, []);
+
+  const instanceCreated = useCallback((instanceName: string) => {
+    return (
+      notificationsRef.current.find((notification) => {
+        return (
+          notification.path === "instances" &&
+          notification.instanceName === instanceName &&
+          notification.status === "success" &&
+          notification.type === "newInstance"
+        );
+      }) !== undefined
+    );
+  }, []);
 
   return {
     notifications,
@@ -178,6 +186,7 @@ export const useNotifications = () => {
     linkPending,
     instancePending,
     instanceCreating,
+    instanceDeleting,
     instanceTerminated,
     instanceCreated,
   };

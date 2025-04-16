@@ -64,9 +64,17 @@ export function StatusLegend() {
             <span className="text-pagetext1 font-bold">shutting-down</span>:
             Instance is shutting down. Access is blocked.
           </p>
-          <p>
+          <p className="mb-2">
             <span className="text-pagetext1 font-bold">terminated</span>:
             Instance has been deleted.
+          </p>
+          <p className="mb-2">
+            <span className="text-red-300 font-bold">stopping</span>: Instance
+            is being stopped. (happens unless you stop it from the AWS console)
+          </p>
+          <p>
+            <span className="text-red-300 font-bold">stopped</span>: Instance
+            has been stopped. (check your AWS console for more information)
           </p>
         </div>
       )}

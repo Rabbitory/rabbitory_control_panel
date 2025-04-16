@@ -15,6 +15,7 @@ const mockedNotificationsContextValue = {
   instanceCreated: () => false,
   instanceCreating: () => false,
   instanceTerminated: () => false,
+  instanceDeleting: () => false,
 };
 
 jest.mock("next/navigation", () => ({

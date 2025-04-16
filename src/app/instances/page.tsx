@@ -28,47 +28,50 @@ export default function Home() {
     notifications,
     notificationsReady,
     addNotification,
-    instancePending,
     instanceCreating,
     instanceTerminated,
     instanceCreated,
+    instanceDeleting,
   } = useNotificationsContext();
   const applyNotificationOverrides = useCallback(
     (instances: Instance[]): Instance[] => {
       return instances.map((instance) => {
+        if (instanceCreating(instance.name)) {
+          return { ...instance, state: "pending" };
+        }
+        if (instanceDeleting(instance.name)) {
+          return { ...instance, state: "shutting-down" };
+        }
         if (instanceTerminated(instance.name)) {
           return { ...instance, state: "terminated" };
         }
         if (instanceCreated(instance.name)) {
           return { ...instance, state: "running" };
         }
-        if (instanceCreating(instance.name)) {
-          return { ...instance, state: "pending" };
-        }
+
         return instance;
       });
     },
-    [instanceTerminated, instanceCreated, instanceCreating]
+    [instanceTerminated, instanceCreated, instanceCreating, instanceDeleting]
   );
-
-  const fetchInstances = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const fetchedInstances = await axios.get("/api/instances");
-      const corrected = applyNotificationOverrides(fetchedInstances.data);
-
-      setInstances(corrected);
-    } catch (err) {
-      console.error("Failed to fetch instances:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [applyNotificationOverrides]);
 
   useEffect(() => {
     if (!notificationsReady) return;
+    const fetchInstances = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedInstances = await axios.get("/api/instances");
+        const corrected = applyNotificationOverrides(fetchedInstances.data);
+
+        setInstances(corrected);
+      } catch (err) {
+        console.error("Failed to fetch instances:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchInstances();
-  }, [notificationsReady, fetchInstances]);
+  }, [notificationsReady, applyNotificationOverrides]);
 
   useEffect(() => {
     setInstances((prev) => applyNotificationOverrides(prev));
@@ -181,8 +184,7 @@ export default function Home() {
                   <td className="px-4 py-3 relative">
                     {instance.state === "pending" ||
                     instance.state === "shutting-down" ||
-                    instance.state === "terminated" ||
-                    instancePending(instance.name) ? (
+                    instance.state === "terminated" ? (
                       <span className="text-pagetext1 truncate block group cursor-not-allowed">
                         {instance.name}
                       </span>
@@ -227,7 +229,7 @@ export default function Home() {
                   ${
                     instance.state === "pending" ||
                     instance.state === "shutting-down" ||
-                    instancePending(instance.name)
+                    instance.state === "terminated"
                       ? "cursor-not-allowed"
                       : "hover:text-btnhover1 hover:shadow-btnhover1"
                   }
@@ -236,7 +238,7 @@ export default function Home() {
                       disabled={
                         instance.state === "pending" ||
                         instance.state === "shutting-down" ||
-                        instancePending(instance.name)
+                        instance.state === "terminated"
                       }
                     >
                       <Trash2 size={20} />

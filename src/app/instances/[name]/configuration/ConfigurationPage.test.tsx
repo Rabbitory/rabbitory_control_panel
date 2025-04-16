@@ -48,6 +48,7 @@ const mockedNotificationsContextValue = {
   instanceTerminated: () => false,
   instanceCreated: () => false,
   instanceCreating: () => false,
+  instanceDeleting: () => false,
 };
 
 beforeEach(() => {

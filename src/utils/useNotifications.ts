@@ -9,11 +9,13 @@ export const useNotifications = () => {
   const path = usePathname();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationsReady, setNotificationsReady] = useState<boolean>(false);
   useEffect(() => {
     const fetchNotificationsBackups = async () => {
       try {
         const response = await axios.get("/api/notifications/backups");
         setNotifications(response.data);
+        setNotificationsReady(true);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -116,6 +118,22 @@ export const useNotifications = () => {
     [notifications]
   );
 
+  const instanceCreating = useCallback(
+    (instanceName: string) => {
+      return (
+        notifications.find((notification) => {
+          return (
+            notification.path === "instances" &&
+            notification.instanceName === instanceName &&
+            notification.status === "pending" &&
+            notification.type === "newInstance"
+          );
+        }) !== undefined
+      );
+    },
+    [notifications]
+  );
+
   const instanceTerminated = useCallback(
     (instanceName: string) => {
       return (
@@ -150,6 +168,7 @@ export const useNotifications = () => {
 
   return {
     notifications,
+    notificationsReady,
     setNotifications,
     addNotification,
     updateNotification,
@@ -158,6 +177,7 @@ export const useNotifications = () => {
     formPending,
     linkPending,
     instancePending,
+    instanceCreating,
     instanceTerminated,
     instanceCreated,
   };

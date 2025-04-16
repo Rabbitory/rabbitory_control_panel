@@ -25,17 +25,35 @@ export default function Home() {
   const [isDeleting, setIsDeleting] = useState(false);
   const {
     notifications,
+    notificationsReady,
     addNotification,
     instancePending,
+    instanceCreating,
     instanceTerminated,
     instanceCreated,
   } = useNotificationsContext();
+  const applyNotificationOverrides = (instances: Instance[]): Instance[] => {
+    return instances.map((instance) => {
+      if (instanceTerminated(instance.name)) {
+        return { ...instance, state: "terminated" };
+      }
+      if (instanceCreated(instance.name)) {
+        return { ...instance, state: "running" };
+      }
+      if (instanceCreating(instance.name)) {
+        return { ...instance, state: "pending" };
+      }
+      return instance;
+    });
+  };
 
   const fetchInstances = async () => {
     setIsLoading(true);
     try {
       const fetchedInstances = await axios.get("/api/instances");
-      setInstances(fetchedInstances.data);
+      const corrected = applyNotificationOverrides(fetchedInstances.data);
+      console.log("Running applyNotificationOverrides", corrected);
+      setInstances(corrected);
     } catch (err) {
       console.error("Failed to fetch instances:", err);
     } finally {
@@ -44,27 +62,13 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!notificationsReady) return;
     fetchInstances();
-  }, []);
+  }, [notificationsReady]);
 
   useEffect(() => {
-    setInstances((prev) =>
-      prev.map((instance) =>
-        instanceTerminated(instance.name)
-          ? { ...instance, state: "terminated" }
-          : instance
-      )
-    );
-  }, [notifications, instanceTerminated]);
-  useEffect(() => {
-    setInstances((prev) =>
-      prev.map((instance) =>
-        instanceCreated(instance.name)
-          ? { ...instance, state: "running" }
-          : instance
-      )
-    );
-  }, [notifications, instanceCreated]);
+    setInstances((prev) => applyNotificationOverrides(prev));
+  }, [notifications, instanceCreated, instanceCreating, instanceTerminated]);
 
   const openDeleteModal = (instance: Instance) => {
     setSelectedInstance(instance);
@@ -81,7 +85,7 @@ export default function Home() {
   const handleDelete = async () => {
     if (!selectedInstance) return;
 
-    addNotification({
+    await addNotification({
       type: "deleteInstance",
       status: "pending",
       instanceName: selectedInstance.name,
@@ -216,7 +220,8 @@ export default function Home() {
                   text-gray-400 
                   ${
                     instance.state === "pending" ||
-                    instance.state === "shutting-down"
+                    instance.state === "shutting-down" ||
+                    instancePending(instance.name)
                       ? "cursor-not-allowed"
                       : "hover:text-btnhover1 hover:shadow-btnhover1"
                   }
@@ -224,7 +229,8 @@ export default function Home() {
                       aria-label="Delete instance"
                       disabled={
                         instance.state === "pending" ||
-                        instance.state === "shutting-down"
+                        instance.state === "shutting-down" ||
+                        instancePending(instance.name)
                       }
                     >
                       <Trash2 size={20} />

@@ -6,6 +6,7 @@ import { useNotifications } from "@/utils/useNotifications";
 
 interface NotificationsContextType {
   notifications: Notification[];
+  notificationsReady: boolean;
   addNotification: (notification: Notification) => void;
   updateNotification: (notification: Notification) => void;
   clearNotifications: () => void;
@@ -18,12 +19,14 @@ interface NotificationsContextType {
   formPending: () => boolean;
   linkPending: (pageName: string) => boolean;
   instancePending: (instanceName: string) => boolean;
+  instanceCreating: (instanceName: string) => boolean;
   instanceTerminated: (instanceName: string) => boolean;
   instanceCreated: (instanceName: string) => boolean;
 }
 
 const defaultContextValue: NotificationsContextType = {
   notifications: [],
+  notificationsReady: false,
 
   addNotification: () => {
     throw new Error("addNotification not implemented");
@@ -45,6 +48,9 @@ const defaultContextValue: NotificationsContextType = {
   },
   instancePending: () => {
     throw new Error("instancePending not implemented");
+  },
+  instanceCreating: () => {
+    throw new Error("instanceCreating not implemented");
   },
 
   instanceTerminated: () => {
@@ -71,6 +77,7 @@ export function NotificationsProvider({
 }: NotificationsProviderProps) {
   const {
     notifications,
+    notificationsReady,
     addNotification,
     updateNotification,
     clearNotifications,
@@ -78,6 +85,7 @@ export function NotificationsProvider({
     formPending,
     linkPending,
     instancePending,
+    instanceCreating,
     instanceTerminated,
     instanceCreated,
   } = useNotifications();
@@ -85,8 +93,10 @@ export function NotificationsProvider({
   const value = useMemo(
     () => ({
       notifications,
+      notificationsReady,
       linkPending,
       instancePending,
+      instanceCreating,
       addNotification,
       updateNotification,
       clearNotifications,
@@ -97,8 +107,10 @@ export function NotificationsProvider({
     }),
     [
       notifications,
+      notificationsReady,
       linkPending,
       instancePending,
+      instanceCreating,
       addNotification,
       updateNotification,
       clearNotifications,

@@ -27,6 +27,7 @@ jest.mock("../InstanceContext", () => ({
 
 const mockedNotificationsContextValue = {
   notifications: [],
+  notificationsReady: true,
   setNotifications: jest.fn(),
   addNotification: jest.fn(),
   updateNotification: jest.fn(),
@@ -37,6 +38,7 @@ const mockedNotificationsContextValue = {
   instancePending: () => false,
   instanceTerminated: () => false,
   instanceCreated: () => false,
+  instanceCreating: () => false,
 };
 
 it("Fetches storage size", async () => {

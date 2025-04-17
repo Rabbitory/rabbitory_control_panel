@@ -1,10 +1,10 @@
-import { UpdateAndRebootParams } from "./types";
+import { UpdateAndRebootParams } from "../types";
 import { updateVolumeSize } from "@/utils/AWS/EC2/updateVolumeSize";
 import { rebootInstance } from "@/utils/AWS/EC2/rebootInstance";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
 
-export async function updateAndReboot({
+export default async function updateAndReboot({
   volumeId,
   instanceId,
   region,
@@ -37,6 +37,3 @@ export async function updateAndReboot({
     deleteEvent(instanceName, "storage");
   }
 }
-
-export const isValidStorageSize = (size: number): boolean =>
-  size >= 1 && size <= 16000;

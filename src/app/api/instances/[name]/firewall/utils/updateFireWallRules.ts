@@ -7,10 +7,10 @@ import {
   getSGRulesToAddAndRemove,
   getRabbitmqPortsToAddAndRemove,
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
-import { UpdateFireWallRulesParams } from "./types";
+import { UpdateFireWallRulesParams } from "../types";
 import { FirewallRule } from "@/types/firewall";
 
-export async function updateFireWallRules({
+export default async function updateFireWallRules({
   region,
   rules,
   instanceName,

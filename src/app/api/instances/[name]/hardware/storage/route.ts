@@ -1,6 +1,9 @@
 import { getVolumeSize } from "@/utils/AWS/EC2/getVolumeSize";
 import { NextRequest, NextResponse } from "next/server";
-import { updateAndReboot, isValidStorageSize } from "./service";
+import updateAndReboot from "./utils/updateAndReboot";
+
+const isValidStorageSize = (size: number): boolean =>
+  size >= 1 && size <= 16000;
 
 export async function GET(request: NextRequest) {
   try {

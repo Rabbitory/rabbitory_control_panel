@@ -79,15 +79,9 @@ export async function POST(
   }
   const ec2Client = new EC2Client({ region });
   const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance || !instance.InstanceId) {
+  if (!instance || !instance.InstanceId || !instance.PublicDnsName) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  if (!instance.PublicDnsName) {
-    return NextResponse.json(
-      { message: "Instance not ready yet! Try again later!" },
       { status: 404 }
     );
   }

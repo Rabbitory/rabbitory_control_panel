@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
 import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
-import { listInstances, formattedInstances } from "./service";
+import listInstances from "./utils/listInstances";
+import { formattedInstances } from "./utils/utils";
 
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";

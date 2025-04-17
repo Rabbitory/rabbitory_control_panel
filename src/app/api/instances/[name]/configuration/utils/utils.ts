@@ -1,4 +1,4 @@
-export default function parseConfig(
+export function parseConfig(
   config: { [key: string]: string },
   fileContent: string
 ): void {

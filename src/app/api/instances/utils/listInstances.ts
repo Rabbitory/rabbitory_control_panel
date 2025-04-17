@@ -6,9 +6,9 @@ import {
 
 import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
 
-import type { InstanceWithRegion, FormattedInstance } from "./types";
+import type { InstanceWithRegion } from "../types";
 
-export async function listInstances(): Promise<InstanceWithRegion[]> {
+export default async function listInstances(): Promise<InstanceWithRegion[]> {
   const params = {
     Filters: [
       {
@@ -59,24 +59,4 @@ export async function listInstances(): Promise<InstanceWithRegion[]> {
   ).flat();
 
   return instances;
-}
-
-export function formattedInstances(
-  instances: InstanceWithRegion[]
-): Array<FormattedInstance | null> {
-  return instances
-    .map((instance) => {
-      if (!instance || !instance.Tags) {
-        console.error("Instance or tags not found");
-        return null;
-      }
-      const name = instance.Tags.find((tag) => tag.Key === "Name")?.Value || "";
-      return {
-        name,
-        id: instance.InstanceId,
-        region: instance.region,
-        state: instance.State?.Name,
-      };
-    })
-    .filter(Boolean);
 }

@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentSecurityGroupRules } from "@/utils/AWS/Security-Groups/getCurrentSecurityGroupRules";
-// import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
-// import { updateRabbitmqPorts } from "@/utils/RabbitMQ/updateRabbitmqPorts";
-import {
-  // convertToSecurityGroupRules,
-  convertToUIFirewallRules,
-  // getSGRulesToAddAndRemove,
-  // getRabbitmqPortsToAddAndRemove,
-} from "@/utils/AWS/Security-Groups/conversionsForSG";
+
+import { convertToUIFirewallRules } from "@/utils/AWS/Security-Groups/conversionsForSG";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
-import { updateFireWallRules } from "./service";
+import updateFireWallRules from "./utils/updateFireWallRules";
 
 export async function GET(
   request: NextRequest,

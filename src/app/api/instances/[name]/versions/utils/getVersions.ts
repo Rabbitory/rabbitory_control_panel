@@ -1,9 +1,9 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import axios from "axios";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-import { GetVersionsParams, Versions } from "./types";
+import { GetVersionsParams, Versions } from "../types";
 
-export async function getVersions({
+export default async function getVersions({
   instanceName,
   region,
   username,

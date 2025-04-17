@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getVersions } from "./service";
+import getVersions from "./utils/getVersions";
 
 export async function GET(
   request: NextRequest,

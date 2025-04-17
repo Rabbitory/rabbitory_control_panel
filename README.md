@@ -4,21 +4,27 @@
 
 # Rabbitory Control Panel
 
-The Rabbitory Control Panel is a web-based dashboard that makes it easy to manage your self-hosted RabbitMQ instances on AWS. It’s part of the Rabbitory platform, giving you a clean and intuitive interface for provisioning new instances, updating configurations, managing plugins, and securing your setup, and more — all without leaving your browser.
+The Rabbitory Control Panel is a self-hosted, web-based interface for managing your RabbitMQ instances on AWS. It lets you easily provision new instances, update configurations, manage plugins, and secure your setup, all from your browser. With everything in one place, Rabbitory makes it simple to take control of your messaging infrastructure.
+
+---
 
 ## 🛠 Features
 
 ### Open-Source and Self-Hosted
 
-Rabbitory gives you full control over your messaging infrastructure. Both the control panel and CLI are fully open-source, allowing you to inspect, modify, and run everything on your own terms — no black boxes, no vendor lock-in. Unlike traditional platforms that hide infrastructure details, Rabbitory helps you manage your resources directly. That means complete visibility, total control, and the freedom to scale or secure your setup however you see fit.
+RabbitMQ is a widely used open-source message broker, and Rabbitory is a natural extension of that philosophy. As an open-source management tool, the Rabbitory Control Panel runs on an EC2 instance in your own AWS environment, giving you a fully transparent and self-hosted way to manage your infrastructure.
 
-### Simplified Provisioning, Configuration, and Monitoring
+### One-Click RabbitMQ Provisioning
 
-Spin up RabbitMQ instances on AWS with just a few clicks. Configure plugins, update settings, and monitor instance details through an intuitive UI designed to streamline even the trickiest parts of RabbitMQ management.
+Spin up production-ready RabbitMQ instances on AWS in just a few clicks. Rabbitory handles the underlying EC2 provisioning, security group setup, and instance initialization, so you can go from zero to running in minutes—no manual setup required.
 
-### Smart Notifications
+### RabbitMQ-as-a-Service
 
-Stay in the loop with real-time alerts. The control panel notifies you when updates to your instance are pending, in progress, or complete — so you're never left guessing.
+Once your new instance is ready, the Control Panel gives you a complete set of tools to manage it. You can change RabbitMQ configurations, enable plugins, upgrade your EC2 hardware and storage, manage firewall rules, and montior performance with logs and alarms.Rabbitory gives you full visibility into your setup so you can monitor your message queues and keep your system running smoothly.
+
+### Smart UI Notifications
+
+The Control Panel keeps you informed with real-time alers for all instance operations. Whether an update is pending, in progress, successful, or has failed, you’ll see immediate feedback right in the UI. This helps you stay aware of what’s happening in your messaging infrastructure — so you're never left guessing.
 
 ### Flexible Instance Sizing
 
@@ -39,12 +45,14 @@ The Rabbitory Control Panel is your central hub for managing every part of your 
 ### Create a RabbitMQ Instance
 
 Start with the New Instance Form, which walks you through provisioning a RabbitMQ server on AWS with just a few inputs.
-[image from Control Panel here]
 
 ### View All Your Instances
 
-Once launched, your instance appears on the Home Page, where you can view all your running instances at a glance, along with their real-time status. Additionally, if you no longer need an instance
-[image from Control Panel here]
+Once launched, your instance appears on the Home Page, where you can view all your running instances at a glance, along with their real-time status. Additionally, if you no longer need an instance, you can easily terminate it directly from the same page with just a few clicks.
+
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/instances-page" alt="All Instances Page"/>
+</p>
 
 ### View Details for a RabbitMQ Instance
 
@@ -53,46 +61,54 @@ Each instance has a General Page that gives you everything you need to start sen
 Notably, this page provides you with your instance's RabbitMQ connection URL. This URL contains your username, password, server address, and virtual host, and it's what your producer and consumer applications use to connect to your RabbitMQ instance to send and receive messages.
 
 This page additionally provides a link to the RabbitMQ Management UI, which is the built-in web interface provided by RabbitMQ.
-[image from Control Panel here]
+
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/instance-details" alt="Instance Details"/>
+</p>
 
 ### Configure Your RabbitMQ Server
 
 Need to tweak RabbitMQ itself? The Configuration Page lets you update your server’s configuration file directly.
-[image from Control Panel here]
+
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/config-page.png" alt="Configuration Page"/>
+</p>
 
 ### Enable + Disable Plugins
 
-The Plugins Page makes it easy to enable and manage RabbitMQ’s many plugins with just a few clicks.
-[image from Control Panel here]
+The Plugins Page makes it easy to enable and manage RabbitMQ’s variety of plugins with simple toggles.
 
 ### Update Your Instance Hardware
 
-Scale your infrastructure on the fly from the Hardware Page, where you can upgrade your EC2 instance type or adjust your storage.
-[image from Control Panel here]
+Scale your infrastructure on the fly from the Hardware Page to upgrade your EC2 instance type or adjust your storage.
+
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/hardware-page.png" alt="Hardware Page"/>
+</p>
 
 ### Create Backups of Your Instance
 
-Use the Backups Page to export RabbitMQ definitions for safe keeping and easy restores.
-
-[image from Control Panel here]
+Use the Backups Page to create and export RabbitMQ definitions for safe keeping, restores, and migrations.
 
 ### Manage Your Instance Firewall + RabbitMQ Server Ports
 
-The Firewall Page lets you manage EC2 security groups and RabbitMQ protocol ports in one place — so you can stay secure without digging through the AWS console.
+The Firewall Page allows you to manage EC2 security groups and RabbitMQ protocol ports in one place. You can name firewall rules, define source IPs using CIDR blocks, and open specific ports—all without having to navigate through the AWS console or RabbitMQ server.
 
-[image from Control Panel here]
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/firewall-page.png" alt="Firewall Page"/>
+</p>
 
 ### Monitor Server Logs
 
 For real-time insight, the Logs Page streams live logs straight from your server.
 
-[image from Control Panel here]
-
 ### Create Alarms to Monitor Storage and Memory
 
-And the Alarms Page helps you stay ahead of problems by integrating with Slack to monitor CPU and disk usage.
+The Alarms Page keeps you informed by notifying you in your Slack workspace about critical CPU and disk usage metrics, helping you stay ahead of potential issues.
 
-[image from Control Panel here]
+---
+
+The Rabbitory Control Panel provides a powerful, intuitive interface for managing RabbitMQ instances on AWS. With features like one-click provisioning, real-time notifications, easy plugin management, and comprehensive firewall controls, it streamlines the complexities of RabbitMQ management. Whether you're monitoring performance, configuring instances, or setting alarms, Rabbitory offers full visibility and control—all from a clean, browser-based dashboard.
 
 ---
 

@@ -1,14 +1,8 @@
-import {
-  EC2Client,
-  DescribeInstancesCommand,
-  DescribeInstancesCommandOutput,
-  // Instance,
-} from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
 import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
 import { listInstances, formattedInstances } from "./service";
-import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
+
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
 

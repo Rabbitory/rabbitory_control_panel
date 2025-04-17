@@ -25,20 +25,13 @@ export async function GET(
   const ec2Client = new EC2Client({ region });
 
   const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance) {
+  if (!instance || !instance.PublicDnsName) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
       { status: 404 }
     );
   }
   const publicDns = instance.PublicDnsName;
-
-  if (!publicDns) {
-    return NextResponse.json(
-      { message: "Instance not ready yet! Try again later!" },
-      { status: 404 }
-    );
-  }
 
   const username = request.headers.get("x-rabbitmq-username");
   const password = request.headers.get("x-rabbitmq-password");

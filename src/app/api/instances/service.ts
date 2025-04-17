@@ -2,17 +2,12 @@ import {
   EC2Client,
   DescribeInstancesCommand,
   DescribeInstancesCommandOutput,
+  _InstanceType,
 } from "@aws-sdk/client-ec2";
-import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
-import createBrokerInstance from "@/utils/AWS/EC2/createBrokerInstance";
+
 import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
-import eventEmitter from "@/utils/eventEmitter";
-import { deleteEvent } from "@/utils/eventBackups";
-import type {
-  InstanceWithRegion,
-  //   FormattedInstance,
-  //   CreateInstanceInput,
-} from "./types";
+
+import type { InstanceWithRegion } from "./types";
 
 export async function listInstances() {
   const params = {

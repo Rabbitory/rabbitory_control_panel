@@ -6,7 +6,7 @@ import { useNotificationsContext } from "../NotificationContext";
 import SubmissionSpinner from "./components/SubmissionSpinner";
 import CreateNewInstanceButton from "./components/CreateNewInstanceButton";
 import InstancesTable from "./components/InstancesTable";
-import { Instance } from "./types/Instance";
+import { Instance } from "./types/instance";
 
 export default function Home() {
   const [instances, setInstances] = useState<Instance[]>([]);

@@ -1,5 +1,5 @@
 import { StatusLegend } from "@/app/components/statusLegend"
-import { InstancesTableProps } from "../types/InstanceTableTypes"
+import { InstancesTableProps } from "../types/instanceTableTypes"
 import InstanceRow from "./InstanceRow"
 
 export default function InstancesTable({

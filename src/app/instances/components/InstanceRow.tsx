@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
-import { InstanceRowProps } from "../types/InstanceTableTypes";
+import { InstanceRowProps } from "../types/instanceTableTypes";
 
 export default function InstanceRow({
   instance,

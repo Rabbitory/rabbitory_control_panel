@@ -6,6 +6,8 @@
 
 The Rabbitory Control Panel is a web-based dashboard that makes it easy to manage your self-hosted RabbitMQ instances on AWS. It’s part of the Rabbitory platform, giving you a clean and intuitive interface for provisioning new instances, updating configurations, managing plugins, and securing your setup, and more — all without leaving your browser.
 
+---
+
 ## 🛠 Features
 
 ### Open-Source and Self-Hosted

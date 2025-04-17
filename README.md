@@ -51,7 +51,7 @@ Start with the New Instance Form, which walks you through provisioning a RabbitM
 Once launched, your instance appears on the Home Page, where you can view all your running instances at a glance, along with their real-time status. Additionally, if you no longer need an instance, you can easily terminate it directly from the same page with just a few clicks.
 
 <p>
-<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/instances-page" alt="All Instances Page"/>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/instances-page.png" alt="All Instances Page"/>
 </p>
 
 ### View Details for a RabbitMQ Instance
@@ -63,7 +63,7 @@ Notably, this page provides you with your instance's RabbitMQ connection URL. Th
 This page additionally provides a link to the RabbitMQ Management UI, which is the built-in web interface provided by RabbitMQ.
 
 <p>
-<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/instance-details" alt="Instance Details"/>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/instance-details.png" alt="Instance Details"/>
 </p>
 
 ### Configure Your RabbitMQ Server

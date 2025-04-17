@@ -2,7 +2,6 @@ import {
   EC2Client,
   DescribeInstancesCommand,
   DescribeInstancesCommandOutput,
-  _InstanceType,
 } from "@aws-sdk/client-ec2";
 
 import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";

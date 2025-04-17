@@ -1,14 +1,14 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import axios from "axios";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-import { InstanceVersionsParams } from "./types";
+import { GetVersionsParams, Versions } from "./types";
 
 export async function getVersions({
   instanceName,
   region,
   username,
   password,
-}: InstanceVersionsParams) {
+}: GetVersionsParams): Promise<Versions> {
   const ec2Client = new EC2Client({ region });
 
   const instance = await fetchInstance(instanceName, ec2Client);

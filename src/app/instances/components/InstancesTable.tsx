@@ -1,6 +1,13 @@
 import { StatusLegend } from "@/app/components/statusLegend"
-import { InstancesTableProps } from "../types/instanceTableTypes"
 import InstanceRow from "./InstanceRow"
+import { Instance } from "../types/instance";
+
+interface InstancesTableProps {
+  isLoading: boolean;
+  instances: Instance[];
+  openDeleteModal: (instance: Instance) => void;
+}
+
 
 export default function InstancesTable({
   isLoading,

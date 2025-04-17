@@ -1,6 +1,12 @@
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
-import { InstanceRowProps } from "../types/instanceTableTypes";
+import { Instance } from "../types/instance";
+
+interface InstanceRowProps {
+  instance: Instance;
+  openDeleteModal: (instance: Instance) => void;
+}
+
 
 export default function InstanceRow({
   instance,

@@ -36,7 +36,7 @@ export async function togglePlugins({
   pluginName,
   enabled,
   instanceName,
-}: TogglePluginsParams) {
+}: TogglePluginsParams): Promise<void> {
   const ec2Client = new EC2Client({ region });
   const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance || !instance.InstanceId) {

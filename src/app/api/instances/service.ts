@@ -6,9 +6,9 @@ import {
 
 import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
 
-import type { InstanceWithRegion } from "./types";
+import type { InstanceWithRegion, FormattedInstance } from "./types";
 
-export async function listInstances() {
+export async function listInstances(): Promise<InstanceWithRegion[]> {
   const params = {
     Filters: [
       {
@@ -61,7 +61,9 @@ export async function listInstances() {
   return instances;
 }
 
-export function formattedInstances(instances: InstanceWithRegion[]) {
+export function formattedInstances(
+  instances: InstanceWithRegion[]
+): Array<FormattedInstance | null> {
   return instances
     .map((instance) => {
       if (!instance || !instance.Tags) {

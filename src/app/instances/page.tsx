@@ -1,20 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import axios from "axios";
-import { Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import SubmissionSpinner from "./components/SubmissionSpinner";
-import { StatusLegend } from "../components/statusLegend";
 import CreateNewInstanceButton from "./components/CreateNewInstanceButton";
-
-interface Instance {
-  state: string;
-  name: string;
-  id: string;
-  region: string;
-}
+import InstancesTable from "./components/InstancesTable";
+import { Instance } from "./types/Instance";
 
 export default function Home() {
   const [instances, setInstances] = useState<Instance[]>([]);
@@ -124,113 +116,12 @@ export default function Home() {
   return (
     <div className="mt-15 ml-20 mr-20">
       <CreateNewInstanceButton isGlowing={!isLoading && instances.length === 0} />
-      <table className="table-fixed w-full text-sm font-text1 border-separate border-spacing-y-3">
-        <thead>
-          <tr className="text-headertext1 font-text1 text-md bg-background">
-            <th className="text-left w-[12%] px-4 py-2">Name</th>
-            <th className="text-left w-[12%] px-4 py-2">Instance ID</th>
-            <th className="text-left w-[10%] px-4 py-2">Data Center</th>
-            <th className="text-left w-[10%] px-4 py-2">
-              Status <StatusLegend />
-            </th>
-            <th className="w-[5%]"></th>
-          </tr>
-        </thead>
+      <InstancesTable
+        isLoading={isLoading}
+        instances={instances}
+        openDeleteModal={openDeleteModal}
+      />
 
-        <tbody className={isLoading ? "" : "animate-fade-in"}>
-          {isLoading
-            ? Array.from({ length: 3 }).map((_, idx) => (
-              <tr
-                key={idx}
-                className="bg-card border border-gray-500/30 animate-pulse"
-              >
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="w-full h-4 bg-gray-600 rounded"></div>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="w-5 h-4 bg-gray-600 rounded ml-auto"></div>
-                </td>
-              </tr>
-            ))
-            : instances.map((instance) => (
-              <tr
-                key={instance.name}
-                className="bg-card border border-gray-500/30"
-              >
-                <td className="px-4 py-3 relative">
-                  {instance.state === "pending" ||
-                    instance.state === "shutting-down" ||
-                    instance.state === "terminated" ? (
-                    <span className="text-pagetext1 truncate block group cursor-not-allowed">
-                      {instance.name}
-                    </span>
-                  ) : (
-                    <Link
-                      href={`/instances/${instance.name}?region=${instance.region}`}
-                      className="text-pagetext1 hover:text-btnhover1 truncate block"
-                    >
-                      {instance.name}
-                    </Link>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-pagetext1 truncate">
-                  {instance.id}
-                </td>
-                <td className="px-4 py-3 text-pagetext1">
-                  {instance.region}
-                </td>
-                <td
-                  className={`px-4 py-3 ${instance.state === "running"
-                    ? "text-btnhover1"
-                    : instance.state === "pending" ||
-                      instance.state === "initializing"
-                      ? "text-btn1 italic"
-                      : instance.state === "stopped" ||
-                        instance.state === "stopping"
-                        ? "text-red-300"
-                        : instance.state === "shutting-down" ||
-                          instance.state === "terminated"
-                          ? "text-pagetext1 italic"
-                          : ""
-                    }`}
-                >
-                  {instance.state}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => openDeleteModal(instance)}
-                    className={`
-                  text-gray-400 
-                  ${instance.state === "pending" ||
-                        instance.state === "shutting-down" ||
-                        instance.state === "terminated"
-                        ? "cursor-not-allowed"
-                        : "hover:text-btnhover1 hover:shadow-btnhover1"
-                      }
-                `}
-                    aria-label="Delete instance"
-                    disabled={
-                      instance.state === "pending" ||
-                      instance.state === "shutting-down" ||
-                      instance.state === "terminated"
-                    }
-                  >
-                    <Trash2 size={20} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
       {!isLoading && instances.length === 0 && (
         <p className="font-text1 text-lg text-pagetext1 mt-10 text-center">
           No instances yet. Let’s spin one up!

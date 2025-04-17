@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentSecurityGroupRules } from "@/utils/AWS/Security-Groups/getCurrentSecurityGroupRules";
-import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
-import { updateRabbitmqPorts } from "@/utils/RabbitMQ/updateRabbitmqPorts";
+// import { updateInstanceSGRules } from "@/utils/AWS/Security-Groups/updateInstanceSGRules";
+// import { updateRabbitmqPorts } from "@/utils/RabbitMQ/updateRabbitmqPorts";
 import {
-  convertToSecurityGroupRules,
+  // convertToSecurityGroupRules,
   convertToUIFirewallRules,
-  getSGRulesToAddAndRemove,
-  getRabbitmqPortsToAddAndRemove,
+  // getSGRulesToAddAndRemove,
+  // getRabbitmqPortsToAddAndRemove,
 } from "@/utils/AWS/Security-Groups/conversionsForSG";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
+import { updateFireWallRules } from "./service";
 
 export async function GET(
   request: NextRequest,
@@ -59,33 +60,11 @@ export async function PUT(
   }
 
   try {
-    const currentSGRules = await getCurrentSecurityGroupRules(
-      instanceName,
-      region
-    );
-    const newSGRules = convertToSecurityGroupRules(rules);
-    const { rulesToAdd, rulesToRemove } = getSGRulesToAddAndRemove(
-      currentSGRules,
-      newSGRules
-    );
-    await updateInstanceSGRules(
-      instanceName,
+    const updatedUiFirewallRules = await updateFireWallRules({
       region,
-      rulesToAdd,
-      rulesToRemove
-    );
-
-    const { portsToAdd, portsToRemove } = getRabbitmqPortsToAddAndRemove(
-      rulesToAdd,
-      rulesToRemove
-    );
-    await updateRabbitmqPorts(instanceName, region, portsToAdd, portsToRemove);
-
-    const updatedSGRules = await getCurrentSecurityGroupRules(
+      rules,
       instanceName,
-      region
-    );
-    const updatedUiFirewallRules = convertToUIFirewallRules(updatedSGRules);
+    });
 
     eventEmitter.emit("notification", {
       type: "firewall",

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNotificationsContext } from "../NotificationContext";
 import SubmissionSpinner from "./components/SubmissionSpinner";
 import { StatusLegend } from "../components/statusLegend";
+import CreateNewInstanceButton from "./components/CreateNewInstanceButton";
 
 interface Instance {
   state: string;
@@ -122,23 +123,7 @@ export default function Home() {
 
   return (
     <div className="mt-15 ml-20 mr-20">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="font-heading1 text-2xl text-headertext1">Instances</h1>
-        <Link href="/instances/new">
-          <button
-            className={`
-              font-heading1 font-semibold py-2 px-6 bg-btn1
-              text-mainpage1 rounded-sm hover:bg-btnhover1 transition-all duration-200
-              text-md
-              hover:shadow-[0_0_8px_3px_rgba(135,217,218,0.5)]
-              ${!isLoading && instances.length === 0 ? "pulse-glow" : ""}
-            `}
-          >
-            + Create New Instance
-          </button>
-        </Link>
-      </div>
-
+      <CreateNewInstanceButton isGlowing={!isLoading && instances.length === 0} />
       <table className="table-fixed w-full text-sm font-text1 border-separate border-spacing-y-3">
         <thead>
           <tr className="text-headertext1 font-text1 text-md bg-background">
@@ -205,17 +190,17 @@ export default function Home() {
                 </td>
                 <td
                   className={`px-4 py-3 ${instance.state === "running"
-                      ? "text-btnhover1"
-                      : instance.state === "pending" ||
-                        instance.state === "initializing"
-                        ? "text-btn1 italic"
-                        : instance.state === "stopped" ||
-                          instance.state === "stopping"
-                          ? "text-red-300"
-                          : instance.state === "shutting-down" ||
-                            instance.state === "terminated"
-                            ? "text-pagetext1 italic"
-                            : ""
+                    ? "text-btnhover1"
+                    : instance.state === "pending" ||
+                      instance.state === "initializing"
+                      ? "text-btn1 italic"
+                      : instance.state === "stopped" ||
+                        instance.state === "stopping"
+                        ? "text-red-300"
+                        : instance.state === "shutting-down" ||
+                          instance.state === "terminated"
+                          ? "text-pagetext1 italic"
+                          : ""
                     }`}
                 >
                   {instance.state}

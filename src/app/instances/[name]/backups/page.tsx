@@ -2,18 +2,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useInstanceContext } from "../InstanceContext";
-import SubmissionSpinner from "../../components/SubmissionSpinner";
 import { useNotificationsContext } from "@/app/NotificationContext";
-
-interface Backup {
-  timestamp: string;
-  rabbitmq_version: string;
-  trigger: string;
-  definitions: Record<string, unknown>;
-}
+import BackupsDescription from "./components/BackupsDescription";
+import ManualBackupButton from "./components/ManualBackupButton";
+import LoadingSkeleton from "./components/LoadingSkeleton";
+import BackupsTable from "./components/BackupsTable";
+import Backup from "./types/backup";
 
 export default function BackupsPage() {
   const { instance } = useInstanceContext();
+
+  if (!instance) {
+    throw new Error("Instance not found");
+  }
 
   const { addNotification, formPending } = useNotificationsContext();
 
@@ -42,7 +43,7 @@ export default function BackupsPage() {
 
   const handleManualBackup = async () => {
     if (!instance?.name) return;
-    await addNotification({
+    addNotification({
       type: "backup",
       status: "pending",
       instanceName: instance?.name,
@@ -66,151 +67,21 @@ export default function BackupsPage() {
     }
   };
 
-  const handleDownload = (backup: Backup) => {
-    const jsonString = JSON.stringify(backup.definitions, null, 2);
-
-    const blob = new Blob([jsonString], { type: "application/json" });
-
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `${instance?.name}-${backup.timestamp}.json`);
-    document.body.appendChild(link);
-    link.click();
-
-    window.URL.revokeObjectURL(url);
-    link.remove();
-  };
-
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-8 text-pagetext1">
-      <h1 className="font-heading1 text-headertext1 text-2xl mb-6">Backups</h1>
-      <p className="font-text1 text-sm mb-4">
-        A “definition” in RabbitMQ is a snapshot of your server’s configuration
-        — including exchanges, queues, users, and permissions. We refer to these
-        as “backups”. See{" "}
-        <a
-          href="https://www.rabbitmq.com/docs/definitions"
-          className="underline hover:text-headertext1"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          RabbitMQ documentation
-        </a>{" "}
-        for more details.
-      </p>
-      <p className="font-text1 text-sm mb-10">
-        Below, you can manually create and download backups for safekeeping or
-        migration. All backups are also securely stored in the cloud, so they’ll
-        be available anytime you return to this page.
-      </p>
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={handleManualBackup}
-          disabled={formPending()}
-          className="font-heading1 text-sm px-4 py-2 mb-8 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
-        >
-          {formPending() ? (
-            <span className="flex items-center gap-2">
-              <SubmissionSpinner />
-              Adding Manual Backup...
-            </span>
-          ) : (
-            "+ Add Manual Backup"
-          )}
-        </button>
-      </div>
+      <BackupsDescription />
+      <ManualBackupButton
+        onClick={handleManualBackup}
+        disabled={formPending()}
+      />
 
       {isLoading ? (
-        <div className="animate-pulse space-y-4 text-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead className="font-heading1">
-                <tr>
-                  <th className="p-2 text-left border-b border-gray-600">
-                    Date Created
-                  </th>
-                  <th className="p-2 text-left border-b border-gray-600">
-                    RabbitMQ Version
-                  </th>
-                  <th className="p-2 text-left border-b border-gray-600">
-                    Trigger
-                  </th>
-                  <th className="p-2 text-left border-b border-gray-600"></th>
-                </tr>
-              </thead>
-              <tbody className="font-text1">
-                {[...Array(3)].map((_, index) => (
-                  <tr key={index}>
-                    <td className="p-2 border-b border-gray-600">
-                      <div className="h-4 w-24 bg-gray-600 rounded-sm" />
-                    </td>
-                    <td className="p-2 border-b border-gray-600">
-                      <div className="h-4 w-32 bg-gray-600 rounded-sm" />
-                    </td>
-                    <td className="p-2 border-b border-gray-600">
-                      <div className="h-4 w-20 bg-gray-600 rounded-sm" />
-                    </td>
-                    <td className="p-2 border-b border-gray-600">
-                      <div className="h-6 w-24 bg-gray-600 rounded-sm" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <LoadingSkeleton />
       ) : (
-        <div className="overflow-x-auto text-sm">
-          <table className="w-full border-collapse">
-            <thead className="font-heading1">
-              <tr>
-                <th className="p-2 text-left border-b border-gray-300">
-                  Date Created
-                </th>
-                <th className="p-2 text-left border-b border-gray-300">
-                  RabbitMQ Version
-                </th>
-                <th className="p-2 text-left border-b border-gray-300">
-                  Trigger
-                </th>
-                <th className="p-2 text-left border-b border-gray-300"></th>
-              </tr>
-            </thead>
-            <tbody className="font-text1">
-              {backups.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="p-2 text-gray-600">
-                    No backups found.
-                  </td>
-                </tr>
-              ) : (
-                backups.map((backup, idx) => (
-                  <tr key={idx}>
-                    <td className="p-2 border-b border-gray-300">
-                      {backup.timestamp}
-                    </td>
-                    <td className="p-2 border-b border-gray-300">
-                      {backup.rabbitmq_version}
-                    </td>
-                    <td className="p-2 border-b border-gray-300">
-                      {backup.trigger}
-                    </td>
-                    <td className="p-2 border-b border-gray-300">
-                      <button
-                        onClick={() => handleDownload(backup)}
-                        className="px-3 py-1 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
-                      >
-                        Download
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <BackupsTable
+          backups={backups}
+          instance={instance}
+        />
       )}
     </div>
   );

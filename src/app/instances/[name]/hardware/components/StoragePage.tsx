@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 
 import { useNotificationsContext } from "@/app/NotificationContext";
-import { useInstanceContext } from "../InstanceContext";
+import { useInstanceContext } from "../../InstanceContext";
 
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { StorageDetails } from "../../components/StorageDetails";
+import { StorageDetails } from "../../../components/StorageDetails";
 import ErrorBanner from "@/app/instances/components/ErrorBanner";
-import SubmissionSpinner from "../../components/SubmissionSpinner";
+import SubmissionSpinner from "../../../components/SubmissionSpinner";
 
 export function StoragePage() {
   const router = useRouter();

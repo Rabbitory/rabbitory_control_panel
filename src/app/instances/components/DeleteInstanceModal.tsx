@@ -1,6 +1,6 @@
 import { useState } from "react";
 import SubmissionSpinner from "../components/SubmissionSpinner";
-import { Instance } from "../types/instance";
+import { Instance } from "@/types/instance";
 
 interface DeleteInstanceModalProps {
   selectedInstance: Instance;

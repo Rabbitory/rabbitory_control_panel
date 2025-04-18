@@ -1,4 +1,4 @@
-import { useInstanceContext } from "../instances/[name]/InstanceContext";
+import { useInstanceContext } from "../../InstanceContext";
 import { useState } from "react";
 import ErrorBanner from "@/app/instances/components/ErrorBanner";
 import axios from "axios";

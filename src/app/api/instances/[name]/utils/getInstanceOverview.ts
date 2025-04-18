@@ -10,7 +10,7 @@ interface GetInstanceOverviewParams {
 export default async function getInstanceOverview({
   region,
   instanceName,
-}: GetInstanceOverviewParams): Promise<any> {
+}: GetInstanceOverviewParams) {
   const ec2Client = new EC2Client({ region });
   const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance || !instance.InstanceId) {

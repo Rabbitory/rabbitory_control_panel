@@ -4,7 +4,6 @@ const eventBackups: Notification[] = [];
 
 export function addEvent(notification: Notification): void {
   eventBackups.push(notification);
-  console.log(eventBackups);
 }
 export function deleteEvent(
   name: Notification["instanceName"],

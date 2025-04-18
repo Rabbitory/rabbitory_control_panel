@@ -3,7 +3,7 @@ import { EC2Client, ModifyVolumeCommand } from "@aws-sdk/client-ec2";
 export async function updateVolumeSize(
   volumeId: string,
   region: string,
-  size: number,
+  size: number
 ) {
   const client = new EC2Client({ region });
 
@@ -12,11 +12,12 @@ export async function updateVolumeSize(
       new ModifyVolumeCommand({
         VolumeId: volumeId,
         Size: size,
-      }),
+      })
     );
 
     return true;
   } catch (error) {
-    throw new Error(`Error updating volume: ${error}`);
+    console.error("Error updating volume size:", error);
+    throw new Error("Error updating volume size");
   }
 }

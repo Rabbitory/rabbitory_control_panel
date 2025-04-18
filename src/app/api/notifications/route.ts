@@ -22,10 +22,9 @@ export async function GET(request: Request) {
         controller.enqueue(encoder.encode(pingMessage));
       }, 30000); // every 30 seconds
 
-      // When the connection is closed, clean up.
       request.signal.addEventListener("abort", () => {
-        clearInterval(heartbeatInterval); // clear the heartbeat interval
-        eventEmitter.off("notification", onEvent); // remove the event listener
+        clearInterval(heartbeatInterval);
+        eventEmitter.off("notification", onEvent);
         controller.close();
       });
     },

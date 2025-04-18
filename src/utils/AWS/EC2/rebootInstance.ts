@@ -11,21 +11,17 @@ export async function rebootInstance(instanceId: string, region: string) {
     await client.send(
       new RebootInstancesCommand({
         InstanceIds: [instanceId],
-      }),
+      })
     );
-
-    console.log("hi");
 
     await waitUntilInstanceRunning(
       { client, maxWaitTime: 500 },
-      { InstanceIds: [instanceId] },
+      { InstanceIds: [instanceId] }
     );
-
-    console.log("bye");
 
     return true;
   } catch (error) {
     console.error("Error rebooting instance:", error);
-    return false;
+    throw new Error("Failed to reboot instance");
   }
 }

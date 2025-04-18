@@ -15,7 +15,7 @@ export default async function createInstance(
   instanceType: _InstanceType = "t2.micro",
   username: string = "admin",
   password: string = "password",
-  storageSize: number = 8,
+  storageSize: number = 8
 ) {
   const architecture = instanceType.includes("t2.") ? "amd64" : "arm64";
   const userDataScript = `#!/bin/bash
@@ -135,22 +135,21 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   const amiId = await getUbuntuAmiId(architecture, region);
   const IPN = await getInstanceProfileByName(
     "rabbitory-broker-instance-profile",
-    region,
+    region
   );
 
   if (!IPN) return false;
 
   const securityGroupId = await createInstanceSG(instanceName, region);
 
-  // Data must be base64 encoded
   const encodedUserData = Buffer.from(userDataScript).toString("base64");
 
   const params: RunInstancesCommandInput = {
-    ImageId: amiId, // AMI (OS) id (Ubuntu in this example) - region specific
-    InstanceType: instanceType, // Instance hardware
-    MinCount: 1, // 1 instance made
-    MaxCount: 1, // 1 instance made
-    SecurityGroupIds: securityGroupId ? [securityGroupId] : undefined, // Security group id
+    ImageId: amiId,
+    InstanceType: instanceType,
+    MinCount: 1,
+    MaxCount: 1,
+    SecurityGroupIds: securityGroupId ? [securityGroupId] : undefined,
     UserData: encodedUserData,
     IamInstanceProfile: {
       Name: IPN,

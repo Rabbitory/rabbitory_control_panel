@@ -1,8 +1,8 @@
 export interface Alarm {
   id: string;
   data: {
-    memoryThreshold: number;
-    storageThreshold: number;
+    memoryThreshold?: number;
+    storageThreshold?: number;
     reminderInterval: number;
   };
 }
@@ -23,5 +23,12 @@ export interface GetAlarmsParams {
 export interface AddAndStartAlarmsParams {
   region: string;
   alarmData: AlarmData;
+  instanceName: string;
+}
+
+export interface DeleteAlarmsParams {
+  region: string;
+  type: string;
+  alarmId: string;
   instanceName: string;
 }

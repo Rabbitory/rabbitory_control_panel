@@ -2,7 +2,15 @@ import { EC2Client } from "@aws-sdk/client-ec2";
 
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { sendNotification } from "@/utils/RabbitMQ/monitorMetrics";
-import { TriggerAlarmsParams } from "../types";
+
+import { Alarm } from "../../types";
+
+interface TriggerAlarmsParams {
+  region: string;
+  alarms: Alarm;
+  type: string;
+  instanceName: string;
+}
 
 export default async function triggerAlarms({
   region,

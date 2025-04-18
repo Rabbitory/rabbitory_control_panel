@@ -1,8 +1,5 @@
-import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import deleteInstance from "./utils/deleteInstance";
-import { getGroupName } from "./utils/utils";
 
 export async function POST(
   request: NextRequest,
@@ -19,28 +16,18 @@ export async function POST(
     );
   }
 
-  const ec2Client = new EC2Client({ region });
+  try {
+    deleteInstance({ region, instanceName });
 
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance || !instance.InstanceId) {
     return NextResponse.json(
-      { message: `Instance not found: ${instanceName}` },
-      { status: 404 }
+      { message: `Initiated deletion for ${instanceName}` },
+      { status: 202 }
+    );
+  } catch (error) {
+    console.error("Error deleting instance:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error", error: String(error) },
+      { status: 500 }
     );
   }
-
-  const groupName = getGroupName(instance);
-  if (groupName === undefined) {
-    return NextResponse.json(
-      { message: `No security group found for instance: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  const instanceId = instance.InstanceId;
-  deleteInstance({ instanceId, groupName, ec2Client, instanceName });
-
-  return NextResponse.json(
-    { message: `Initiated deletion for ${instanceName}` },
-    { status: 202 }
-  );
 }

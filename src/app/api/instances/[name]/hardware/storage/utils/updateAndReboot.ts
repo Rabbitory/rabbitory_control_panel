@@ -1,9 +1,15 @@
-import { UpdateAndRebootParams } from "../types";
 import { updateVolumeSize } from "@/utils/AWS/EC2/updateVolumeSize";
 import { rebootInstance } from "@/utils/AWS/EC2/rebootInstance";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
 
+interface UpdateAndRebootParams {
+  volumeId: string;
+  instanceId: string;
+  region: string;
+  size: number;
+  instanceName: string;
+}
 export default async function updateAndReboot({
   volumeId,
   instanceId,

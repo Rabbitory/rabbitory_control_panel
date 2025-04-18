@@ -1,8 +1,11 @@
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import { EC2Client } from "@aws-sdk/client-ec2";
-import { GetLogsParams } from "../types";
 
+interface GetLogsParams {
+  instanceName: string;
+  region: string;
+}
 export default async function getLogs({
   region,
   instanceName,

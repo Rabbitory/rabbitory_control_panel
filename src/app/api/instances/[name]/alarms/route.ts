@@ -2,9 +2,8 @@ import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import Alarm from "@/app/instances/[name]/alarms/types/alarm";
-import { startMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
+import { startMetricsMonitoring, stopMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
 import { decrypt } from "@/utils/encrypt";
-import { stopMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
 import {
   appendAlarmsSettings,
   deleteAlarmFromDynamoDB,

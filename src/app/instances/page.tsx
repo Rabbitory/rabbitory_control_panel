@@ -6,7 +6,7 @@ import { useNotificationsContext } from "../NotificationContext";
 import DeleteInstanceModal from "./components/DeleteInstanceModal";
 import CreateNewInstanceButton from "./components/CreateNewInstanceButton";
 import InstancesTable from "./components/InstancesTable";
-import { Instance } from "./types/instance";
+import { Instance } from "@/types/instance";
 
 export default function Home() {
   const [instances, setInstances] = useState<Instance[]>([]);

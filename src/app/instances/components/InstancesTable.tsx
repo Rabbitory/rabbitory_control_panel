@@ -1,6 +1,6 @@
 import { StatusLegend } from "@/app/components/statusLegend"
 import InstanceRow from "./InstanceRow"
-import { Instance } from "../types/instance";
+import { Instance } from "@/types/instance";
 
 interface InstancesTableProps {
   isLoading: boolean;

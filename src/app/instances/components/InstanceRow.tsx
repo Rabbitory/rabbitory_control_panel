@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
-import { Instance } from "../types/instance";
+import { Instance } from "@/types/instance";
 
 interface InstanceRowProps {
   instance: Instance;

@@ -13,14 +13,14 @@ interface RootLayoutProps {
 const montserrat = Montserrat({
   weight: ["400", "600", "700"],
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   variable: "--font-montserrat",
 });
 
 const metrophobic = Metrophobic({
   weight: ["400"],
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   variable: "--font-metrophobic",
 });
 

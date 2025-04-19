@@ -3,6 +3,8 @@ import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useInstanceContext } from "../InstanceContext";
+import VersionsDescription from "./components/VersionsDescription";
+import LoadingSkeleton from "./components/LoadingSkeleton";
 
 interface Version {
   rabbitmq: string;
@@ -44,23 +46,7 @@ export default function VersionsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
-      <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
-        Versions
-      </h1>
-      <p className="text-pagetext1 text-sm mb-6">
-        Currently, this interface does not support upgrading RabbitMQ versions.
-        For detailed instructions on how to manually upgrade RabbitMQ, please
-        refer to the official RabbitMQ upgrade guide:{" "}
-        <a
-          href="https://www.rabbitmq.com/upgrade.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:text-headertext1"
-        >
-          RabbitMQ Upgrade Guide
-        </a>
-        .
-      </p>
+      <VersionsDescription />
       <div className="max-w-md">
         <table className="w-full border-collapse">
           <thead>
@@ -70,29 +56,11 @@ export default function VersionsPage() {
             </tr>
           </thead>
           <tbody
-            className={`text-pagetext1 px-4 py-2 ${
-              isLoading ? "" : "animate-fade-in"
-            }`}
+            className={`text-pagetext1 px-4 py-2 ${isLoading ? "" : "animate-fade-in"
+              }`}
           >
             {isLoading ? (
-              <>
-                <tr>
-                  <td className="px-4 py-3">
-                    <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-3">
-                    <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="w-full h-6 bg-gray-600 rounded-sm"></div>
-                  </td>
-                </tr>
-              </>
+              <LoadingSkeleton />
             ) : versions ? (
               <>
                 <tr className="font-text1 border-t border-gray-300">

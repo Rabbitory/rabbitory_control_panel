@@ -29,7 +29,7 @@ export default function AlarmsPage() {
     const fetchCurrentWebhookUrl = async () => {
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`
         );
 
         setWebhookUrl(response.data.webhookUrl || "");
@@ -41,13 +41,12 @@ export default function AlarmsPage() {
     fetchCurrentWebhookUrl();
   }, [instance?.name, instance?.region]);
 
-
   useEffect(() => {
     const fetchAlarms = async () => {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
+          `/api/instances/${instance?.name}/alarms?region=${instance?.region}`
         );
         setMemoryAlarms(response.data.memory || []);
         setStorageAlarms(response.data.storage || []);
@@ -63,16 +62,16 @@ export default function AlarmsPage() {
 
   const handleCloseSlackModal = () => {
     setShowSlackModal(false);
-  }
+  };
 
   const handleCloseNewAlarmModal = () => {
     setShowNewAlarmModal(false);
-  }
+  };
 
   const handleDelete = async (type: "storage" | "memory", id: string) => {
     try {
       await axios.delete(
-        `/api/instances/${instance?.name}/alarms?region=${instance?.region}&type=${type}&id=${id}`,
+        `/api/instances/${instance?.name}/alarms?region=${instance?.region}&type=${type}&id=${id}`
       );
       setStorageAlarms((prev) => prev.filter((alarm) => alarm.id !== id));
       setMemoryAlarms((prev) => prev.filter((alarm) => alarm.id !== id));
@@ -91,7 +90,7 @@ export default function AlarmsPage() {
             "x-rabbitmq-username": instance?.user,
             "x-rabbitmq-password": instance?.password,
           },
-        },
+        }
       );
       console.log("Alarm triggered successfully");
     } catch (error) {
@@ -99,11 +98,21 @@ export default function AlarmsPage() {
     }
   };
 
+  const handleAddAlarm = (alarms: Alarm[], type: string) => {
+    if (type === "storage") {
+      setStorageAlarms(alarms);
+    } else {
+      setMemoryAlarms(alarms);
+    }
+  };
+
   return (
     <>
       {/* Slack Endpoint Card */}
       <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
-        <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Slack Endpoint</h1>
+        <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
+          Slack Endpoint
+        </h1>
         {webhookUrl ? (
           <table className="text-sm w-full table-auto mb-6">
             <colgroup>
@@ -135,13 +144,16 @@ export default function AlarmsPage() {
         </div>
       </div>
 
-      {webhookUrl &&
+      {webhookUrl && (
         <>
           <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
-            <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
+            <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
+              Alarms
+            </h1>
             <p className="font-text1 text-sm mb-6">
-              Alarms are triggered when the storage or memory usage of your RabbitMQ instance exceeds the specified thresholds.
-              You can set up alarms to receive notifications via Slack using the button below.
+              Alarms are triggered when the storage or memory usage of your
+              RabbitMQ instance exceeds the specified thresholds. You can set up
+              alarms to receive notifications via Slack using the button below.
             </p>
             {isLoading ? (
               <div className="animate-pulse">
@@ -171,15 +183,16 @@ export default function AlarmsPage() {
                           <th className="p-2 text-left border-b">
                             Reminder Interval
                           </th>
-                          <th className="p-2 text-left border-b">
-                            Actions
-                          </th>
+                          <th className="p-2 text-left border-b">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="font-text1 text-sm text-pagetext1">
                         {storageAlarms.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="p-2 text-md text-center text-gray-600">
+                            <td
+                              colSpan={4}
+                              className="p-2 text-md text-center text-gray-600"
+                            >
                               No storage alarms yet.
                             </td>
                           </tr>
@@ -196,8 +209,10 @@ export default function AlarmsPage() {
                                 <Dropdown
                                   label="Actions"
                                   options={{
-                                    Delete: () => handleDelete("storage", alarm.id),
-                                    Trigger: () => handleTrigger("storage", alarm),
+                                    Delete: () =>
+                                      handleDelete("storage", alarm.id),
+                                    Trigger: () =>
+                                      handleTrigger("storage", alarm),
                                   }}
                                 />
                               </td>
@@ -224,15 +239,16 @@ export default function AlarmsPage() {
                           <th className="p-2 text-left border-b">
                             Memory Threshold
                           </th>
-                          <th className="p-2 text-left border-b">
-                            Actions
-                          </th>
+                          <th className="p-2 text-left border-b">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="font-text1 text-sm text-pagetext1">
                         {memoryAlarms.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="p-2 text-center text-gray-600">
+                            <td
+                              colSpan={4}
+                              className="p-2 text-center text-gray-600"
+                            >
                               No memory alarms yet.
                             </td>
                           </tr>
@@ -249,8 +265,10 @@ export default function AlarmsPage() {
                                 <Dropdown
                                   label="Actions"
                                   options={{
-                                    Delete: () => handleDelete("memory", alarm.id),
-                                    Trigger: () => handleTrigger("memory", alarm),
+                                    Delete: () =>
+                                      handleDelete("memory", alarm.id),
+                                    Trigger: () =>
+                                      handleTrigger("memory", alarm),
                                   }}
                                 />
                               </td>
@@ -277,10 +295,20 @@ export default function AlarmsPage() {
             )}
           </div>
         </>
-      }
-      {showSlackModal && <SlackModal url={webhookUrl} onSave={(url) => setWebhookUrl(url)} onClose={handleCloseSlackModal} />}
-      {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
+      )}
+      {showSlackModal && (
+        <SlackModal
+          url={webhookUrl}
+          onSave={(url) => setWebhookUrl(url)}
+          onClose={handleCloseSlackModal}
+        />
+      )}
+      {showNewAlarmModal && (
+        <NewAlarmModal
+          onClose={handleCloseNewAlarmModal}
+          onAddAlarms={handleAddAlarm}
+        />
+      )}
     </>
-
   );
 }

@@ -1,9 +1,8 @@
-import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
-import { fetchWithRetry } from "@/utils/fetchWithRetry";
 
+// import { getPlugins, togglePlugins } from "./service";
+import getPlugins from "./utils/getPlugins";
+import togglePlugins from "./utils/togglePlugins";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
 
@@ -15,54 +14,25 @@ export async function GET(
   const region = searchParams.get("region");
   const { name: instanceName } = await params;
 
-  if (!region) {
-    return NextResponse.json(
-      { message: "Missing region parameter" },
-      { status: 400 }
-    );
-  }
-
-  const ec2Client = new EC2Client({ region });
-
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  const publicDns = instance.PublicDnsName;
-
-  if (!publicDns) {
-    return NextResponse.json(
-      { message: "Instance not ready yet! Try again later!" },
-      { status: 404 }
-    );
-  }
-
   const username = request.headers.get("x-rabbitmq-username");
   const password = request.headers.get("x-rabbitmq-password");
-  if (!username || !password) {
+
+  if (!region || !username || !password) {
     return NextResponse.json(
-      { message: "Username and password are required" },
+      { message: "Missing parameters" },
       { status: 400 }
     );
   }
 
   try {
-    const rabbitUrl = `http://${publicDns}:15672/api/nodes`;
-    const response = await fetchWithRetry(rabbitUrl, {
-      auth: {
-        username,
-        password,
-      },
+    const plugins = await getPlugins({
+      instanceName,
+      region,
+      username,
+      password,
     });
 
-    if (!response || !response.data || response.data.length === 0) {
-      throw new Error("No response from RabbitMQ API");
-    }
-
-    return NextResponse.json(response.data[0].enabled_plugins);
+    return NextResponse.json(plugins);
   } catch (error) {
     console.error("Error fetching plugins:", error);
     return NextResponse.json(
@@ -87,33 +57,18 @@ export async function POST(
     );
   }
 
-  const ec2Client = new EC2Client({ region });
-
   const { name, enabled } = (await request.json()) as {
     name: string;
     enabled: boolean;
   };
 
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  const instanceId = instance.InstanceId;
-
-  const commands: string[] = [];
-  if (enabled) {
-    commands.push(`rabbitmq-plugins enable ${name}`);
-  } else {
-    commands.push(`rabbitmq-plugins disable ${name}`);
-  }
-
-  commands.push("systemctl restart rabbitmq-server");
-
   try {
-    await runSSMCommands(instanceId!, commands, region!);
+    await togglePlugins({
+      region,
+      pluginName: name,
+      enabled,
+      instanceName,
+    });
 
     eventEmitter.emit("notification", {
       type: "plugin",

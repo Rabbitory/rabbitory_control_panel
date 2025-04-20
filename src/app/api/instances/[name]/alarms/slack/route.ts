@@ -5,8 +5,6 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const webhookUrl = body.webhookUrl;
 
-  console.log("webhookUrl", webhookUrl);
-
   if (!("webhookUrl" in body))
     return new NextResponse("Must have a webhookUrl in the request body.", {
       status: 400,
@@ -16,7 +14,7 @@ export async function POST(request: NextRequest) {
     await saveWebhookUrl(webhookUrl);
     return NextResponse.json({
       success: true,
-      webhookUrl
+      webhookUrl,
     });
   } catch (error) {
     return NextResponse.json(

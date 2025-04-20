@@ -1,54 +1,25 @@
-import { EC2Client } from "@aws-sdk/client-ec2";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
-import {
-  appendBackupDefinition,
-  fetchFromDynamoDB,
-} from "@/utils/dynamoDBUtils";
-import { getDefinitions } from "@/utils/RabbitMQ/backupDefinitions";
 import { NextRequest, NextResponse } from "next/server";
+import getBackups from "./utils/getBackups";
+import addBackups from "./utils/addBackups";
 
-// Use NextRequest type and properly handle params
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
+  const { name: instanceName } = await params;
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
       { status: 400 }
     );
   }
-  const { name: instanceName } = await params;
-  const ec2Client = new EC2Client({ region });
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance || !instance.InstanceId) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  try {
-    const response = await fetchFromDynamoDB("rabbitory-instances-metadata", {
-      instanceId: instance.InstanceId,
-    });
 
-    if (!response) {
-      return NextResponse.json(
-        { message: "Credentials are not ready yet! Try again later!" },
-        { status: 503 }
-      );
-    }
-    const definitions = response.Item?.backups;
-    if (!definitions) {
-      return NextResponse.json(
-        { message: "No definitions found for this instance" },
-        { status: 404 }
-      );
-    }
+  try {
+    const definitions = await getBackups({ region, instanceName });
 
     return NextResponse.json(definitions);
   } catch (error) {
@@ -77,40 +48,14 @@ export async function POST(
       { status: 400 }
     );
   }
-  const ec2Client = new EC2Client({ region });
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance || !instance.InstanceId) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  if (!instance.PublicDnsName) {
-    return NextResponse.json(
-      { message: "Instance not ready yet! Try again later!" },
-      { status: 404 }
-    );
-  }
 
   try {
-    const definitions = await getDefinitions(
-      instance.PublicDnsName,
+    const backups = await addBackups({
+      region,
       username,
       password,
-      "manual"
-    );
-    if (!definitions) {
-      return NextResponse.json(
-        { message: "No definitions found for this instance" },
-        { status: 404 }
-      );
-    }
-
-    const response = await appendBackupDefinition(
-      instance.InstanceId,
-      definitions
-    );
-
+      instanceName,
+    });
     eventEmitter.emit("notification", {
       type: "backup",
       status: "success",
@@ -121,7 +66,7 @@ export async function POST(
 
     deleteEvent(instanceName, "backup");
 
-    return NextResponse.json(response.Attributes?.backups);
+    return NextResponse.json(backups);
   } catch (error) {
     eventEmitter.emit("notification", {
       type: "backup",

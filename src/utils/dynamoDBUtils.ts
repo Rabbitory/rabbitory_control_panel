@@ -77,8 +77,8 @@ export const deleteFromDynamoDB = async (
       Key: partitionKey,
     });
 
-    const response = await client.send(command);
-    console.log("Item deleted successfully:", response);
+    await client.send(command);
+    console.log("Item deleted successfully");
   } catch (err) {
     console.error("Error deleting item:", err);
   }

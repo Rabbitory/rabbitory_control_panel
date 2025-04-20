@@ -46,17 +46,33 @@ export const POST = async (request: NextRequest) => {
       { status: 400 }
     );
   }
+  try {
+    const createInstanceResult = await createInstance(
+      region,
+      instanceName,
+      instanceType,
+      username,
+      password,
+      storageSize
+    );
 
-  const createInstanceResult = await createInstance(
-    region,
-    instanceName,
-    instanceType,
-    username,
-    password,
-    storageSize
-  );
+    const { instanceId } = createInstanceResult;
 
-  if (!createInstanceResult) {
+    pollRabbitMQServerStatus(
+      instanceId,
+      instanceName,
+      username,
+      password,
+      region
+    );
+    return NextResponse.json(
+      {
+        name: instanceName,
+        id: instanceId,
+      },
+      { status: 202 }
+    );
+  } catch (error) {
     eventEmitter.emit("notification", {
       message: `Error creating ${instanceName}.`,
       type: "newInstance",
@@ -70,21 +86,4 @@ export const POST = async (request: NextRequest) => {
       { status: 500 }
     );
   }
-
-  const { instanceId } = createInstanceResult;
-
-  pollRabbitMQServerStatus(
-    instanceId,
-    instanceName,
-    username,
-    password,
-    region
-  );
-  return NextResponse.json(
-    {
-      name: instanceName,
-      id: instanceId,
-    },
-    { status: 202 }
-  );
 };

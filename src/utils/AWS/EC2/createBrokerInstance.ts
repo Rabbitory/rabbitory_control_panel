@@ -138,57 +138,58 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     region
   );
 
-  if (!IPN) return false;
-
-  const securityGroupId = await createInstanceSG(instanceName, region);
-
-  const encodedUserData = Buffer.from(userDataScript).toString("base64");
-
-  const params: RunInstancesCommandInput = {
-    ImageId: amiId,
-    InstanceType: instanceType,
-    MinCount: 1,
-    MaxCount: 1,
-    SecurityGroupIds: securityGroupId ? [securityGroupId] : undefined,
-    UserData: encodedUserData,
-    IamInstanceProfile: {
-      Name: IPN,
-    },
-    TagSpecifications: [
-      {
-        ResourceType: "instance",
-        Tags: [
-          {
-            Key: "Name",
-            Value: instanceName,
-          },
-          {
-            Key: "Publisher",
-            Value: "Rabbitory",
-          },
-        ],
-      },
-    ],
-    BlockDeviceMappings: [
-      {
-        DeviceName: "/dev/sda1",
-        Ebs: {
-          VolumeSize: storageSize,
-          VolumeType: "gp3",
-          DeleteOnTermination: true,
-        },
-      },
-    ],
-  };
-
+  if (!IPN) {
+    throw new Error("Instance profile not found");
+  }
   try {
+    const securityGroupId = await createInstanceSG(instanceName, region);
+
+    const encodedUserData = Buffer.from(userDataScript).toString("base64");
+
+    const params: RunInstancesCommandInput = {
+      ImageId: amiId,
+      InstanceType: instanceType,
+      MinCount: 1,
+      MaxCount: 1,
+      SecurityGroupIds: securityGroupId ? [securityGroupId] : undefined,
+      UserData: encodedUserData,
+      IamInstanceProfile: {
+        Name: IPN,
+      },
+      TagSpecifications: [
+        {
+          ResourceType: "instance",
+          Tags: [
+            {
+              Key: "Name",
+              Value: instanceName,
+            },
+            {
+              Key: "Publisher",
+              Value: "Rabbitory",
+            },
+          ],
+        },
+      ],
+      BlockDeviceMappings: [
+        {
+          DeviceName: "/dev/sda1",
+          Ebs: {
+            VolumeSize: storageSize,
+            VolumeType: "gp3",
+            DeleteOnTermination: true,
+          },
+        },
+      ],
+    };
+
     const data = await ec2Client.send(new RunInstancesCommand(params));
     if (!data.Instances) throw new Error("No instances found");
     const instanceId = data.Instances[0].InstanceId;
 
     return { instanceId, instanceName };
   } catch (err) {
-    console.error(err);
-    return false;
+    console.error("Error creating instance:", err);
+    throw new Error("Error creating instance");
   }
 }

@@ -81,6 +81,7 @@ export const POST = async (request: NextRequest) => {
     });
 
     deleteEvent(instanceName, "newInstance");
+    console.error("Error creating instance:", error);
     return NextResponse.json(
       { message: "Error creating instance" },
       { status: 500 }

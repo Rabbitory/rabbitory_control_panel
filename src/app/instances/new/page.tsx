@@ -285,7 +285,11 @@ export default function NewInstancePage() {
             </div>
 
             {/* Instance Size */}
-            <div className="flex items-center gap-4">
+            <div
+              className={`flex items-center gap-4 ${
+                !selectedInstanceType ? 'cursor-not-allowed opacity-60' : ''
+              }`}
+            >
               <label
                 htmlFor="instanceSize"
                 className="font-heading1 text-md text-headertext1 w-1/4"
@@ -298,7 +302,7 @@ export default function NewInstancePage() {
                 value={selectedInstanceSize}
                 onChange={(e) => setSelectedInstanceSize(e.target.value)}
                 disabled={!selectedInstanceType}
-                className="font-text1 w-3/4 p-2 border rounded-md text-sm"
+                className="font-text1 w-3/4 p-2 border rounded-md text-sm disabled:cursor-not-allowed"
               >
                 <option value="">Select an instance size</option>
                 {filteredInstanceTypes.map((size) => (
@@ -308,6 +312,7 @@ export default function NewInstancePage() {
                 ))}
               </select>
             </div>
+
 
             <StorageDetails />
 

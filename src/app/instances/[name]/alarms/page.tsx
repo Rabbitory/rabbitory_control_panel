@@ -26,7 +26,7 @@ export default function AlarmsPage() {
     const fetchCurrentWebhookUrl = async () => {
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`,
+          `/api/instances/${instance?.name}/alarms/slack?region=${instance?.region}`
         );
 
         setWebhookUrl(response.data.webhookUrl || "");
@@ -38,13 +38,12 @@ export default function AlarmsPage() {
     fetchCurrentWebhookUrl();
   }, [instance?.name, instance?.region]);
 
-
   useEffect(() => {
     const fetchAlarms = async () => {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
+          `/api/instances/${instance?.name}/alarms?region=${instance?.region}`
         );
         setMemoryAlarms(response.data.memory || []);
         setStorageAlarms(response.data.storage || []);
@@ -60,16 +59,16 @@ export default function AlarmsPage() {
 
   const handleCloseSlackModal = () => {
     setShowSlackModal(false);
-  }
+  };
 
   const handleCloseNewAlarmModal = () => {
     setShowNewAlarmModal(false);
-  }
+  };
 
   const handleDelete = async (type: "storage" | "memory", id: string) => {
     try {
       await axios.delete(
-        `/api/instances/${instance?.name}/alarms?region=${instance?.region}&type=${type}&id=${id}`,
+        `/api/instances/${instance?.name}/alarms?region=${instance?.region}&type=${type}&id=${id}`
       );
       if (type === "storage") {
         setStorageAlarms((prev) => prev.filter((alarm) => alarm.id !== id));
@@ -91,11 +90,19 @@ export default function AlarmsPage() {
             "x-rabbitmq-username": instance?.user,
             "x-rabbitmq-password": instance?.password,
           },
-        },
+        }
       );
       console.log("Alarm triggered successfully");
     } catch (error) {
       console.error("Error triggering alarm:", error);
+    }
+  };
+
+  const handleAddAlarm = (alarms: Alarm[], type: string) => {
+    if (type === "storage") {
+      setStorageAlarms(alarms);
+    } else {
+      setMemoryAlarms(alarms);
     }
   };
 
@@ -106,13 +113,16 @@ export default function AlarmsPage() {
         onClick={() => setShowSlackModal(true)}
       />
 
-      {webhookUrl &&
+      {webhookUrl && (
         <>
           <div className="max-w-4xl mx-auto p-6 bg-card text-pagetext1 rounded-sm shadow-md mt-8">
-            <h1 className="font-heading1 text-headertext1 text-2xl mb-10">Alarms</h1>
+            <h1 className="font-heading1 text-headertext1 text-2xl mb-10">
+              Alarms
+            </h1>
             <p className="font-text1 text-sm mb-6">
-              Alarms are triggered when the storage or memory usage of your RabbitMQ instance exceeds the specified thresholds.
-              You can set up alarms to receive notifications via Slack using the button below.
+              Alarms are triggered when the storage or memory usage of your
+              RabbitMQ instance exceeds the specified thresholds. You can set up
+              alarms to receive notifications via Slack using the button below.
             </p>
             {isLoading ? (
               <LoadingSkeleton />
@@ -135,10 +145,20 @@ export default function AlarmsPage() {
             )}
           </div>
         </>
-      }
-      {showSlackModal && <SlackModal url={webhookUrl} onSave={(url) => setWebhookUrl(url)} onClose={handleCloseSlackModal} />}
-      {showNewAlarmModal && <NewAlarmModal onClose={handleCloseNewAlarmModal} />}
+      )}
+      {showSlackModal && (
+        <SlackModal
+          url={webhookUrl}
+          onSave={(url) => setWebhookUrl(url)}
+          onClose={handleCloseSlackModal}
+        />
+      )}
+      {showNewAlarmModal && (
+        <NewAlarmModal
+          onClose={handleCloseNewAlarmModal}
+          onAddAlarms={handleAddAlarm}
+        />
+      )}
     </>
-
   );
 }

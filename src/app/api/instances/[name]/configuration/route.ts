@@ -1,11 +1,10 @@
-import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 import { validateConfiguration } from "@/utils/validateConfigBackend";
 import { deleteEvent } from "@/utils/eventBackups";
 import eventEmitter from "@/utils/eventEmitter";
-import parseConfig from "@/utils/parseConfig";
+import getConfiguration from "./utils/getConfiguration";
+import { Config } from "./types";
+import updateConfiguration from "./utils/updateConfiguration";
 
 export async function GET(
   request: NextRequest,
@@ -22,27 +21,8 @@ export async function GET(
     );
   }
 
-  const ec2Client = new EC2Client({ region });
-
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  const instanceId = instance.InstanceId;
-
   try {
-    // Run a command to fetch the configuration file.
-    const fileContent = await runSSMCommands(
-      instanceId!,
-      ["cat /etc/rabbitmq/rabbitmq.conf"],
-      region!
-    );
-
-    const config: Record<string, string> = {};
-    parseConfig(config, fileContent);
+    const config = await getConfiguration({ region, instanceName });
 
     return NextResponse.json(config);
   } catch (error) {
@@ -69,10 +49,8 @@ export async function POST(
     );
   }
 
-  const ec2Client = new EC2Client({ region });
-
   const { configuration: newConfig } = (await request.json()) as {
-    configuration: Record<string, string>;
+    configuration: Config;
   };
 
   const { valid, errors } = validateConfiguration(newConfig);
@@ -83,31 +61,13 @@ export async function POST(
       { status: 400 }
     );
   }
-  
 
-  const commands: string[] = [];
-  for (const [key, value] of Object.entries(newConfig)) {
-    if (value !== "") {
-      commands.push(
-        `sudo sed -i '/^${key}[[:space:]]*=.*/c\\${key} = ${value}' /etc/rabbitmq/rabbitmq.conf`
-      );
-    }
-  }
-
-  commands.push("sudo systemctl restart rabbitmq-server");
-  commands.push("echo __CONFIG_START__");
-  commands.push("cat /etc/rabbitmq/rabbitmq.conf");
-
-  const instance = await fetchInstance(instanceName, ec2Client);
-  if (!instance) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-  const instanceId = instance.InstanceId;
   try {
-    const output = await runSSMCommands(instanceId!, commands, region!);
+    const config = await updateConfiguration({
+      region,
+      newConfig,
+      instanceName,
+    });
 
     eventEmitter.emit("notification", {
       type: "configuration",
@@ -117,11 +77,6 @@ export async function POST(
       message: "Configuration updated successfully",
     });
     deleteEvent(instanceName, "configuration");
-
-    const parts = output.split("__CONFIG_START__");
-    const configData = parts.length > 1 ? parts[1] : output;
-    const config: Record<string, string> = {};
-    parseConfig(config, configData);
 
     return NextResponse.json(config);
   } catch (error) {

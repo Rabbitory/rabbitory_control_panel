@@ -1,14 +1,7 @@
-import { EC2Client } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchInstance } from "@/utils/AWS/EC2/fetchInstance";
-import Alarm from "@/app/instances/[name]/alarms/types/alarm";
-import { startMetricsMonitoring, stopMetricsMonitoring } from "@/utils/RabbitMQ/monitorMetrics";
-import { decrypt } from "@/utils/encrypt";
-import {
-  appendAlarmsSettings,
-  deleteAlarmFromDynamoDB,
-  fetchFromDynamoDB,
-} from "@/utils/dynamoDBUtils";
+import getAlarms from "./utils/getAlarms";
+import addAndStartAlarms from "./utils/addAndStartAlarms";
+import deleteAlarms from "./utils/deleteAlarms";
 
 export async function GET(
   request: NextRequest,
@@ -25,29 +18,11 @@ export async function GET(
     );
   }
 
-  const client = new EC2Client({ region });
-  const instance = await fetchInstance(instanceName, client);
-
-  if (!instance || !instance.InstanceId) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-
   try {
-    const response = await fetchFromDynamoDB("rabbitory-instances-metadata", {
-      instanceId: instance.InstanceId,
+    const alarms = await getAlarms({
+      region,
+      instanceName,
     });
-
-    if (!response || !response.Item) {
-      return NextResponse.json({
-        memory: [],
-        storage: []
-      });
-    }
-
-    const alarms = response.Item.alarms;
 
     return NextResponse.json(alarms);
   } catch (error) {
@@ -66,6 +41,7 @@ export async function POST(
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
   const { name: instanceName } = await params;
+  const alarmData = await request.json();
 
   if (!region) {
     return NextResponse.json(
@@ -74,56 +50,16 @@ export async function POST(
     );
   }
 
-  const client = new EC2Client({ region });
-  const instance = await fetchInstance(instanceName, client);
-
-  if (!instance || !instance.InstanceId) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
-
-  const alarmData = await request.json();
-
   try {
-    const response = await appendAlarmsSettings(instance.InstanceId, alarmData);
-
-    const metadata = await fetchFromDynamoDB("rabbitory-instances-metadata", {
-      instanceId: instance.InstanceId,
-    });
-
-    const encryptedUsername = metadata.Item?.encryptedUsername;
-    const encryptedPassword = metadata.Item?.encryptedPassword;
-    const publicDns = instance.PublicDnsName;
-    const type = alarmData.type;
-
-    if (!encryptedUsername || !encryptedPassword || !publicDns) {
-      return NextResponse.json(
-        { message: "RabbitMQ credentials not found" },
-        { status: 500 }
-      );
-    }
-
-    const username = decrypt(encryptedUsername);
-    const password = decrypt(encryptedPassword);
-    const alarms = response.Attributes?.alarms;
-    // we append the newest alarm, so order is maintained
-    const newAlarm: Alarm = alarms[type]?.slice(-1)[0];
-
-    await startMetricsMonitoring(
-      instance.InstanceId,
+    const alarms = await addAndStartAlarms({
       region,
-      publicDns,
-      username,
-      password,
-      newAlarm,
-      alarmData.type,
-    );
+      alarmData,
+      instanceName,
+    });
 
     return NextResponse.json({
       message: "Alarm added and monitoring started",
-      alarms: response.Attributes?.alarms
+      alarms,
     });
   } catch (error) {
     console.error(error);
@@ -133,39 +69,6 @@ export async function POST(
     );
   }
 }
-
-// import { startMetricsMonitoring } from '@/utils/RabbitMQ/monitorMetrics';
-//
-// export async function POST(
-//   request: NextRequest,
-//   { params }: { params: Promise<{ name: string }> }
-// ) {
-//   // ... existing code ...
-//
-//   try {
-//     const response = await axios.get(rabbitmqUrl, {
-//       auth: { username, password }
-//     });
-//
-//     // Start the monitoring cron job
-//     await startMetricsMonitoring(
-//       publicDns,
-//       username,
-//       password,
-// [alarms], // Pass the alarm settings
-// type as 'memory' | 'storage'
-//     );
-//
-//     return NextResponse.json({ message: "Monitoring started successfully" });
-//   } catch (error) {
-//     console.error("Error starting monitoring:", error);
-//     return NextResponse.json(
-//       { message: "Error starting monitoring" },
-//       { status: 500 }
-//     );
-//   }
-// }
-// }
 
 export async function DELETE(
   request: NextRequest,
@@ -181,18 +84,8 @@ export async function DELETE(
     return NextResponse.json({ message: "Missing parameter" }, { status: 400 });
   }
 
-  const client = new EC2Client({ region });
-  const instance = await fetchInstance(instanceName, client);
-
-  if (!instance || !instance.InstanceId) {
-    return NextResponse.json(
-      { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
-    );
-  }
   try {
-    stopMetricsMonitoring(alarmId);
-    await deleteAlarmFromDynamoDB(instance.InstanceId, type, alarmId);
+    await deleteAlarms({ region, type, alarmId, instanceName });
     return NextResponse.json({ message: "Alarm deleted successfully" });
   } catch (error) {
     console.error(error);

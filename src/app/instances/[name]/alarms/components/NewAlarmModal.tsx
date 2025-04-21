@@ -3,8 +3,17 @@ import { useState } from "react";
 import ErrorBanner from "@/app/instances/components/ErrorBanner";
 import axios from "axios";
 
+interface Alarm {
+  id: string;
+  data: {
+    memoryThreshold: number;
+    storageThreshold: number;
+    reminderInterval: number;
+  };
+}
 interface Props {
   onClose: () => void;
+  onAddAlarms: (alarms: Alarm[], type: string) => void;
 }
 
 interface Data {
@@ -13,7 +22,7 @@ interface Data {
   reminderInterval: number;
 }
 
-export const NewAlarmModal = ({ onClose }: Props) => {
+export const NewAlarmModal = ({ onClose, onAddAlarms }: Props) => {
   const { instance } = useInstanceContext();
   const [saving, setSaving] = useState(false);
   const [alarmType, setAlarmType] = useState("");
@@ -22,44 +31,68 @@ export const NewAlarmModal = ({ onClose }: Props) => {
   const [reminderInterval, setReminderInterval] = useState(1);
   const [errors, setErrors] = useState<string[]>([]);
 
-  const isValidData = ({ memoryThreshold, storageThreshold, reminderInterval }: Data) => {
+  const isValidData = ({
+    memoryThreshold,
+    storageThreshold,
+    reminderInterval,
+  }: Data) => {
     if (!memoryThreshold && !storageThreshold) {
-      setErrors(prev => [...prev, "A memory or storage threshold is required."])
+      setErrors((prev) => [
+        ...prev,
+        "A memory or storage threshold is required.",
+      ]);
       return false;
     }
 
     if (reminderInterval <= 0) {
-      setErrors(prev => [...prev, "Reminder interval must be greater than 0."])
+      setErrors((prev) => [
+        ...prev,
+        "Reminder interval must be greater than 0.",
+      ]);
       return false;
     }
 
     if (memoryThreshold && (memoryThreshold < 0 || memoryThreshold > 100)) {
-      setErrors(prev => [...prev, "Memory threshold must be between 0 and 100."])
+      setErrors((prev) => [
+        ...prev,
+        "Memory threshold must be between 0 and 100.",
+      ]);
       return false;
     }
 
     if (storageThreshold && (storageThreshold < 0 || storageThreshold > 100)) {
-      setErrors(prev => [...prev, "Storage threshold must be between 0 and 100."])
+      setErrors((prev) => [
+        ...prev,
+        "Storage threshold must be between 0 and 100.",
+      ]);
       return false;
     }
 
     return true;
-  }
+  };
 
   const createAlarm = async () => {
     setErrors([]);
 
     try {
-      const data = alarmType === "memory" ? { memoryThreshold, reminderInterval } : { storageThreshold, reminderInterval };
+      const data =
+        alarmType === "memory"
+          ? { memoryThreshold, reminderInterval }
+          : { storageThreshold, reminderInterval };
       if (!isValidData(data)) return false;
 
-      await axios.post(
+      const response = await axios.post(
         `/api/instances/${instance?.name}/alarms?region=${instance?.region}`,
         {
           type: alarmType,
           data,
         }
       );
+      const alarms =
+        alarmType === "memory"
+          ? response.data.alarms.memory
+          : response.data.alarms.storage;
+      onAddAlarms(alarms, alarmType);
       return true;
     } catch (error) {
       console.error(error);
@@ -87,16 +120,23 @@ export const NewAlarmModal = ({ onClose }: Props) => {
         {errors.length > 0 && (
           <div className="mb-6 space-y-2">
             {errors.map((error, i) => (
-              <ErrorBanner key={i} message={error} onClose={() => resetError(error)} />
+              <ErrorBanner
+                key={i}
+                message={error}
+                onClose={() => resetError(error)}
+              />
             ))}
           </div>
         )}
         <div className="flex items-center gap-4">
-          <label className="font-heading1 text-md text-headertext1 w-2/3"
-            htmlFor="alarmType">
+          <label
+            className="font-heading1 text-md text-headertext1 w-2/3"
+            htmlFor="alarmType"
+          >
             New Alarm:
           </label>
-          <select className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+          <select
+            className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
             id="alarmType"
             name="alarmType"
             value={alarmType}
@@ -109,12 +149,14 @@ export const NewAlarmModal = ({ onClose }: Props) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <label className="font-heading1 text-md text-headertext1 w-2/3"
+          <label
+            className="font-heading1 text-md text-headertext1 w-2/3"
             htmlFor="reminderInterval"
           >
             Reminder Interval (minutes)
           </label>
-          <input className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+          <input
+            className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
             id="reminderInterval"
             name="reminderInterval"
             type="number"
@@ -123,7 +165,7 @@ export const NewAlarmModal = ({ onClose }: Props) => {
           />
         </div>
 
-        {alarmType === "memory" &&
+        {alarmType === "memory" && (
           <div className="flex items-center gap-4">
             <label
               className="font-heading1 text-md text-headertext1 w-2/3"
@@ -131,7 +173,8 @@ export const NewAlarmModal = ({ onClose }: Props) => {
             >
               Memory Threshold (%)
             </label>
-            <input className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+            <input
+              className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
               id="memoryThreshold"
               name="memoryThreshold"
               type="number"
@@ -139,14 +182,17 @@ export const NewAlarmModal = ({ onClose }: Props) => {
               onChange={(e) => setMemoryThreshold(Number(e.target.value))}
             />
           </div>
-        }
-        {alarmType === "storage" &&
+        )}
+        {alarmType === "storage" && (
           <div className="flex items-center gap-4">
-            <label className="font-heading1 text-md text-headertext1 w-2/3"
-              htmlFor="memo">
+            <label
+              className="font-heading1 text-md text-headertext1 w-2/3"
+              htmlFor="memo"
+            >
               Storage Threshold (%)
             </label>
-            <input className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
+            <input
+              className="font-text1 text-pagetext1 w-1/4 p-2 border rounded-md text-sm"
               id="storageThreshold"
               name="storageThreshold"
               type="number"
@@ -154,7 +200,7 @@ export const NewAlarmModal = ({ onClose }: Props) => {
               onChange={(e) => setStorageThreshold(Number(e.target.value))}
             />
           </div>
-        }
+        )}
 
         <div className="flex justify-end mt-6 gap-4">
           <button
@@ -183,5 +229,5 @@ export const NewAlarmModal = ({ onClose }: Props) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

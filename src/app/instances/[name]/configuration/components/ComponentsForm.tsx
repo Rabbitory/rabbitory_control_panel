@@ -18,7 +18,6 @@ export default function ComponentsForm({
   onChange,
   onSubmit,
   disabled,
-  pending,
 }: Props) {
   return (
     <form onSubmit={onSubmit}>

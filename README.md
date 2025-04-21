@@ -46,6 +46,10 @@ The Rabbitory Control Panel is the central hub for managing every part of your R
 
 Start with the New Instance Form, which walks you through provisioning a RabbitMQ server on AWS with just a few inputs.
 
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/create-instance.png" alt="Create New Instance"/>
+</p>
+
 ### View All RabbitMW Instances
 
 Once launched, the RabbitMQ instance appears on the Home Page, where you can view all running instances at a glance, along with their real-time status. Additionally, when an instance is no longer needed, easily terminate it directly from the same page with just a few clicks.
@@ -78,6 +82,10 @@ Need to tweak RabbitMQ itself? The Configuration Page lets you update the server
 
 The Plugins Page makes it easy to enable and manage RabbitMQ’s variety of plugins with simple toggles.
 
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/plugins-page.png" alt="Plugins Page"/>
+</p>
+
 ### Update Instance Hardware
 
 Scale infrastructure on the fly from the Hardware Page to upgrade your EC2 instance type or adjust storage.
@@ -89,6 +97,10 @@ Scale infrastructure on the fly from the Hardware Page to upgrade your EC2 insta
 ### Create Backups of Your Instance
 
 Use the Backups Page to create and export RabbitMQ definitions for safe keeping, restores, and migrations.
+
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/backups-page.png" alt="Backups Page"/>
+</p>
 
 ### Manage Instance Firewall Rules + RabbitMQ Server Ports
 

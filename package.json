@@ -14,6 +14,7 @@
     "@aws-sdk/client-dynamodb": "^3.772.0",
     "@aws-sdk/client-ec2": "^3.767.0",
     "@aws-sdk/client-iam": "^3.758.0",
+    "@aws-sdk/client-service-quotas": "^3.792.0",
     "@aws-sdk/client-ssm": "^3.774.0",
     "@aws-sdk/lib-dynamodb": "^3.772.0",
     "argon2": "^0.41.1",

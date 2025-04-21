@@ -1,8 +1,9 @@
-import { 
-  EC2Client, 
-  DescribeInstanceTypesCommand, 
-  DescribeInstanceTypesCommandOutput 
+import {
+  EC2Client,
+  DescribeInstanceTypesCommand,
+  DescribeInstanceTypesCommandOutput,
 } from "@aws-sdk/client-ec2";
+import { getVCPULimit } from "./getVCPULimit";
 
 const ec2Client = new EC2Client({ region: process.env.REGION });
 
@@ -16,17 +17,36 @@ export async function getEC2InstanceTypes(): Promise<Record<string, string[]>> {
         Filters: [
           {
             Name: "instance-type",
-            Values: ["m8g.*", "m7g.*", "c8g.*", "c7gn.*", "r8g.*", "t2.micro", "t2.small"],
+            Values: [
+              "m8g.*",
+              "m7g.*",
+              "c8g.*",
+              "c7gn.*",
+              "r8g.*",
+              "t2.micro",
+              "t2.small",
+            ],
           },
         ],
         NextToken: nextToken,
       });
 
-      const response: DescribeInstanceTypesCommandOutput = await ec2Client.send(command);
+      const response: DescribeInstanceTypesCommandOutput =
+        await ec2Client.send(command);
 
       if (response.InstanceTypes) {
+        const region = process.env.REGION || "us-east-1";
+        const vCPULimit = (await getVCPULimit(region)) || 32;
+
         allSpecifiedInstanceTypes.push(
-          ...response.InstanceTypes.map((type) => type.InstanceType ?? "")
+          ...response.InstanceTypes.filter((type) => {
+            return (
+              type.VCpuInfo?.DefaultVCpus &&
+              type.VCpuInfo?.DefaultVCpus <= vCPULimit
+            );
+          }).map((type) => {
+            return type.InstanceType ?? "";
+          }),
         );
       }
 

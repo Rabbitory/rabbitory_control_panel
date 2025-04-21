@@ -1,4 +1,4 @@
-interface ConfigItem {
+export interface ConfigItem {
   key: string;
   description: string;
   type: "text" | "number" | "dropdown";

@@ -163,11 +163,15 @@ export default function NewInstancePage() {
         storageSize,
       });
       router.push("/");
-    } catch (err) {
-      console.error("Error creating instance:", err);
-      setErrorMessages([
-        "Something went wrong while creating the instance. Please try again.",
-      ]);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        const apiError = err.response.data;
+        setErrorMessages([apiError.message]);
+      } else {
+        setErrorMessages([
+          "Something went wrong while creating the instance. Please try again.",
+        ]);
+      }
     } finally {
       setInstantiating(false);
     }
@@ -331,7 +335,8 @@ export default function NewInstancePage() {
 
             <p className="py-4 bg-card font-text1 text-sm text-pagetext1 flex items-center gap-2">
               <Lightbulb className="w-6 h-6 text-btnhover1" />
-              Create a username and password for logging into your RabbitMQ Management UI.
+              Create a username and password for logging into your RabbitMQ
+              Management UI.
             </p>
 
             {/* Username */}
@@ -371,7 +376,8 @@ export default function NewInstancePage() {
             </div>
 
             <p className="pl-47 bg-card font-text1 text-xs text-pagetext1">
-              Password must be at least 8 characters long and include one letter, one number, and one special character ( !@#$%^&* ) .
+              Password must be at least 8 characters long and include one
+              letter, one number, and one special character ( !@#$%^&* ) .
             </p>
 
             <div className="border-t border-headertext1 my-6"></div>

@@ -124,4 +124,4 @@ The Rabbitory Control Panel provides a powerful, intuitive interface for managin
 
 ---
 
-### 🤝 Developed By: Jacqueline Amherst | Zijin Gong | Laren Cozart | Mason Abruzzesse
+#### 🤝 Developed By: Jacqueline Amherst | Zijin Gong | Laren Cozart | Mason Abruzzesse

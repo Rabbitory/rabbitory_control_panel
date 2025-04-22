@@ -2,33 +2,29 @@ import { Plugin } from "@/types/plugins";
 
 interface Props {
   plugin: Plugin;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>, pluginName: string) => void;
   isEnabled: boolean;
   disabled: boolean;
+  onToggle: () => void;
 }
 
 export default function PluginEntry({
   plugin,
-  onSubmit,
+
   isEnabled,
   disabled,
+  onToggle,
 }: Props) {
   return (
-    <form
-      key={plugin.name}
-      onSubmit={(e) => onSubmit(e, plugin.name)}
-      className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4"
-    >
+    <div className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4">
       <div className="mb-2 md:mb-0">
         <h2
-          className={`font-heading1 text-sm ${isEnabled ? "text-btnhover1" : "text-pagetext1"
-            }`}
+          className={`font-heading1 text-sm ${
+            isEnabled ? "text-btnhover1" : "text-pagetext1"
+          }`}
         >
           {plugin.name}
         </h2>
-        <p className="font-text1 text-xs text-gray-500">
-          {plugin.description}
-        </p>
+        <p className="font-text1 text-xs text-gray-500">{plugin.description}</p>
       </div>
       <div className="flex items-center gap-4">
         <label className="relative inline-flex items-center cursor-pointer">
@@ -36,7 +32,7 @@ export default function PluginEntry({
             type="checkbox"
             checked={isEnabled}
             aria-label={plugin.name}
-            onChange={(e) => e.currentTarget.form?.requestSubmit()}
+            onChange={onToggle}
             className="sr-only peer"
             disabled={disabled}
           />
@@ -51,6 +47,6 @@ export default function PluginEntry({
           ></div>
         </label>
       </div>
-    </form>
-  )
+    </div>
+  );
 }

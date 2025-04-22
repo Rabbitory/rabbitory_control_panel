@@ -26,7 +26,7 @@ export default function PluginsPage() {
               "x-rabbitmq-username": instance?.user,
               "x-rabbitmq-password": instance?.password,
             },
-          }
+          },
         );
         setEnabledPlugins(response.data);
       } catch (error) {
@@ -41,7 +41,7 @@ export default function PluginsPage() {
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
-    pluginName: string
+    pluginName: string,
   ) => {
     e.preventDefault();
     if (!instance?.name) return;
@@ -54,11 +54,11 @@ export default function PluginsPage() {
       status: "pending",
       instanceName: instance?.name,
       path: "plugins",
-      message: `${newValue ? "Enabling" : "Disabling"} ${pluginName}`,
+      message: `${newValue ? "Enabling" : "Disabling"} ${pluginName} on ${instance?.name}`,
     });
 
     setEnabledPlugins((prev) =>
-      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
+      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName),
     );
 
     try {
@@ -67,7 +67,7 @@ export default function PluginsPage() {
         {
           name: pluginName,
           enabled: newValue,
-        }
+        },
       );
       console.log(`${pluginName} updated successfully to ${newValue}`);
     } catch (error) {
@@ -76,7 +76,7 @@ export default function PluginsPage() {
       setEnabledPlugins((prev) =>
         currentlyEnabled
           ? [...prev, pluginName]
-          : prev.filter((p) => p !== pluginName)
+          : prev.filter((p) => p !== pluginName),
       );
     }
   };

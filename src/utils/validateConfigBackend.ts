@@ -78,7 +78,7 @@ export function validateQueueIndexEmbedMsgsBelow(
 export function validateLogExchangeLevel(
   value: string | undefined
 ): string | null {
-  const allowed = ["debug", "info", "warn", "error", "critical", "none"];
+  const allowed = ["debug", "info", "warning", "error", "critical", "none"];
   if (value === undefined || !allowed.includes(value.toLowerCase())) {
     return `Log Exchange Level must be one of: ${allowed.join(", ")}.`;
   }

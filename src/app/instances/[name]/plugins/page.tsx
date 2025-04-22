@@ -112,9 +112,7 @@ export default function PluginsPage() {
       );
 
       setEnabledPlugins(
-        Object.entries(localStates)
-          .filter(([_, v]) => v)
-          .map(([name]) => name)
+        Object.keys(localStates).filter((name) => localStates[name])
       );
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

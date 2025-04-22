@@ -5,9 +5,9 @@ import { useNotificationsContext } from "../NotificationContext";
 import { NotificationStatus } from "@/types/notification";
 import { Bell, X } from "lucide-react";
 
-
 export default function NotificationsDropdown() {
-  const { notifications, updateNotification, deleteNotification } = useNotificationsContext();
+  const { notifications, updateNotification, deleteNotification } =
+    useNotificationsContext();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +61,10 @@ export default function NotificationsDropdown() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowDropdown(false);
       }
     };
@@ -91,7 +94,9 @@ export default function NotificationsDropdown() {
       {showDropdown && (
         <div className="absolute top-full right-0 mt-2 bg-card border border-mainbg1 z-50 w-64 p-2 rounded-sm">
           {notificationCount === 0 ? (
-            <div className="font-text1 text-pagetext1 text-sm p-1">No notifications</div>
+            <div className="font-text1 text-pagetext1 text-sm p-1">
+              No notifications
+            </div>
           ) : (
             <ul className="text-sm space-y-2">
               {notifications.map((notification, index) => (
@@ -106,21 +111,24 @@ export default function NotificationsDropdown() {
                       notification.status
                     )}`}
                   />
-                  <span className="flex-1 break-words">{notification.message}</span>
-                  <button
-                    onClick={() =>
-                      deleteNotification(
-                        notification.type,
-                        notification.instanceName,
-                        notification.message,
-                        index
-                      )
-                    }
-                    className="ml-2 text-pagetext1 hover:text-card text-xs"
-                    disabled={notification.status === "pending"}
-                  >
-                    <X size={16} />
-                  </button>
+                  <span className="flex-1 break-words">
+                    {notification.message}
+                  </span>
+                  {!(notification.status === "pending") && (
+                    <button
+                      onClick={() =>
+                        deleteNotification(
+                          notification.type,
+                          notification.instanceName,
+                          notification.message,
+                          index
+                        )
+                      }
+                      className="ml-2 text-pagetext1 hover:text-card text-xs"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

@@ -9,7 +9,6 @@ interface Props {
 
 export default function PluginEntry({
   plugin,
-
   isEnabled,
   disabled,
   onToggle,
@@ -27,7 +26,12 @@ export default function PluginEntry({
         <p className="font-text1 text-xs text-gray-500">{plugin.description}</p>
       </div>
       <div className="flex items-center gap-4">
-        <label className="relative inline-flex items-center cursor-pointer">
+        <label
+          className={
+            `relative inline-flex items-center` +
+            (disabled ? ` opacity-50 cursor-not-allowed` : ` cursor-pointer`)
+          }
+        >
           <input
             type="checkbox"
             checked={isEnabled}

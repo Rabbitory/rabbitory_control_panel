@@ -26,7 +26,7 @@ export async function fetchWithRetry(
   for (let i = 0; i < retries; i++) {
     try {
       const response = await axios.get(url, options);
-      console.log(response.data[0]);
+
       return response;
     } catch (error: unknown) {
       lastError = error;

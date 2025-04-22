@@ -22,15 +22,13 @@ export function formattedInstances(
 }
 
 export async function isInstanceNameUnique(
-  instanceName: string,
-  region: string
+  instanceName: string
 ): Promise<boolean> {
   const instances = await listInstances();
-  return !instances.some(
-    (instance) =>
-      instance.Tags?.some(
-        (tag) => tag.Key === "Name" && tag.Value === instanceName
-      ) && instance.region === region
+  return !instances.some((instance) =>
+    instance.Tags?.some(
+      (tag) => tag.Key === "Name" && tag.Value === instanceName
+    )
   );
 }
 

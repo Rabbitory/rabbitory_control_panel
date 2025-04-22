@@ -51,8 +51,8 @@ export const POST = async (request: NextRequest) => {
       throw new Error("Invalid request body");
     }
 
-    if (!(await isInstanceNameUnique(instanceName, region))) {
-      throw new Error(`Instance ${instanceName} already exists in ${region}`);
+    if (!(await isInstanceNameUnique(instanceName))) {
+      throw new Error(`Instance ${instanceName} already exists`);
     }
     const createInstanceResult = await createInstance(
       region,
@@ -88,7 +88,7 @@ export const POST = async (request: NextRequest) => {
     });
 
     deleteEvent(instanceName, "newInstance");
-    // console.error("Error creating instance:", error);
+
     return NextResponse.json(
       {
         message: `Error creating instance\n${

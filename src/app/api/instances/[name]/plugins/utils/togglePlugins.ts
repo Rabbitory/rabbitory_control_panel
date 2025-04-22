@@ -6,8 +6,7 @@ import { runSSMCommands } from "@/utils/AWS/SSM/runSSMCommands";
 
 export default async function togglePlugins({
   region,
-  pluginName,
-  enabled,
+  updates,
   instanceName,
 }: TogglePluginsParams): Promise<void> {
   const ec2Client = new EC2Client({ region });
@@ -16,12 +15,10 @@ export default async function togglePlugins({
     throw new Error(`No instance found with name: ${instanceName}`);
   }
   const instanceId = instance.InstanceId;
-  const commands: string[] = [];
-  if (enabled) {
-    commands.push(`rabbitmq-plugins enable ${pluginName}`);
-  } else {
-    commands.push(`rabbitmq-plugins disable ${pluginName}`);
-  }
+  const commands = updates.map(
+    ({ name, enabled }) =>
+      `rabbitmq-plugins ${enabled ? "enable" : "disable"} ${name}`
+  );
 
   commands.push("systemctl restart rabbitmq-server");
 

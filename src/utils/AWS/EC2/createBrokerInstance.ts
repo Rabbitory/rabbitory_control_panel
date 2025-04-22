@@ -137,6 +137,9 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     "rabbitory-broker-instance-profile",
     region
   );
+  if (!amiId) {
+    throw new Error("AMI not found");
+  }
 
   if (!IPN) {
     throw new Error("Instance profile not found");
@@ -189,7 +192,10 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
 
     return { instanceId, instanceName };
   } catch (err) {
-    console.error("Error creating instance:", err);
-    throw new Error("Error creating instance");
+    throw new Error(
+      `Error creating instance\n${
+        err instanceof Error ? err.message : String(err)
+      }`
+    );
   }
 }

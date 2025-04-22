@@ -114,12 +114,17 @@ it("handles form submission and updates plugins", async () => {
 
   expect(checkbox3).toBeChecked();
 
+  const submitButton = screen.getByRole("button", {
+    name: /save/i,
+  });
+  await user.click(submitButton);
+
   await waitFor(() =>
     expect(mockedAxios.post).toHaveBeenCalledWith(
       `/api/instances/test-instance/plugins?region=${fakeInstance.region}`,
-      { name: "rabbitmq_federation", enabled: true }
+      { updates: [{ name: "rabbitmq_federation", enabled: true }] }
     )
   );
-  //we need to make sure that the checkbox is still checked after the post request
+
   expect(checkbox3).toBeChecked();
 });

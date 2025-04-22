@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// import { getPlugins, togglePlugins } from "./service";
 import getPlugins from "./utils/getPlugins";
 import togglePlugins from "./utils/togglePlugins";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
+import { PluginUpdate } from "./types";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -20,7 +20,7 @@ export async function GET(
   if (!region || !username || !password) {
     return NextResponse.json(
       { message: "Missing parameters" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -34,17 +34,20 @@ export async function GET(
 
     return NextResponse.json(plugins);
   } catch (error) {
-    console.error("Error fetching plugins:", error);
     return NextResponse.json(
-      { message: "Error fetching plugins", error: String(error) },
-      { status: 500 },
+      {
+        message: `Error fetching plugins\n${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      },
+      { status: 500 }
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
+  { params }: { params: Promise<{ name: string }> }
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -53,28 +56,30 @@ export async function POST(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
-  const { name, enabled } = (await request.json()) as {
-    name: string;
-    enabled: boolean;
-  };
-
   try {
+    const { updates } = (await request.json()) as {
+      updates?: PluginUpdate[];
+    };
+
+    if (!Array.isArray(updates) || updates.length === 0) {
+      throw new Error("No updates provided");
+    }
+
     await togglePlugins({
       region,
-      pluginName: name,
-      enabled,
+      updates,
       instanceName,
     });
 
     eventEmitter.emit("notification", {
       type: "plugin",
       status: "success",
-      instanceName,
-      message: `${enabled ? "Enabled" : "Disabled"} ${name} on ${instanceName}`,
+      instanceName: instanceName,
+      message: `Updated ${updates.length} plugin(s) on instance ${instanceName}`,
     });
 
     deleteEvent(instanceName, "plugin");
@@ -86,14 +91,18 @@ export async function POST(
       type: "plugin",
       status: "error",
       instanceName: instanceName,
-      message: "Error updating plugin",
+      message: `Error updating plugins on instance ${instanceName}`,
     });
 
     deleteEvent(instanceName, "plugin");
-    console.error("Error updating plugins:", error);
+
     return NextResponse.json(
-      { message: "Error updating plugins", error: String(error) },
-      { status: 500 },
+      {
+        message: `Error updating plugins\n${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      },
+      { status: 500 }
     );
   }
 }

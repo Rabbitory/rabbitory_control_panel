@@ -12,12 +12,12 @@ export async function pollRabbitMQServerStatus(
   instanceName: string,
   username: string,
   password: string,
-  region: string,
+  region: string
 ) {
   const ec2Client = new EC2Client({ region });
   await waitUntilInstanceRunning(
     { client: ec2Client, maxWaitTime: 3000 },
-    { InstanceIds: instanceId ? [instanceId] : undefined },
+    { InstanceIds: instanceId ? [instanceId] : undefined }
   );
 
   let instance = await fetchInstance(instanceName, ec2Client);
@@ -55,7 +55,7 @@ export async function pollRabbitMQServerStatus(
           const backupDefinitions = await getDefinitions(
             instance.PublicDnsName,
             username,
-            password,
+            password
           );
           if (backupDefinitions) {
             await storeToDynamoDB("rabbitory-instances-metadata", {
@@ -90,7 +90,7 @@ export async function pollRabbitMQServerStatus(
           }
         } else {
           console.log(
-            "RabbitMQ is up, waiting for metadata to be available...",
+            "RabbitMQ is up, waiting for metadata to be available..."
           );
         }
       } else {
@@ -102,7 +102,11 @@ export async function pollRabbitMQServerStatus(
         });
 
         deleteEvent(instanceName, "newInstance");
-        console.log("Unexpected error:", error);
+        throw new Error(
+          `Unexpected error while checking RabbitMQ status: \n${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
       }
     }
     await new Promise((resolve) => setTimeout(resolve, interval));

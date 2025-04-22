@@ -121,6 +121,10 @@ export function StoragePage() {
         The total amount of storage the broker has access to. Must be expanded -
         cannot be downsized. System files take about 4gb of this total.
       </p>
+      <p className="font-text1 text-sm mb-6 text-red-400">
+        Changing this will cause an instance restart - sending you to the home
+        page.
+      </p>
       <StorageDetails />
 
       {errors.length > 0 && (
@@ -166,10 +170,11 @@ export function StoragePage() {
         <div className="font-heading1 text-sm flex justify-end gap-4">
           <button
             className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
-                  ${formPending()
-                ? "bg-btnhover1 opacity-70 cursor-not-allowed"
-                : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
-              }
+                  ${
+                    formPending()
+                      ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+                      : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+                  }
                 `}
             disabled={formPending()}
             onClick={async (e) => {

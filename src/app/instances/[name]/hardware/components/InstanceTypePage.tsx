@@ -138,6 +138,10 @@ export function InstanceTypePage() {
         size. Changing this will cause the instance to be taken down and
         re-deployed on the new hardware - this can take a couple minutes.
       </p>
+      <p className="font-text1 text-sm mb-6 text-red-400">
+        Changing this will cause an instance restart - sending you to the home
+        page.
+      </p>
 
       {errors.length > 0 && (
         <div className="mb-4">

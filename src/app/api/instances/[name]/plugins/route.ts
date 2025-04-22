@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// import { getPlugins, togglePlugins } from "./service";
 import getPlugins from "./utils/getPlugins";
 import togglePlugins from "./utils/togglePlugins";
 import eventEmitter from "@/utils/eventEmitter";

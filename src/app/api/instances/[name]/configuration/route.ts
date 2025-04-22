@@ -8,7 +8,7 @@ import updateConfiguration from "./utils/updateConfiguration";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -17,7 +17,7 @@ export async function GET(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -29,14 +29,14 @@ export async function GET(
     console.error("Error fetching configuration:", error);
     return NextResponse.json(
       { message: "Error fetching configuration", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const searchParams = request.nextUrl.searchParams;
   const region = searchParams.get("region");
@@ -45,7 +45,7 @@ export async function POST(
   if (!region) {
     return NextResponse.json(
       { message: "Missing region parameter" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -58,7 +58,7 @@ export async function POST(
     console.error("Invalid configuration:", errors);
     return NextResponse.json(
       { message: "Invalid configuration", errors },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -72,9 +72,9 @@ export async function POST(
     eventEmitter.emit("notification", {
       type: "configuration",
       status: "success",
-      instanceName: instanceName,
+      instanceName,
 
-      message: "Configuration updated successfully",
+      message: `Configuration for ${instanceName} updated successfully`,
     });
     deleteEvent(instanceName, "configuration");
 
@@ -91,7 +91,7 @@ export async function POST(
     console.error("Error updating configuration:", error);
     return NextResponse.json(
       { message: "Error updating configuration", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

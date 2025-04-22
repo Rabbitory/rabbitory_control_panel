@@ -8,7 +8,7 @@ import { useNotificationsContext } from "@/app/NotificationContext";
 import PluginsDescription from "./components/PluginsDescription";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 import PluginEntry from "./components/PluginEntry";
-// import Link from "next/link";
+
 import ErrorBanner from "@/app/instances/components/ErrorBanner";
 import SubmissionSpinner from "../../components/SubmissionSpinner";
 

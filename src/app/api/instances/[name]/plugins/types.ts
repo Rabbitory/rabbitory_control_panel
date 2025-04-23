@@ -9,7 +9,11 @@ export interface GetPluginsParams {
 
 export interface TogglePluginsParams {
   region: string;
-  pluginName: string;
-  enabled: boolean;
+  updates: PluginUpdate[];
   instanceName: string;
+}
+
+export interface PluginUpdate {
+  name: string;
+  enabled: boolean;
 }

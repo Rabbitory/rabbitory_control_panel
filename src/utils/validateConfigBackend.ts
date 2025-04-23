@@ -35,9 +35,9 @@ export function validateConsumerTimeout(
   const num = Number(value);
   if (
     value !== undefined &&
-    (isNaN(num) || !Number.isInteger(num) || num < 0)
+    (isNaN(num) || !Number.isInteger(num) || num < 60000)
   ) {
-    return "Consumer Timeout must be an integer greater than or equal to 0.";
+    return "Consumer Timeout must be an integer greater than or equal to 60000 (1 minute).";
   }
   return null;
 }
@@ -78,7 +78,7 @@ export function validateQueueIndexEmbedMsgsBelow(
 export function validateLogExchangeLevel(
   value: string | undefined
 ): string | null {
-  const allowed = ["debug", "info", "warn", "error", "critical", "none"];
+  const allowed = ["debug", "info", "warning", "error", "critical", "none"];
   if (value === undefined || !allowed.includes(value.toLowerCase())) {
     return `Log Exchange Level must be one of: ${allowed.join(", ")}.`;
   }

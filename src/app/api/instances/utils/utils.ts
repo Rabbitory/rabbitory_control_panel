@@ -1,4 +1,5 @@
 import type { InstanceWithRegion, FormattedInstance } from "../types";
+import listInstances from "./listInstances";
 
 export function formattedInstances(
   instances: InstanceWithRegion[]
@@ -18,4 +19,37 @@ export function formattedInstances(
       };
     })
     .filter(Boolean);
+}
+
+export async function isInstanceNameUnique(
+  instanceName: string
+): Promise<boolean> {
+  const instances = await listInstances();
+  return !instances.some((instance) =>
+    instance.Tags?.some(
+      (tag) => tag.Key === "Name" && tag.Value === instanceName
+    )
+  );
+}
+
+export function validBody(
+  instanceName: string,
+  region: string,
+  instanceType: string,
+  username: string,
+  password: string,
+  storageSize: number
+): boolean {
+  return (
+    /^[a-z0-9-_]{3,64}$/i.test(instanceName) &&
+    region.length > 0 &&
+    instanceType.length > 0 &&
+    username.length >= 6 &&
+    password.length >= 8 &&
+    /[a-zA-Z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[!@#$%^&*]/.test(password) &&
+    storageSize >= 8 &&
+    storageSize <= 16000
+  );
 }

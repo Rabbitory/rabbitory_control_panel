@@ -84,37 +84,37 @@ export default function NewInstancePage() {
   const validateName = (name: string) =>
     !/^[a-z0-9-_]{3,64}$/i.test(name)
       ? [
-        "Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.",
-      ]
+          "Instance name must be 3–64 characters long and use only letters, numbers, hyphens, or underscores.",
+        ]
       : [];
 
   const validateRegion = (region: string) =>
     !region
       ? ["Please select a region."]
       : !availableRegions.includes(region)
-        ? ["Selected region is not valid."]
-        : [];
+      ? ["Selected region is not valid."]
+      : [];
 
   const validateInstanceType = (type: string) =>
     !type
       ? ["Please select an instance type."]
       : !(type in instanceTypes)
-        ? ["Selected instance type is not valid."]
-        : [];
+      ? ["Selected instance type is not valid."]
+      : [];
 
   const validateSize = (size: string) =>
     !size
       ? ["Please select an instance size."]
       : !filteredInstanceTypes.includes(size)
-        ? ["Selected instance size is not valid."]
-        : [];
+      ? ["Selected instance size is not valid."]
+      : [];
 
   const validateUsername = (u: string) =>
     !u
       ? ["Username is required."]
       : u.length < 6
-        ? ["Username must be at least 6 characters long."]
-        : [];
+      ? ["Username must be at least 6 characters long."]
+      : [];
 
   const validatePassword = (p: string) =>
     !p
@@ -123,10 +123,10 @@ export default function NewInstancePage() {
         !/[a-zA-Z]/.test(p) ||
         !/[0-9]/.test(p) ||
         !/[!@#$%^&*]/.test(p)
-        ? [
+      ? [
           "Password must be at least 8 characters long and include a letter, a number, and a special character.",
         ]
-        : [];
+      : [];
 
   const validateStorageSize = (size: number) =>
     isNaN(size) || size < 8 || size > 16000
@@ -170,11 +170,15 @@ export default function NewInstancePage() {
         storageSize,
       });
       router.push("/");
-    } catch (err) {
-      console.error("Error creating instance:", err);
-      setErrorMessages([
-        "Something went wrong while creating the instance. Please try again.",
-      ]);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        const apiError = err.response.data;
+        setErrorMessages([apiError.message]);
+      } else {
+        setErrorMessages([
+          "Something went wrong while creating the instance. Please try again.",
+        ]);
+      }
     } finally {
       setInstantiating(false);
     }
@@ -252,21 +256,17 @@ export default function NewInstancePage() {
 
             <p className="py-4 bg-card font-text1 text-sm text-pagetext1 flex items-center gap-2">
               <Lightbulb className="w-6 h-6 text-btnhover1" />
-              Create a username and password for logging into your RabbitMQ Management UI.
+              Create a username and password for logging into your RabbitMQ
+              Management UI.
             </p>
 
-            <UsernameField
-              username={username}
-              onChange={setUsername}
-            />
+            <UsernameField username={username} onChange={setUsername} />
 
-            <PasswordField
-              password={password}
-              onChange={setPassword}
-            />
+            <PasswordField password={password} onChange={setPassword} />
 
             <p className="pl-47 bg-card font-text1 text-xs text-pagetext1">
-              Password must be at least 8 characters long and include one letter, one number, and one special character ( !@#$%^&* ) .
+              Password must be at least 8 characters long and include one
+              letter, one number, and one special character ( !@#$%^&* ) .
             </p>
 
             <div className="border-t border-headertext1 my-6"></div>

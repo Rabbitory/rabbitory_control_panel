@@ -40,7 +40,7 @@ Before gaining access to the Rabbitory Control Panel, use the Rabbitory CLI to d
 
 ## 🐰 Usage
 
-The Rabbitory Control Panel is the central hub for managing every part of your RabbitMQ instance — from creation to configuration to monitoring.
+The Rabbitory Control Panel is the central hub for managing every part of your RabbitMQ instance — from creation to configuration to monitoring. Rabbitory users receive a URL to their Control Panle after deploying their infrastructure with the custom cli tool. This Control Panel provides the following important features:
 
 ### Create a RabbitMQ Instance
 

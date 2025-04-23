@@ -118,6 +118,10 @@ For real-time insight, the Logs Page streams live logs straight from your server
 
 The Alarms Page keeps your team informed by providing notifications in your Slack workspace about critical CPU and disk usage metrics, helping you stay ahead of potential issues.
 
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/alarms-page.png" alt="Alarms Page"/>
+</p>
+
 ---
 
 The Rabbitory Control Panel provides a powerful, intuitive interface for managing RabbitMQ instances on AWS. With features like one-click provisioning, real-time notifications, easy plugin management, and comprehensive firewall controls, it streamlines the complexities of RabbitMQ management. Whether you're monitoring performance, configuring instances, or setting alarms, Rabbitory offers full visibility and control—all from a clean, browser-based dashboard.

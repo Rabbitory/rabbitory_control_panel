@@ -29,7 +29,7 @@ export default function ComponentsFormRow({
           item.description
         )}
       </td>
-      <td className="p-2 border-b w-1/6 text-center">
+      <td className="p-2 border-b w-1/6 text-left">
         {isLoading ? (
           <div className="w-24 h-4 bg-gray-600 rounded-sm animate-pulse"></div>
         ) : item.type === "dropdown" && Array.isArray(item.options) ? (
@@ -45,6 +45,10 @@ export default function ComponentsFormRow({
               </option>
             ))}
           </select>
+        ) : Boolean(item.readOnly) ? (
+          <span className="text-sm w-full py-1 pl-2 ">
+            {configuration[item.key] ?? ""}
+          </span>
         ) : (
           <input
             type={item.type}

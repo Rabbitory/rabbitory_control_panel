@@ -114,8 +114,8 @@ export default function ConfigurationPage() {
         isLoading={isLoading}
         onChange={handleChange}
         onSubmit={handleSubmit}
-        disabled={errors.length > 0 || formPending()}
-        pending={formPending()}
+        disabled={formPending()}
+        isPending={formPending()}
       />
     </div>
   );

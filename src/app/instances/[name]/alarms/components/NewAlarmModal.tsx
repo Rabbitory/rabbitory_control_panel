@@ -52,18 +52,18 @@ export const NewAlarmModal = ({ onClose, onAddAlarms }: Props) => {
       return false;
     }
 
-    if (memoryThreshold && (memoryThreshold < 0 || memoryThreshold > 100)) {
+    if (memoryThreshold && (memoryThreshold < 1 || memoryThreshold > 100)) {
       setErrors((prev) => [
         ...prev,
-        "Memory threshold must be between 0 and 100.",
+        "Memory threshold must be between 1 and 100.",
       ]);
       return false;
     }
 
-    if (storageThreshold && (storageThreshold < 0 || storageThreshold > 100)) {
+    if (storageThreshold && (storageThreshold < 1 || storageThreshold > 100)) {
       setErrors((prev) => [
         ...prev,
-        "Storage threshold must be between 0 and 100.",
+        "Storage threshold must be between 1 and 100.",
       ]);
       return false;
     }

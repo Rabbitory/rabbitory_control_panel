@@ -1,17 +1,20 @@
 "use client";
 
-import { useInstanceContext } from "../InstanceContext";
+import { useInstanceContext } from "../../InstanceContext";
+import { useNotificationsContext } from "@/app/NotificationContext";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import ErrorBanner from "@/app/components/ErrorBanner";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
+import SubmissionSpinner from "../../../components/SubmissionSpinner";
 
 type InstanceTypes = Record<string, string[]>;
 
 export function InstanceTypePage() {
   const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
+  const { addNotification, formPending } = useNotificationsContext();
   const { instance } = useInstanceContext();
-  const [saving, setSaving] = useState(false);
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedInstanceType, setSelectedInstanceType] = useState("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
@@ -23,7 +26,10 @@ export function InstanceTypePage() {
   useEffect(() => {
     const fetchInstanceTypes = async () => {
       try {
-        const { data } = await axios.get("/api/instanceTypes");
+        const architecture = instance?.type.includes("t2") ? "amd64" : "arm64";
+        const { data } = await axios.get(
+          `/api/instanceTypes?architecture=${architecture}`,
+        );
         setIsLoading(false);
         setInstanceTypes(data.instanceTypes);
       } catch (error) {
@@ -32,7 +38,7 @@ export function InstanceTypePage() {
     };
 
     fetchInstanceTypes();
-  }, []);
+  }, [instance?.type]);
 
   useEffect(() => {
     setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
@@ -62,20 +68,32 @@ export function InstanceTypePage() {
   const updateHardware = async () => {
     const validationErrors = validateInstanceTypeAndSize();
     if (validationErrors.length > 0) {
-      setSaving(false);
+      return false;
+    }
+
+    if (!instance?.name) {
       return false;
     }
 
     try {
+      await addNotification({
+        type: "instanceType",
+        status: "pending",
+        instanceName: instance?.name,
+        path: "instances",
+        message: `Updating type of ${instance?.name} to ${instanceSize}`,
+      });
+
       await axios.put(`/api/instances/${instance?.name}/hardware/type`, {
         instanceId: instance?.id,
         instanceType: instanceSize,
         region: instance?.region,
+        instanceName: instance?.name,
       });
       return true;
     } catch (error) {
+      console.log(error);
       if (!error) return;
-      setSaving(false);
       setErrors([
         "Failed to update instance hardware. You must be upgrading the size.",
       ]);
@@ -120,6 +138,10 @@ export function InstanceTypePage() {
         size. Changing this will cause the instance to be taken down and
         re-deployed on the new hardware - this can take a couple minutes.
       </p>
+      <p className="font-text1 text-sm mb-6 text-red-400">
+        Changing this will cause an instance restart - sending you to the home
+        page.
+      </p>
 
       {errors.length > 0 && (
         <div className="mb-4">
@@ -147,7 +169,7 @@ export function InstanceTypePage() {
           </div>
         </div>
       ) : (
-        <fieldset disabled={saving} className="space-y-4">
+        <fieldset disabled={formPending()} className="space-y-4">
           <div className="flex items-center gap-4">
             <label
               htmlFor="instanceType"
@@ -197,19 +219,19 @@ export function InstanceTypePage() {
           <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
             <button
               className={`font-heading1 px-4 py-2 text-mainbg1 font-semibold rounded-sm
-                    ${saving ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
+                    ${formPending() ? "bg-btnhover1 opacity-70 cursor-not-allowed" : "px-4 py-2 bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"}
                   `}
               type="submit"
-              disabled={saving}
+              disabled={formPending()}
               onClick={async (e) => {
                 e.preventDefault();
-                setSaving(true);
                 const success = await updateHardware();
-                if (success)
-                  window.location.href = `/instances/${instance?.name}/hardware?region=${instance?.region}`;
+                if (success) {
+                  router.push(`/instances`);
+                }
               }}
             >
-              {saving ? (
+              {formPending() ? (
                 <span className="flex items-center gap-2">
                   <SubmissionSpinner />
                   Updating Instance ...

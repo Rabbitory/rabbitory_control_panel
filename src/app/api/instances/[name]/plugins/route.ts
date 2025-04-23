@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// import { getPlugins, togglePlugins } from "./service";
 import getPlugins from "./utils/getPlugins";
 import togglePlugins from "./utils/togglePlugins";
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
+import { PluginUpdate } from "./types";
 
 export async function GET(
   request: NextRequest,
@@ -34,9 +34,12 @@ export async function GET(
 
     return NextResponse.json(plugins);
   } catch (error) {
-    console.error("Error fetching plugins:", error);
     return NextResponse.json(
-      { message: "Error fetching plugins", error: String(error) },
+      {
+        message: `Error fetching plugins\n${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      },
       { status: 500 }
     );
   }
@@ -57,16 +60,18 @@ export async function POST(
     );
   }
 
-  const { name, enabled } = (await request.json()) as {
-    name: string;
-    enabled: boolean;
-  };
-
   try {
+    const { updates } = (await request.json()) as {
+      updates?: PluginUpdate[];
+    };
+
+    if (!Array.isArray(updates) || updates.length === 0) {
+      throw new Error("No updates provided");
+    }
+
     await togglePlugins({
       region,
-      pluginName: name,
-      enabled,
+      updates,
       instanceName,
     });
 
@@ -74,7 +79,7 @@ export async function POST(
       type: "plugin",
       status: "success",
       instanceName: instanceName,
-      message: `${enabled ? "Enabled" : "Disabled"} ${name}`,
+      message: `Updated ${updates.length} plugin(s) on instance ${instanceName}`,
     });
 
     deleteEvent(instanceName, "plugin");
@@ -86,13 +91,17 @@ export async function POST(
       type: "plugin",
       status: "error",
       instanceName: instanceName,
-      message: "Error updating plugin",
+      message: `Error updating plugins on instance ${instanceName}`,
     });
 
     deleteEvent(instanceName, "plugin");
-    console.error("Error updating plugins:", error);
+
     return NextResponse.json(
-      { message: "Error updating plugins", error: String(error) },
+      {
+        message: `Error updating plugins\n${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      },
       { status: 500 }
     );
   }

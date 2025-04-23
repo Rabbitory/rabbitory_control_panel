@@ -5,12 +5,27 @@ import { useEffect, useState } from "react";
 import { plugins, Plugin } from "@/types/plugins";
 import { useInstanceContext } from "../InstanceContext";
 import { useNotificationsContext } from "@/app/NotificationContext";
+import PluginsDescription from "./components/PluginsDescription";
+import LoadingSkeleton from "./components/LoadingSkeleton";
+import PluginEntry from "./components/PluginEntry";
+
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
+import SubmissionSpinner from "../../components/SubmissionSpinner";
 
 export default function PluginsPage() {
   const { instance } = useInstanceContext();
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const { formPending, addNotification } = useNotificationsContext();
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
+  const [localStates, setLocalStates] = useState<Record<string, boolean>>(() =>
+    plugins.reduce<Record<string, boolean>>((acc, p) => {
+      acc[p.name] = false;
+      return acc;
+    }, {})
+  );
   const [isLoading, setIsLoading] = useState(false);
+
+  const configSectionRef = React.useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchPlugins = async () => {
@@ -26,8 +41,20 @@ export default function PluginsPage() {
           }
         );
         setEnabledPlugins(response.data);
-      } catch (error) {
-        console.error("Error fetching plugins:", error);
+        const map: Record<string, boolean> = {};
+        plugins.forEach((plugin) => {
+          map[plugin.name] = response.data.includes(plugin.name);
+        });
+        setLocalStates(map);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response) {
+          const apiError = error.response.data;
+          setErrorMessages([apiError.message]);
+        } else {
+          setErrorMessages([
+            "Something went wrong while fetching the plugins. Please try again.",
+          ]);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -36,133 +63,146 @@ export default function PluginsPage() {
     fetchPlugins();
   }, [instance?.name, instance?.user, instance?.password, instance?.region]);
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>,
-    pluginName: string
-  ) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (errorMessages.length > 0) {
+      configSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [errorMessages]);
+
+  const hasChanges = plugins.some(
+    (plugin) =>
+      enabledPlugins.includes(plugin.name) !== localStates[plugin.name]
+  );
+
+  const togglePlugin = (pluginName: string) => {
+    setLocalStates((prev) => ({
+      ...prev,
+      [pluginName]: !prev[pluginName],
+    }));
+  };
+
+  const dismissError = (i: number) => {
+    setErrorMessages((prev) => prev.filter((_, idx) => idx !== i));
+  };
+
+  const handleSubmit = async () => {
     if (!instance?.name) return;
 
-    const currentlyEnabled = enabledPlugins.includes(pluginName);
-    const newValue = !currentlyEnabled;
-
-    await addNotification({
-      type: "plugin",
-      status: "pending",
-      instanceName: instance?.name,
-      path: "plugins",
-      message: `${newValue ? "Enabling" : "Disabling"} ${pluginName}`,
-    });
-
-    //update the state immediately,
-    // we do this so that the toggle button updates immediately.
-    setEnabledPlugins((prev) =>
-      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
-    );
+    const updates = Object.entries(localStates)
+      .filter(
+        ([name, isEnabled]) => enabledPlugins.includes(name) !== isEnabled
+      )
+      .map(([name, enabled]) => ({ name, enabled }));
 
     try {
+      addNotification({
+        type: "plugin",
+        status: "pending",
+        instanceName: instance?.name,
+        path: "plugins",
+        message: `Applying ${updates.length} plugin change(s) on instance ${instance.name}…`,
+      });
       await axios.post(
         `/api/instances/${instance?.name}/plugins?region=${instance?.region}`,
-        {
-          name: pluginName,
-          enabled: newValue,
-        }
-      );
-      console.log(`${pluginName} updated successfully to ${newValue}`);
-    } catch (error) {
-      console.error(`Error updating ${pluginName}:`, error);
 
-      setEnabledPlugins((prev) =>
-        currentlyEnabled
-          ? [...prev, pluginName]
-          : prev.filter((p) => p !== pluginName)
+        { updates }
       );
+
+      setEnabledPlugins(
+        Object.keys(localStates).filter((name) => localStates[name])
+      );
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        const apiError = error.response.data;
+        setErrorMessages([apiError.message]);
+      } else {
+        setErrorMessages([
+          "Something went wrong while updating plugins. Please try again.",
+        ]);
+      }
+
+      const revert: Record<string, boolean> = {};
+      plugins.forEach((p) => {
+        revert[p.name] = enabledPlugins.includes(p.name);
+      });
+      setLocalStates(revert);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-8">
-      <h1 className="font-heading1 text-2xl text-headertext1 mb-10">Plugins</h1>
-      <p className="font-text1 text-sm text-pagetext1 mb-6">
-        Below is a list of RabbitMQ plugins that you can enable or disable.
-        Toggling a plugin will immediately update its status on this page and
-        within your RabbitMQ instance. For more detailed information on RabbitMQ
-        plugins and their management, refer to the{" "}
-        <a
-          href="https://www.rabbitmq.com/docs/plugins"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline text-pagetext1 hover:text-headertext1"
-        >
-          RabbitMQ Plugins Guide
-        </a>
-        .
-      </p>
-
-      {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(plugins.length)].map((_, index) => (
-            <div
-              key={index}
-              className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4 animate-pulse"
-            >
-              <div className="mb-2 md:mb-0">
-                <div className="w-32 h-4 bg-gray-600 rounded-sm"></div>
-                <div className="w-48 h-3 bg-gray-60 rounded-sm mt-2"></div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-4 bg-gray-600 rounded-full animate-pulse"></div>
-              </div>
-            </div>
+    <div
+      className="max-w-4xl mx-auto p-6 bg-card rounded-sm shadow-md mt-8"
+      ref={configSectionRef}
+    >
+      <PluginsDescription />
+      {errorMessages.length > 0 && (
+        <div className="space-y-2 mb-4">
+          {errorMessages.map((msg, idx) => (
+            <ErrorBanner
+              key={idx}
+              message={msg}
+              onClose={() => dismissError(idx)}
+            />
           ))}
         </div>
+      )}
+      {isLoading ? (
+        <LoadingSkeleton length={plugins.length} />
       ) : (
-        <div className="space-y-4">
-          {plugins.map((plugin: Plugin) => {
-            const isEnabled = enabledPlugins.includes(plugin.name);
-            return (
-              <form
-                key={plugin.name}
-                onSubmit={(e) => handleSubmit(e, plugin.name)}
-                className="flex flex-col md:flex-row items-center justify-between border-b border-gray-300 pb-4"
+        <>
+          <div className="space-y-4">
+            {plugins.map((plugin: Plugin) => {
+              return (
+                <PluginEntry
+                  key={plugin.name}
+                  plugin={plugin}
+                  isEnabled={localStates[plugin.name]}
+                  disabled={formPending()}
+                  onToggle={() => togglePlugin(plugin.name)}
+                />
+              );
+            })}
+          </div>
+          {hasChanges && (
+            <div className="font-heading1 text-sm flex justify-end gap-4 mt-6">
+              <button
+                className="px-4 py-2 bg-card border-1 border-btn1 text-btn1 rounded-sm text-center hover:shadow-[0_0_8px_#87d9da] transition-all duration-200 hover:bg-card"
+                onClick={() => {
+                  const reset: Record<string, boolean> = {};
+                  plugins.forEach((plugin) => {
+                    reset[plugin.name] = enabledPlugins.includes(plugin.name);
+                  });
+                  setLocalStates(reset);
+                }}
+                disabled={formPending()}
               >
-                <div className="mb-2 md:mb-0">
-                  <h2
-                    className={`font-heading1 text-sm ${
-                      isEnabled ? "text-btnhover1" : "text-pagetext1"
-                    }`}
-                  >
-                    {plugin.name}
-                  </h2>
-                  <p className="font-text1 text-xs text-gray-500">
-                    {plugin.description}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isEnabled}
-                      aria-label={plugin.name}
-                      onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                      className="sr-only peer"
-                      disabled={formPending()}
-                    />
-                    <div
-                      className="w-8 h-4 bg-pagetext1/60 rounded-full
-               peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
-               peer-checked:bg-btnhover1
-               peer-checked:after:translate-x-4 peer-checked:after:border-white
-               after:content-[''] after:absolute after:top-0.5 after:left-[2px]
-               after:bg-white after:border-gray-300 after:border after:rounded-full
-               after:h-3 after:w-3 after:transition-all"
-                    ></div>
-                  </label>
-                </div>
-              </form>
-            );
-          })}
-        </div>
+                Reset
+              </button>
+
+              <button
+                onClick={handleSubmit}
+                disabled={formPending()}
+                className={`px-4 py-2 ${
+                  formPending()
+                    ? "bg-btnhover1 opacity-70 cursor-not-allowed"
+                    : "bg-btn1 hover:bg-btnhover1 text-mainbg1 font-semibold rounded-sm flex items-center justify-center hover:shadow-[0_0_10px_#87d9da] transition-all duration-200"
+                }`}
+              >
+                {formPending() ? (
+                  <span className="flex items-center gap-2">
+                    <SubmissionSpinner />
+                    Saving ...
+                  </span>
+                ) : (
+                  "Save"
+                )}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

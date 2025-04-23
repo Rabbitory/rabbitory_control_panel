@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
 import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
 import listInstances from "./utils/listInstances";
-import { formattedInstances } from "./utils/utils";
+import {
+  formattedInstances,
+  isInstanceNameUnique,
+  validBody,
+} from "./utils/utils";
 
 import eventEmitter from "@/utils/eventEmitter";
 import { deleteEvent } from "@/utils/eventBackups";
@@ -33,20 +37,23 @@ export const POST = async (request: NextRequest) => {
     storageSize,
   } = await request.json();
 
-  if (
-    !region ||
-    !instanceName ||
-    !instanceType ||
-    !username ||
-    !password ||
-    !storageSize
-  ) {
-    return NextResponse.json(
-      { message: "Invalid request body" },
-      { status: 400 }
-    );
-  }
   try {
+    if (
+      !validBody(
+        instanceName,
+        region,
+        instanceType,
+        username,
+        password,
+        storageSize
+      )
+    ) {
+      throw new Error("Invalid request body");
+    }
+
+    if (!(await isInstanceNameUnique(instanceName))) {
+      throw new Error(`Instance ${instanceName} already exists`);
+    }
     const createInstanceResult = await createInstance(
       region,
       instanceName,
@@ -81,9 +88,13 @@ export const POST = async (request: NextRequest) => {
     });
 
     deleteEvent(instanceName, "newInstance");
-    console.error("Error creating instance:", error);
+
     return NextResponse.json(
-      { message: "Error creating instance" },
+      {
+        message: `Error creating instance\n${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      },
       { status: 500 }
     );
   }

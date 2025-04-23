@@ -54,27 +54,34 @@ export function StatusLegend() {
         >
           <p className="mb-2">
             <span className="text-btn1 font-bold">pending</span>: Instance is
-            initializing. You cannot access it yet.
+            initializing. Access is{" "}
+            <span className="text-red-500">unavailable</span>.
           </p>
           <p className="mb-2">
             <span className="text-btnhover1 font-bold">running</span>: Instance
-            is fully ready and accessible.
+            is fully ready and <span className="text-green-500">available</span>
+            .
           </p>
           <p className="mb-2">
             <span className="text-pagetext1 font-bold">shutting-down</span>:
-            Instance is shutting down. Access is blocked.
+            Instance is shutting down. Access is{" "}
+            <span className="text-red-500">unavailable</span>.
           </p>
           <p className="mb-2">
             <span className="text-pagetext1 font-bold">terminated</span>:
-            Instance has been deleted.
+            Instance has been deleted. Access is{" "}
+            <span className="text-red-500">unavailable</span>.
           </p>
           <p className="mb-2">
             <span className="text-red-300 font-bold">stopping</span>: Instance
-            is being stopped. (happens when you stop it in the AWS console)
+            is being stopped. Access is{" "}
+            <span className="text-red-500">unavailable</span>.
           </p>
           <p>
             <span className="text-red-300 font-bold">stopped</span>: Instance
-            has been stopped. (check your AWS console for more information)
+            has been stopped. Access is{" "}
+            <span className="text-red-500">unavailable</span>.(check your AWS
+            console if you want to restart it)
           </p>
         </div>
       )}

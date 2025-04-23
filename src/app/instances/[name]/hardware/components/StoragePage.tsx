@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 
 import { useNotificationsContext } from "@/app/NotificationContext";
-import { useInstanceContext } from "../InstanceContext";
+import { useInstanceContext } from "../../InstanceContext";
 
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { StorageDetails } from "@/app/components/StorageDetails";
-import ErrorBanner from "@/app/components/ErrorBanner";
-import SubmissionSpinner from "@/app/components/SubmissionSpinner";
+import { StorageDetails } from "../../../components/StorageDetails";
+import ErrorBanner from "@/app/instances/components/ErrorBanner";
+import SubmissionSpinner from "../../../components/SubmissionSpinner";
 
 export function StoragePage() {
   const router = useRouter();
@@ -120,6 +120,10 @@ export function StoragePage() {
       <p className="font-text1 text-sm text-pagetext1 mb-6">
         The total amount of storage the broker has access to. Must be expanded -
         cannot be downsized. System files take about 4gb of this total.
+      </p>
+      <p className="font-text1 text-sm mb-6 text-red-400">
+        Changing this will cause an instance restart - sending you to the home
+        page.
       </p>
       <StorageDetails />
 

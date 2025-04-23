@@ -28,5 +28,11 @@ export default async function getPlugins({
     throw new Error("No response from RabbitMQ API");
   }
 
-  return response.data[0].enabled_plugins || [];
+  if (!response.data[0].enabled_plugins) {
+    throw new Error(
+      "RabbitMQ node data is not ready yet, please refresh later"
+    );
+  }
+
+  return response.data[0].enabled_plugins;
 }

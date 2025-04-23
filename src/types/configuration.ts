@@ -1,4 +1,4 @@
-interface ConfigItem {
+export interface ConfigItem {
   key: string;
   description: string;
   type: "text" | "number" | "dropdown";
@@ -28,7 +28,7 @@ export const configItems: ConfigItem[] = [
   {
     key: "consumer_timeout",
     description:
-      "Set the consumer timeout in milliseconds. A consumer that does not acknowledge within this time will be cancelled.",
+      "Set the consumer timeout in milliseconds. A consumer that does not acknowledge within this time will be cancelled. Recommended: 300000 (5 minutes) or more.",
     type: "number",
   },
   {

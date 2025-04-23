@@ -59,7 +59,7 @@ it("sends SSM commands and returns success message when plugin update succeeds",
   mockedFetchInstance.mockResolvedValueOnce(dummyInstance);
   mockedRunSSMCommands.mockResolvedValueOnce("test-stdout");
 
-  const payload = { name: "rabbitmq_management", enabled: true };
+  const payload = { updates: [{ name: "rabbitmq_management", enabled: true }] };
   const { req: originalReq } = createMocks({
     method: "POST",
     url: "/api/instances/test-instance/plugins?region=us-east-1",

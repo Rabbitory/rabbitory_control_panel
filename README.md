@@ -30,17 +30,13 @@ The Control Panel keeps you informed with real-time alers for all instance opera
 
 Choose the instance type and storage size that best fits your workload. Whether you’re testing a small service or running production traffic, Rabbitory gives you the flexibility to scale on your terms.
 
----
-
 ## 📦 Prerequisites
 
 Before gaining access to the Rabbitory Control Panel, use the Rabbitory CLI to deploy your AWS infrastructure. Please visit the [Rabbitory CLI github repository](https://github.com/Rabbitory/rabbitory_cli) for information and instructions.
 
----
-
 ## 🐰 Usage
 
-The Rabbitory Control Panel is the central hub for managing every part of your RabbitMQ instance — from creation to configuration to monitoring.
+The Rabbitory Control Panel is the central hub for managing every part of your RabbitMQ instance — from creation to configuration to monitoring. Rabbitory users receive a URL to their Control Panle after deploying their infrastructure with the custom cli tool. This Control Panel provides the following important features:
 
 ### Create a RabbitMQ Instance
 
@@ -117,6 +113,10 @@ For real-time insight, the Logs Page streams live logs straight from your server
 ### Create Alarms to Monitor Storage and Memory
 
 The Alarms Page keeps your team informed by providing notifications in your Slack workspace about critical CPU and disk usage metrics, helping you stay ahead of potential issues.
+
+<p>
+<img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/alarms-page.png" alt="Alarms Page"/>
+</p>
 
 ---
 

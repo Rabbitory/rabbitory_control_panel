@@ -30,13 +30,9 @@ The Control Panel keeps you informed with real-time alers for all instance opera
 
 Choose the instance type and storage size that best fits your workload. Whether you’re testing a small service or running production traffic, Rabbitory gives you the flexibility to scale on your terms.
 
----
-
 ## 📦 Prerequisites
 
 Before gaining access to the Rabbitory Control Panel, use the Rabbitory CLI to deploy your AWS infrastructure. Please visit the [Rabbitory CLI github repository](https://github.com/Rabbitory/rabbitory_cli) for information and instructions.
-
----
 
 ## 🐰 Usage
 

@@ -35,9 +35,9 @@ export function validateConsumerTimeout(
   const num = Number(value);
   if (
     value !== undefined &&
-    (isNaN(num) || !Number.isInteger(num) || num < 0)
+    (isNaN(num) || !Number.isInteger(num) || num < 1)
   ) {
-    return "Consumer Timeout must be an integer greater than or equal to 0.";
+    return "Consumer Timeout must be an integer greater than or equal to 1.";
   }
   return null;
 }

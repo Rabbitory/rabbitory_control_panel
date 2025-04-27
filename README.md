@@ -46,7 +46,7 @@ Start with the New Instance Form, which walks you through provisioning a RabbitM
 <img src="https://raw.githubusercontent.com/Rabbitory/rabbitory_control_panel/main/assets/create-instance.png" alt="Create New Instance"/>
 </p>
 
-### View All RabbitMW Instances
+### View All RabbitMQ Instances
 
 Once launched, the RabbitMQ instance appears on the Home Page, where you can view all running instances at a glance, along with their real-time status. Additionally, when an instance is no longer needed, easily terminate it directly from the same page with just a few clicks.
 
